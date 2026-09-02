@@ -30,7 +30,7 @@ const mainNavItems: NavItem[] = [
   { name: 'Analytics', path: '/analytics', icon: TrendingUp, hasDropdown: true },
   { name: 'Risk & Alerts', path: '/interventions', icon: AlertTriangle },
   { name: 'Forecasting', path: '/scenarios', icon: LineChart },
-  { name: 'Benchmarks', path: '/map', icon: Award },
+  { name: 'Benchmarks', path: '/benchmarks', icon: Award },
   { name: 'Reports', path: '/reports', icon: FileText },
   { name: 'AI Assistant', path: '/copilot', icon: Bot, badge: 'New' },
   { name: 'Settings', path: '/settings', icon: Settings },
