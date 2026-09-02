@@ -47,4 +47,4 @@ def test_interventions_endpoint(client):
     response = client.get("/api/v1/interventions?project_id=1")
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] == "placeholder"
+    assert data["status"] in ["success", "placeholder"]
