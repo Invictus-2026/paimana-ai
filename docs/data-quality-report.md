@@ -48,7 +48,7 @@ Below is the summary of schema mapping across input files:
 | `revised_end_date` | 0 | 0.0% | Pass |
 | `observation_date` | 0 | 0.0% | Pass |
 | `physical_progress_pct` | 0 | 0.0% | Pass |
-| `delay_reason_category` | 3 | 18.75% | Warning |
+| `delay_reason_category` | 0 | 0.0% | Pass |
 | `raw_source_file` | 0 | 0.0% | Pass |
 | `is_duplicate` | 0 | 0.0% | Pass |
 | `quality_flags` | 16 | 100.0% | High Missingness |
