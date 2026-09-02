@@ -2,59 +2,57 @@
 
 @layer base {
   :root {
-    --bg-main: #0b0f19;
-    --bg-card: #131b2e;
-    --bg-card-hover: #182238;
-    --border-color: #23304a;
-    --color-primary: #f8880f;
-    --color-deep-blue: #3b82f6;
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --color-primary: #0d52ce;
+    --color-primary-hover: #0b45ad;
   }
 
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg-main);
-    color: #f8fafc;
+    background-color: #f8fafc;
+    color: #0f172a;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
   }
 }
 
-.dark-dashboard-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+.light-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 0.875rem;
-  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease-in-out;
 }
 
-.dark-dashboard-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 8px 25px -4px rgba(59, 130, 246, 0.15);
+.light-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
 }
 
-.dark-dashboard-card-clickable {
+.light-card-clickable {
   cursor: pointer;
 }
 
-.dark-dashboard-card-clickable:hover {
-  transform: translateY(-2px);
+.light-card-clickable:hover {
+  border-color: #0d52ce;
 }
 
-/* Custom scrollbar for dense government data */
+/* Custom sleek scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #23304a;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #0d52ce;
 }
