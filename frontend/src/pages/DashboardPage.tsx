@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import {
   PieChart,
@@ -18,252 +19,298 @@ import {
   Layers,
   IndianRupee,
   TrendingUp,
-  Clock,
-  ShieldAlert,
-  ArrowUpRight,
-  Calendar,
-  Download,
-  Plus,
-  Bell,
-  FileText,
-  Sparkles,
-  Upload,
   AlertTriangle,
+  ArrowUpRight,
+  ShieldAlert,
+  Clock,
   ChevronRight,
-  CheckCircle2,
-  Server
+  Sparkles,
+  MapPin,
+  Sliders,
+  Bell
 } from 'lucide-react';
 
-// Sector Donut Chart Data with Google Palette + #f8880f + #1129a8
-const sectorData = [
-  { name: 'Transport & Logistics', value: 564, pct: '28.5%', color: '#4285f4' }, // Google Blue
-  { name: 'Energy', value: 358, pct: '18.1%', color: '#f8880f' },               // Primary Warm Saffron
-  { name: 'Water & Sanitation', value: 246, pct: '12.4%', color: '#34a853' },    // Google Green
-  { name: 'Social Infrastructure', value: 204, pct: '10.3%', color: '#ea4335' }, // Google Red
-  { name: 'Communication', value: 155, pct: '7.8%', color: '#fbbc05' },         // Google Yellow
-  { name: 'Others', value: 454, pct: '22.9%', color: '#1129a8' },                // Deep Navy Blue
-];
-
-// Cost Overrun Risk Distribution Bar Chart Data
-const riskDistributionData = [
-  { name: 'Low', count: 422, pct: '21.3%', color: '#34a853' },       // Google Green
-  { name: 'Moderate', count: 767, pct: '38.7%', color: '#fbbc05' },   // Google Yellow
-  { name: 'High', count: 480, pct: '24.2%', color: '#f8880f' },       // Primary Warm Saffron
-  { name: 'Very High', count: 312, pct: '15.8%', color: '#ea4335' },  // Google Red
-];
-
-// Top High Risk Projects
-const topRiskProjects = [
-  { name: 'Mumbai Metro Line 7A', ministry: 'Ministry of Housing & Urban Affairs', score: '0.92' },
-  { name: 'Delhi-Meerut RRTS Corridor', ministry: 'Ministry of Railways', score: '0.89' },
-  { name: 'Polavaram Irrigation Project', ministry: 'Ministry of Jal Shakti', score: '0.87' },
-  { name: 'Kudankulam Nuclear Project', ministry: 'Department of Atomic Energy', score: '0.85' },
-  { name: 'Chardham Highway Project', ministry: 'Ministry of Road Transport & Highways', score: '0.83' },
-];
-
-// Cost vs Time Overrun Trends Line Chart
-const trendData = [
-  { month: 'Nov 2025', costOverrun: 18, timeOverrun: 12 },
-  { month: 'Dec 2025', costOverrun: 19, timeOverrun: 13 },
-  { month: 'Jan 2026', costOverrun: 21, timeOverrun: 14 },
-  { month: 'Feb 2026', costOverrun: 22, timeOverrun: 15 },
-  { month: 'Mar 2026', costOverrun: 23, timeOverrun: 16 },
-  { month: 'Apr 2026', costOverrun: 24, timeOverrun: 17 },
-];
-
 export const DashboardPage: React.FC = () => {
-  // Live backend health query
-  const { data: health } = useQuery({
-    queryKey: ['backend-health'],
-    queryFn: api.getHealth,
+  const navigate = useNavigate();
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: api.getProjects,
   });
+
+  // Calculate aggregated health metrics
+  const totalProjects = projects.length;
+  const criticalProjects = projects.filter(p => p.overallRiskScore >= 75);
+  const highRiskProjects = projects.filter(p => p.overallRiskScore >= 50 && p.overallRiskScore < 75);
+  const costExposureProjects = projects.filter(p => p.costOverrunPct >= 10);
+  const delayProjects = projects.filter(p => p.scheduleDelayDays >= 90);
+
+  const avgRiskScore = totalProjects > 0
+    ? Math.round(projects.reduce((acc, p) => acc + p.overallRiskScore, 0) / totalProjects)
+    : 58;
+
+  const totalCostOverrunExposureCr = projects.reduce((acc, p) => {
+    return acc + Math.round(p.budgetCr * (p.costOverrunPct / 100));
+  }, 0);
+
+  const earlyWarningCount = projects.filter(p => p.earlyWarningLeadMonths >= 3.0).length;
+
+  // Donut chart sector data
+  const sectorCounts: Record<string, number> = {};
+  projects.forEach(p => {
+    sectorCounts[p.sector] = (sectorCounts[p.sector] || 0) + 1;
+  });
+  const sectorColors = ['#3b82f6', '#f8880f', '#10b981', '#ef4444', '#eab308', '#8b5cf6'];
+  const sectorData = Object.keys(sectorCounts).map((sec, idx) => ({
+    name: sec,
+    value: sectorCounts[sec],
+    color: sectorColors[idx % sectorColors.length]
+  }));
+
+  // Bar chart risk distribution data
+  const riskDistributionData = [
+    { name: 'Low (<25)', count: projects.filter(p => p.overallRiskScore < 25).length, color: '#10b981' },
+    { name: 'Moderate (25-49)', count: projects.filter(p => p.overallRiskScore >= 25 && p.overallRiskScore < 50).length, color: '#eab308' },
+    { name: 'High (50-74)', count: highRiskProjects.length, color: '#f97316' },
+    { name: 'Critical (≥75)', count: criticalProjects.length, color: '#ef4444' },
+  ];
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      {/* 1. Header Greeting & Action Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* 1. Header Banner */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131c31] border border-[#23304a] p-5 rounded-2xl">
         <div>
-          <h1 className="text-2xl font-extrabold text-[#1129a8] font-outfit tracking-tight flex items-center gap-2">
-            Welcome back, Admin <span className="inline-block animate-bounce">👋</span>
+          <div className="flex items-center space-x-2">
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/30">
+              National Oversight Board
+            </span>
+            <span className="text-slate-400 text-xs">• MoSPI Infrastructure Portal</span>
+          </div>
+          <h1 className="text-xl font-extrabold text-white mt-1.5 font-outfit tracking-tight">
+            PAIMANA PredictIQ — National Risk Command Center
           </h1>
-          <p className="text-slate-500 text-sm mt-0.5 font-medium">
-            AI-powered insights for smarter infrastructure monitoring
+          <p className="text-slate-400 text-xs mt-1">
+            Real-time decision support & predictive overrun early warning across India’s mega infrastructure pipeline.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
-          {/* Live Backend Connection Badge */}
-          {health && (
-            <div className="hidden xl:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600">
-              <Server className="w-3.5 h-3.5 text-[#1129a8]" />
-              <span>Backend API <strong className="text-[#34a853] font-semibold">{health.status}</strong></span>
-            </div>
-          )}
-
-          {/* Month Filter Dropdown */}
-          <div className="flex items-center space-x-2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs cursor-pointer hover:bg-slate-50 transition">
-            <Calendar className="w-4 h-4 text-[#f8880f]" />
-            <span>April 2026</span>
-          </div>
-
-          {/* Primary Action Button (#f8880f) */}
-          <button className="flex items-center space-x-2 px-4 py-2 bg-[#f8880f] hover:bg-[#e0770b] text-white rounded-xl text-xs font-bold shadow-md shadow-[#f8880f]/20 transition">
-            <span>Export Report</span>
-            <Download className="w-3.5 h-3.5" />
+        <div className="flex items-center space-x-3 shrink-0">
+          <button
+            onClick={() => navigate('/map')}
+            className="flex items-center space-x-2 px-3.5 py-2 bg-[#1b2640] hover:bg-[#233254] text-slate-200 border border-[#2e3e60] rounded-xl text-xs font-bold transition"
+          >
+            <MapPin className="w-4 h-4 text-blue-400" />
+            <span>Open Risk Map</span>
+          </button>
+          <button
+            onClick={() => navigate('/scenarios')}
+            className="flex items-center space-x-2 px-4 py-2 bg-[#f8880f] hover:bg-[#e0770b] text-white rounded-xl text-xs font-bold shadow-lg shadow-[#f8880f]/20 transition"
+          >
+            <Sliders className="w-4 h-4" />
+            <span>Simulate Disruption</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Top 5 Key Metric Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Total Projects */}
-        <div className="dashboard-card p-5 flex flex-col justify-between">
+      {/* 2. Top Summary KPIs Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Active Projects */}
+        <div className="dark-dashboard-card p-4 flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-bold text-slate-500 tracking-wide uppercase">Total Projects</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1129a8] flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Projects</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
               <Layers className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <h2 className="text-2xl font-extrabold text-[#1129a8] font-outfit">1,981</h2>
-            <p className="text-xs font-medium text-[#34a853] flex items-center space-x-1 mt-1">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              <span>2.4% from Mar 2026</span>
-            </p>
+            <h2 className="text-2xl font-black text-white font-outfit">{totalProjects}</h2>
+            <p className="text-[11px] font-semibold text-slate-400 mt-1">Total Monitored Portfolio</p>
           </div>
         </div>
 
-        {/* Original Cost */}
-        <div className="dashboard-card p-5 flex flex-col justify-between">
+        {/* KPI 2: Average Risk Score */}
+        <div className="dark-dashboard-card p-4 flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-bold text-slate-500 tracking-wide uppercase">Original Cost</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#34a853] flex items-center justify-center">
-              <IndianRupee className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <h2 className="text-2xl font-extrabold text-slate-900 font-outfit">₹37.13 Lakh Cr</h2>
-            <p className="text-xs font-medium text-slate-500 mt-1">Across 22 Sectors</p>
-          </div>
-        </div>
-
-        {/* Revised Cost */}
-        <div className="dashboard-card p-5 flex flex-col justify-between">
-          <div className="flex justify-between items-start">
-            <span className="text-xs font-bold text-slate-500 tracking-wide uppercase">Revised Cost</span>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-[#f8880f] flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Risk Index</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <h2 className="text-2xl font-extrabold text-slate-900 font-outfit">₹42.78 Lakh Cr</h2>
-            <p className="text-xs font-medium text-[#f8880f] flex items-center space-x-1 mt-1">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              <span>4.1% from Mar 2026</span>
-            </p>
+            <h2 className="text-2xl font-black text-amber-400 font-outfit">{avgRiskScore} <span className="text-xs font-normal text-slate-400">/ 100</span></h2>
+            <p className="text-[11px] font-semibold text-amber-400/80 mt-1">Moderate Systemic Escalation</p>
           </div>
         </div>
 
-        {/* Cumulative Expenditure */}
-        <div className="dashboard-card p-5 flex flex-col justify-between">
+        {/* KPI 3: Projects in Early Warning */}
+        <div className="dark-dashboard-card p-4 flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-bold text-slate-500 tracking-wide uppercase">Cumulative Expenditure</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#4285f4] flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Early Warning Lead</span>
+            <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center border border-orange-500/30">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <h2 className="text-2xl font-extrabold text-slate-900 font-outfit">₹20.36 Lakh Cr</h2>
-            <p className="text-xs font-medium text-slate-500 mt-1">48% of Revised Cost</p>
+            <h2 className="text-2xl font-black text-orange-400 font-outfit">{earlyWarningCount} Projects</h2>
+            <p className="text-[11px] font-semibold text-slate-400 mt-1">Avg 4.2 mo lead time prior to delay</p>
           </div>
         </div>
 
-        {/* High Risk Projects */}
-        <div className="dashboard-card p-5 flex flex-col justify-between">
+        {/* KPI 4: Total Potential Cost Overrun Exposure */}
+        <div className="dark-dashboard-card p-4 flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-bold text-slate-500 tracking-wide uppercase">High Risk Projects</span>
-            <div className="w-9 h-9 rounded-xl bg-red-50 text-[#ea4335] flex items-center justify-center">
-              <ShieldAlert className="w-4 h-4" />
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cost Overrun Exposure</span>
+            <div className="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/30">
+              <IndianRupee className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <h2 className="text-2xl font-extrabold text-[#ea4335] font-outfit">312</h2>
-            <p className="text-xs font-medium text-[#ea4335] mt-1">15.8% of total projects</p>
+            <h2 className="text-2xl font-black text-red-400 font-outfit">₹{totalCostOverrunExposureCr.toLocaleString()} Cr</h2>
+            <p className="text-[11px] font-semibold text-red-400/80 mt-1">Aggregate Potential Risk Value</p>
           </div>
         </div>
       </div>
 
-      {/* 3. Middle Grid: Sector Donut + Risk Distribution + Top High Risk List */}
+      {/* 3. Clickable Metric Cards across Risk Tiers */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-extrabold text-white tracking-wide uppercase font-outfit flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-[#f8880f]" />
+            <span>Risk Tier Distribution (Click Card to Filter Project Explorer)</span>
+          </h2>
+          <span className="text-xs text-slate-400">Interactive Filter Trigger</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Critical Risk Projects */}
+          <div
+            onClick={() => navigate('/projects?status=Critical')}
+            className="dark-dashboard-card dark-dashboard-card-clickable p-4 border-l-4 border-l-red-500 bg-gradient-to-br from-[#1b1523] to-[#131b2e] group"
+          >
+            <div className="flex justify-between items-center">
+              <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider border border-red-500/30">
+                Critical Tier (≥75)
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-red-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
+            </div>
+            <div className="mt-3">
+              <span className="text-3xl font-black text-red-400 font-outfit">{criticalProjects.length}</span>
+              <p className="text-xs font-semibold text-slate-300 mt-1">Projects at imminent delay/cost risk</p>
+              <p className="text-[10px] text-red-400/80 mt-2 font-bold flex items-center gap-1">
+                <span>Filter Critical Projects →</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2: High Risk Projects */}
+          <div
+            onClick={() => navigate('/projects?status=At Risk')}
+            className="dark-dashboard-card dark-dashboard-card-clickable p-4 border-l-4 border-l-orange-500 bg-gradient-to-br from-[#231d16] to-[#131b2e] group"
+          >
+            <div className="flex justify-between items-center">
+              <span className="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[10px] font-bold uppercase tracking-wider border border-orange-500/30">
+                High Risk Tier (50-74)
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
+            </div>
+            <div className="mt-3">
+              <span className="text-3xl font-black text-orange-400 font-outfit">{highRiskProjects.length}</span>
+              <p className="text-xs font-semibold text-slate-300 mt-1">Accelerating risk trajectories</p>
+              <p className="text-[10px] text-orange-400/80 mt-2 font-bold flex items-center gap-1">
+                <span>Filter High Risk Projects →</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3: Potential Cost Exposure */}
+          <div
+            onClick={() => navigate('/projects?costOverrun=high')}
+            className="dark-dashboard-card dark-dashboard-card-clickable p-4 border-l-4 border-l-yellow-500 bg-gradient-to-br from-[#232016] to-[#131b2e] group"
+          >
+            <div className="flex justify-between items-center">
+              <span className="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase tracking-wider border border-yellow-500/30">
+                Cost Overrun (&gt;10%)
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-yellow-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
+            </div>
+            <div className="mt-3">
+              <span className="text-3xl font-black text-yellow-400 font-outfit">{costExposureProjects.length}</span>
+              <p className="text-xs font-semibold text-slate-300 mt-1">Significant budget variance</p>
+              <p className="text-[10px] text-yellow-400/80 mt-2 font-bold flex items-center gap-1">
+                <span>Filter Cost Exposure Projects →</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4: Potential Delay */}
+          <div
+            onClick={() => navigate('/projects?delayDays=90')}
+            className="dark-dashboard-card dark-dashboard-card-clickable p-4 border-l-4 border-l-blue-500 bg-gradient-to-br from-[#161d2b] to-[#131b2e] group"
+          >
+            <div className="flex justify-between items-center">
+              <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/30">
+                Schedule Delay (&gt;90d)
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
+            </div>
+            <div className="mt-3">
+              <span className="text-3xl font-black text-blue-400 font-outfit">{delayProjects.length}</span>
+              <p className="text-xs font-semibold text-slate-300 mt-1">Schedule milestone slippage</p>
+              <p className="text-[10px] text-blue-400/80 mt-2 font-bold flex items-center gap-1">
+                <span>Filter Schedule Delay Projects →</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Charts & Insights Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Projects by Sector (Donut) */}
-        <div className="dashboard-card p-6 lg:col-span-4 flex flex-col justify-between">
+        {/* Sector Breakdown Donut */}
+        <div className="dark-dashboard-card p-5 lg:col-span-4 flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-base text-[#1129a8] font-outfit">Projects by Sector</h3>
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="relative w-44 h-44 shrink-0">
+            <h3 className="font-bold text-sm text-white font-outfit uppercase tracking-wide">Sector Portfolio Breakdown</h3>
+            <div className="mt-4 flex flex-col items-center justify-center">
+              <div className="relative w-48 h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie
-                      data={sectorData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={52}
-                      outerRadius={75}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
+                    <Pie data={sectorData} cx="50%" cy="50%" innerRadius={55} outerRadius={78} paddingAngle={3} dataKey="value">
                       {sectorData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                  <span className="text-base font-extrabold text-[#1129a8] font-outfit leading-tight">1,981</span>
-                  <span className="text-[11px] font-semibold text-slate-400">Total</span>
+                  <span className="text-lg font-black text-white font-outfit">{totalProjects}</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase">Projects</span>
                 </div>
               </div>
 
-              <div className="space-y-1.5 w-full text-xs">
+              <div className="mt-4 grid grid-cols-2 gap-2 w-full text-xs">
                 {sectorData.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 min-w-0">
-                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                      <span className="text-slate-600 truncate">{item.name}</span>
-                    </div>
-                    <span className="font-semibold text-slate-800 ml-2 shrink-0">{item.pct} ({item.value})</span>
+                  <div key={item.name} className="flex items-center space-x-2 bg-[#1b253b] p-1.5 rounded-lg border border-[#283654]">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                    <span className="text-slate-300 text-[11px] truncate">{item.name}: <strong>{item.value}</strong></span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-
-          <div className="mt-6 pt-4 border-t border-slate-100 flex justify-start">
-            <button className="text-xs font-bold text-[#f8880f] hover:text-[#e0770b] flex items-center space-x-1">
-              <span>View all sectors</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
         </div>
 
-        {/* Cost Overrun Risk Distribution (Bar Chart) */}
-        <div className="dashboard-card p-6 lg:col-span-4 flex flex-col justify-between">
+        {/* Risk Score Distribution Bar Chart */}
+        <div className="dark-dashboard-card p-5 lg:col-span-4 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base text-[#1129a8] font-outfit">Cost Overrun Risk Distribution</h3>
-              <button className="text-xs font-bold text-[#f8880f] hover:text-[#e0770b] flex items-center space-x-0.5">
-                <span>View details</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="mt-6 h-48">
+            <h3 className="font-bold text-sm text-white font-outfit uppercase tracking-wide">Risk Severity Distribution</h3>
+            <p className="text-[11px] text-slate-400 mt-1">Classification across portfolio risk tiers</p>
+            <div className="mt-6 h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={riskDistributionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                  <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                  <Tooltip formatter={(val: any) => [`${val} projects`, 'Count']} />
+                  <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                  <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
                   <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                     {riskDistributionData.map((entry, index) => (
                       <Cell key={`bar-${index}`} fill={entry.color} />
@@ -272,257 +319,53 @@ export const DashboardPage: React.FC = () => {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-
-            <div className="grid grid-cols-4 gap-2 text-center text-xs mt-2 pt-2 border-t border-slate-100">
-              {riskDistributionData.map((d) => (
-                <div key={d.name}>
-                  <p className="font-bold text-slate-800">{d.pct}</p>
-                  <p className="text-[10px] text-slate-500">({d.count})</p>
-                </div>
-              ))}
-            </div>
           </div>
+          <button
+            onClick={() => navigate('/projects')}
+            className="w-full mt-3 py-2 text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center justify-center space-x-1 border border-blue-500/20 rounded-lg hover:bg-blue-500/10 transition"
+          >
+            <span>Explore All Projects Table</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* Top High Risk Projects (List) */}
-        <div className="dashboard-card p-6 lg:col-span-4 flex flex-col justify-between">
+        {/* Top Critical Projects Urgent Feed */}
+        <div className="dark-dashboard-card p-5 lg:col-span-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base text-[#1129a8] font-outfit">Top High Risk Projects</h3>
-              <button className="text-xs font-bold text-[#f8880f] hover:text-[#e0770b] flex items-center space-x-0.5">
-                <span>View all</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+              <h3 className="font-bold text-sm text-white font-outfit uppercase tracking-wide">Urgent Priority Feed</h3>
+              <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold">Top Critical</span>
             </div>
 
-            <div className="mt-4 space-y-3">
-              {topRiskProjects.map((p, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition">
+            <div className="mt-3 space-y-2.5">
+              {criticalProjects.slice(0, 4).map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => navigate(`/projects/${p.id}`)}
+                  className="p-2.5 rounded-xl bg-[#1b253b] border border-[#283654] hover:border-blue-500 cursor-pointer transition flex items-center justify-between"
+                >
                   <div className="min-w-0 pr-2">
-                    <h4 className="font-bold text-xs text-slate-900 truncate">{p.name}</h4>
-                    <p className="text-[10px] text-slate-500 truncate">{p.ministry}</p>
+                    <h4 className="font-bold text-xs text-white truncate">{p.name}</h4>
+                    <p className="text-[10px] text-slate-400 truncate">{p.ministry} • {p.state}</p>
                   </div>
                   <div className="flex items-center space-x-2 shrink-0">
-                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded bg-red-100 text-[#ea4335]">
-                      High Risk
+                    <span className="px-2 py-0.5 text-[9px] font-bold uppercase rounded bg-red-500/20 text-red-400 border border-red-500/30">
+                      {p.overallRiskScore}
                     </span>
-                    <span className="text-xs font-extrabold text-[#1129a8] font-outfit">{p.score}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* 4. Lower Row: Cost vs Time Overrun Trends + AI Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Cost vs Time Overrun Trends */}
-        <div className="dashboard-card p-6 lg:col-span-7 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base text-[#1129a8] font-outfit">Cost vs Time Overrun Trends</h3>
-              <button className="text-xs font-bold text-[#f8880f] hover:text-[#e0770b] flex items-center space-x-0.5">
-                <span>View analytics</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="flex items-center space-x-6 mt-3 text-xs font-medium text-slate-600">
-              <div className="flex items-center space-x-2">
-                <span className="w-3 h-1 bg-[#4285f4] rounded-full" />
-                <span>Cost Overrun (%)</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="w-3 h-1 bg-[#f8880f] rounded-full" />
-                <span>Time Overrun (%)</span>
-              </div>
-            </div>
-
-            <div className="mt-6 h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                  <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} unit="%" />
-                  <Tooltip formatter={(val: any) => [`${val}%`, 'Overrun']} />
-                  <Line type="monotone" dataKey="costOverrun" stroke="#4285f4" strokeWidth={2.5} dot={{ r: 4 }} />
-                  <Line type="monotone" dataKey="timeOverrun" stroke="#f8880f" strokeWidth={2.5} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Insights */}
-        <div className="dashboard-card p-6 lg:col-span-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Sparkles className="w-4 h-4 text-[#f8880f]" />
-                <h3 className="font-bold text-base text-[#1129a8] font-outfit">AI Insights</h3>
-              </div>
-              <button className="text-xs font-bold text-[#f8880f] hover:text-[#e0770b] flex items-center space-x-0.5">
-                <span>View all insights</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {/* Insight 1 */}
-              <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 flex items-start justify-between cursor-pointer hover:bg-blue-50 transition">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-[#4285f4] flex items-center justify-center shrink-0 mt-0.5">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-xs text-slate-900">312 projects are at very high risk of cost overrun.</h4>
-                    <p className="text-[11px] text-slate-600 mt-0.5">Potential additional cost impact: <strong>₹2.41 Lakh Cr</strong></p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 self-center" />
-              </div>
-
-              {/* Insight 2 */}
-              <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100 flex items-start justify-between cursor-pointer hover:bg-emerald-50 transition">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-[#34a853] flex items-center justify-center shrink-0 mt-0.5">
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-xs text-slate-900">Transport & Logistics sector shows highest time overrun risk.</h4>
-                    <p className="text-[11px] text-slate-600 mt-0.5">Average delay: <strong>8.7 months</strong></p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 self-center" />
-              </div>
-
-              {/* Insight 3 */}
-              <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-100 flex items-start justify-between cursor-pointer hover:bg-amber-50 transition">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 text-[#f8880f] flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-xs text-slate-900">Early intervention can save up to ₹1.18 Lakh Cr</h4>
-                    <p className="text-[11px] text-slate-600 mt-0.5">if actioned in next 3 months</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 self-center" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 5. Bottom Row: Quick Actions + Recent Alerts + Data Quality Score */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Quick Actions */}
-        <div className="dashboard-card p-6 lg:col-span-5">
-          <h3 className="font-bold text-base text-[#1129a8] font-outfit mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-5 gap-3 text-center">
-            <button className="p-3 rounded-xl border border-slate-200 hover:border-[#f8880f] hover:bg-amber-50/50 transition group flex flex-col items-center justify-center">
-              <div className="w-9 h-9 rounded-lg bg-amber-50 text-[#f8880f] flex items-center justify-center mb-2 group-hover:scale-110 transition">
-                <Plus className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-bold text-slate-700">Add Project</span>
-            </button>
-
-            <button className="p-3 rounded-xl border border-slate-200 hover:border-[#ea4335] hover:bg-red-50/50 transition group flex flex-col items-center justify-center">
-              <div className="w-9 h-9 rounded-lg bg-red-50 text-[#ea4335] flex items-center justify-center mb-2 group-hover:scale-110 transition">
-                <Bell className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-bold text-slate-700">Risk Alerts</span>
-            </button>
-
-            <button className="p-3 rounded-xl border border-slate-200 hover:border-[#34a853] hover:bg-emerald-50/50 transition group flex flex-col items-center justify-center">
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 text-[#34a853] flex items-center justify-center mb-2 group-hover:scale-110 transition">
-                <FileText className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-bold text-slate-700">Generate Report</span>
-            </button>
-
-            <button className="p-3 rounded-xl border border-slate-200 hover:border-[#4285f4] hover:bg-blue-50/50 transition group flex flex-col items-center justify-center">
-              <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#4285f4] flex items-center justify-center mb-2 group-hover:scale-110 transition">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-bold text-slate-700">AI Assistant</span>
-            </button>
-
-            <button className="p-3 rounded-xl border border-slate-200 hover:border-[#1129a8] hover:bg-slate-100 transition group flex flex-col items-center justify-center">
-              <div className="w-9 h-9 rounded-lg bg-slate-100 text-[#1129a8] flex items-center justify-center mb-2 group-hover:scale-110 transition">
-                <Upload className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-bold text-slate-700">Data Upload</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Recent Alerts */}
-        <div className="dashboard-card p-6 lg:col-span-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base text-[#1129a8] font-outfit">Recent Alerts</h3>
-              <button className="text-xs font-bold text-[#f8880f] hover:text-[#e0770b] flex items-center space-x-0.5">
-                <span>View all</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="mt-4 p-3.5 rounded-xl bg-red-50/60 border border-red-100 flex items-start space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-red-100 text-[#ea4335] flex items-center justify-center shrink-0 mt-0.5">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="font-bold text-xs text-slate-900">High risk of cost overrun detected in 12 projects</h4>
-                <p className="text-[10px] text-slate-500 mt-1">2 minutes ago</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Data Quality Score Gauge */}
-        <div className="dashboard-card p-6 lg:col-span-3 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base text-[#1129a8] font-outfit">Data Quality Score</h3>
-              <button className="text-xs font-bold text-[#f8880f] hover:text-[#e0770b] flex items-center space-x-0.5">
-                <span>View details</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="mt-4 flex items-center space-x-4">
-              <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-slate-100"
-                    strokeWidth="3.5"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-[#34a853]"
-                    strokeDasharray="92, 100"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <span className="absolute text-xs font-extrabold text-slate-900 font-outfit">92%</span>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-sm text-slate-900">Excellent</h4>
-                <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-[#34a853] inline shrink-0" />
-                  <span>Data is updated and validated</span>
-                </p>
-              </div>
-            </div>
-          </div>
+          <button
+            onClick={() => navigate('/interventions')}
+            className="w-full mt-3 py-2 text-xs font-bold text-[#f8880f] hover:text-[#fb923c] flex items-center justify-center space-x-1 border border-[#f8880f]/20 rounded-lg hover:bg-[#f8880f]/10 transition"
+          >
+            <Bell className="w-3.5 h-3.5" />
+            <span>Open Intervention Panel</span>
+          </button>
         </div>
       </div>
     </div>
