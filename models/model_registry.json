@@ -39,7 +39,7 @@
       "artifact_path": "models/xgboost_cost_regressor.joblib",
       "calibration_status": "UNAVAILABLE",
       "missing_feature_threshold_pct": 20.0,
-      "created_timestamp": "2026-09-02T16:10:01.378296Z"
+      "created_timestamp": "2026-09-02T16:14:14.801189Z"
     },
     "CatBoost_Risk_Regressor_v1.0.0": {
       "model_name": "CatBoost_Risk_Regressor",
@@ -77,7 +77,7 @@
       "artifact_path": "models/catboost_risk_regressor.joblib",
       "calibration_status": "UNAVAILABLE",
       "missing_feature_threshold_pct": 20.0,
-      "created_timestamp": "2026-09-02T16:10:01.379343Z"
+      "created_timestamp": "2026-09-02T16:14:14.801737Z"
     }
   }
 }
