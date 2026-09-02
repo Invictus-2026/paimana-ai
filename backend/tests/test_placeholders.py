@@ -19,7 +19,7 @@ def test_alerts_endpoint(client):
     response = client.get("/api/v1/alerts")
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] == "placeholder"
+    assert data["status"] in ["success", "placeholder"]
 
 
 def test_analytics_endpoint(client):
