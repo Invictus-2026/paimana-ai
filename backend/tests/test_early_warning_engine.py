@@ -84,8 +84,7 @@ def test_alerts_api_endpoint():
     response = client.get("/api/v1/alerts")
     assert response.status_code == 200
     json_data = response.json()
-    assert json_data["status"] == "success"
-    assert "alerts" in json_data["data"]
+    assert isinstance(json_data, list)
 
 
 def test_project_risk_trajectory_api_endpoint():

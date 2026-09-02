@@ -1,58 +1,49 @@
-"""Early-warning alerts API endpoints."""
+"""Early Warning Alerts API endpoints."""
 
 from typing import List, Optional
-from fastapi import APIRouter, Query
-from app.schemas.paimana import GenericResponse
-from app.services.early_warning_engine import EarlyWarningEngine, SeverityLevel, RiskState
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
+from sqlalchemy import desc
+from app.database import get_db
+from app.schemas.paimana import AlertResponse
+from app.models.entities import Alert
+from app.services.project_service import ProjectService
 
 router = APIRouter()
-engine = EarlyWarningEngine(cooldown_days=7.0)
-
-# Sample seed observations for active alerts demonstration
-MOCK_OBSERVATIONS = {
-    "P101": [
-        {"timestamp": "2026-06-01T00:00:00Z", "risk_score": 0.40},
-        {"timestamp": "2026-07-01T00:00:00Z", "risk_score": 0.45},
-        {"timestamp": "2026-08-01T00:00:00Z", "risk_score": 0.51},
-        {"timestamp": "2026-08-15T00:00:00Z", "risk_score": 0.63},
-        {"timestamp": "2026-09-01T00:00:00Z", "risk_score": 0.76},
-    ],
-    "P102": [
-        {"timestamp": "2026-07-01T00:00:00Z", "risk_score": 0.20},
-        {"timestamp": "2026-08-01T00:00:00Z", "risk_score": 0.22},
-        {"timestamp": "2026-09-01T00:00:00Z", "risk_score": 0.25},
-    ],
-}
 
 
-@router.get("", response_model=GenericResponse, summary="List active early-warning alerts")
-def get_alerts(
-    project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    severity: Optional[str] = Query(None, description="Filter by severity (LOW, MEDIUM, HIGH, CRITICAL)"),
-    state: Optional[str] = Query(None, description="Filter by state (STABLE, WATCH, ESCALATING, HIGH_RISK, CRITICAL)")
+@router.get("", response_model=List[AlertResponse], summary="List early warning alerts")
+def list_alerts(
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    project_id: Optional[int] = Query(None, description="Filter by project ID"),
+    severity: Optional[str] = Query(None, description="Filter by severity (low, medium, high, critical)"),
+    is_resolved: Optional[bool] = Query(None, description="Filter by resolution status"),
+    db: Session = Depends(get_db)
 ):
-    """Retrieve active early-warning alerts with optional filtering."""
-    alerts = []
-    
-    for pid, obs in MOCK_OBSERVATIONS.items():
-        if project_id and pid != project_id:
-            continue
-        metrics = engine.calculate_trajectory_metrics(pid, obs)
-        
-        if state and metrics.current_state.value.upper() != state.upper():
-            continue
-            
-        alert = engine.evaluate_and_generate_alerts(pid, metrics, project_impact_weight=1.5)
-        if alert:
-            if severity and alert.severity.value.upper() != severity.upper():
-                continue
-            alerts.append(alert.model_dump())
+    """Retrieve early warning alerts from DB with filtering and pagination."""
+    ProjectService.seed_initial_data_if_empty(db)
+    query = db.query(Alert)
 
-    return GenericResponse(
-        status="success",
-        message="Active early-warning alerts retrieved successfully",
-        data={
-            "total_alerts": len(alerts),
-            "alerts": alerts
-        }
-    )
+    if project_id is not None:
+        query = query.filter(Alert.project_id == project_id)
+    if severity:
+        query = query.filter(Alert.severity.ilike(f"%{severity}%"))
+    if is_resolved is not None:
+        query = query.filter(Alert.is_resolved == is_resolved)
+
+    alerts = query.order_by(desc(Alert.timestamp)).offset(offset).limit(limit).all()
+    return alerts
+
+
+@router.get("/{alert_id}", response_model=AlertResponse, summary="Get single alert details")
+def get_alert_by_id(alert_id: int, db: Session = Depends(get_db)):
+    """Retrieve single alert details by ID from DB."""
+    ProjectService.seed_initial_data_if_empty(db)
+    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    if not alert:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Alert with ID {alert_id} not found"
+        )
+    return alert
