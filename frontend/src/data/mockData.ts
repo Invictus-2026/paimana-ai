@@ -7,6 +7,7 @@ export interface ProjectData {
   state: string;
   budgetCr: number;
   revisedBudgetCr: number;
+  cumulativeExpenditureCr: number;
   overallRiskScore: number; // 0 - 100 or 0.00 - 1.00
   costRiskScore: number;
   delayRiskScore: number;
@@ -135,6 +136,7 @@ export const MOCK_PROJECTS: ProjectData[] = [
     state: 'Maharashtra',
     budgetCr: 6607,
     revisedBudgetCr: 7850,
+    cumulativeExpenditureCr: 3925,
     overallRiskScore: 92,
     costRiskScore: 88,
     delayRiskScore: 94,
@@ -166,6 +168,7 @@ export const MOCK_PROJECTS: ProjectData[] = [
     state: 'Delhi',
     budgetCr: 30274,
     revisedBudgetCr: 34180,
+    cumulativeExpenditureCr: 17090,
     overallRiskScore: 89,
     costRiskScore: 84,
     delayRiskScore: 91,
@@ -196,6 +199,7 @@ export const MOCK_PROJECTS: ProjectData[] = [
     state: 'Andhra Pradesh',
     budgetCr: 55000,
     revisedBudgetCr: 72050,
+    cumulativeExpenditureCr: 36025,
     overallRiskScore: 87,
     costRiskScore: 84,
     delayRiskScore: 90,
@@ -226,6 +230,7 @@ export const MOCK_PROJECTS: ProjectData[] = [
     state: 'Tamil Nadu',
     budgetCr: 49600,
     revisedBudgetCr: 62740,
+    cumulativeExpenditureCr: 31370,
     overallRiskScore: 85,
     costRiskScore: 80,
     delayRiskScore: 89,
@@ -255,6 +260,7 @@ export const MOCK_PROJECTS: ProjectData[] = [
     state: 'Uttarakhand',
     budgetCr: 12000,
     revisedBudgetCr: 14800,
+    cumulativeExpenditureCr: 7400,
     overallRiskScore: 83,
     costRiskScore: 78,
     delayRiskScore: 86,
