@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
-import { AlertTriangle, Bell, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 export const AlertsPage: React.FC = () => {
   const { data: alertResponse, isLoading } = useQuery({
@@ -9,7 +9,7 @@ export const AlertsPage: React.FC = () => {
     queryFn: api.getAlerts,
   });
 
-  const alerts = alertResponse?.data?.alerts || [];
+  const alerts = Array.isArray(alertResponse) ? alertResponse : ((alertResponse as any)?.data?.alerts || []);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">

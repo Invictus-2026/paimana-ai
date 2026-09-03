@@ -32,7 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API v1 router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 

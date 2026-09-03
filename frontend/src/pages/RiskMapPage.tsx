@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { STATE_RISK_SUMMARY, StateRiskData } from '../data/mockData';
-import { MapPin, ShieldAlert, Layers, ArrowRight, Filter, IndianRupee, Clock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../api/client';
+import { MapPin, ArrowRight } from 'lucide-react';
 
 type RiskOverlay = 'overall' | 'cost' | 'delay' | 'execution';
 
@@ -10,7 +12,32 @@ export const RiskMapPage: React.FC = () => {
   const [activeOverlay, setActiveOverlay] = useState<RiskOverlay>('overall');
   const [selectedState, setSelectedState] = useState<string>('Maharashtra');
 
-  const selectedStateData: StateRiskData = STATE_RISK_SUMMARY[selectedState] || {
+  const { data: geoResponse } = useQuery({
+    queryKey: ['geography-analytics'],
+    queryFn: api.getGeographyAnalytics,
+  });
+
+  const stateSummariesMap = React.useMemo(() => {
+    if (geoResponse?.data?.geography && geoResponse.data.geography.length > 1) {
+      const map: Record<string, StateRiskData> = {};
+      geoResponse.data.geography.forEach((g: any) => {
+        map[g.category_name] = {
+          state: g.category_name,
+          projectCount: g.project_count,
+          totalBudgetCr: g.total_budget_cr,
+          avgRiskScore: Math.round(g.average_risk_score * 100),
+          criticalCount: g.at_risk_count,
+          costRiskLevel: 'medium',
+          delayRiskLevel: 'medium',
+          executionRiskLevel: 'medium'
+        };
+      });
+      return map;
+    }
+    return STATE_RISK_SUMMARY;
+  }, [geoResponse]);
+
+  const selectedStateData: StateRiskData = stateSummariesMap[selectedState] || {
     state: selectedState,
     projectCount: 45,
     totalBudgetCr: 88000,
@@ -22,7 +49,7 @@ export const RiskMapPage: React.FC = () => {
   };
 
   const getStateColor = (stateName: string) => {
-    const data = STATE_RISK_SUMMARY[stateName];
+    const data = stateSummariesMap[stateName];
     if (!data) return '#e2e8f0';
 
     if (activeOverlay === 'cost') {

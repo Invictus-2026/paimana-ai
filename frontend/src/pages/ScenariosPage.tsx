@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MOCK_PROJECTS } from '../data/mockData';
-import { Sliders, RefreshCw, AlertTriangle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../api/client';
+import { Sliders, RefreshCw } from 'lucide-react';
 
 export const ScenariosPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const selectedProjectId = searchParams.get('project_id') || '101';
 
-  const project = MOCK_PROJECTS.find(p => p.id === parseInt(selectedProjectId)) || MOCK_PROJECTS[0];
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: api.getProjects,
+  });
+  const project = projects.find(p => p.id === parseInt(selectedProjectId)) || projects[0] || MOCK_PROJECTS[0];
 
   const [costAdjPct, setCostAdjPct] = useState<number>(10);
   const [scheduleDelayWeeks, setScheduleDelayWeeks] = useState<number>(12);

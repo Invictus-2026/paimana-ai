@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, HelpCircle, Menu, ChevronDown } from 'lucide-react';
+import { Search, Bell, HelpCircle, Menu } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const location = useLocation();

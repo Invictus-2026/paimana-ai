@@ -27,5 +27,5 @@ api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytic
 api_router.include_router(scenarios.router, prefix="/scenarios", tags=["Scenarios"])
 api_router.include_router(interventions.router, prefix="/interventions", tags=["Interventions"])
 api_router.include_router(models.router, prefix="/models", tags=["Models"])
-api_router.include_router(copilot.router, tags=["Copilot"])
+api_router.include_router(copilot.router, prefix="/copilot", tags=["Copilot"])
 
