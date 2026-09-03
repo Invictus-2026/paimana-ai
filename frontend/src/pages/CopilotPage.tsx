@@ -1,30 +1,44 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bot, Send, Sparkles, ArrowRight } from 'lucide-react';
-import { MOCK_PROJECTS } from '../data/mockData';
+import { ProjectData } from '../data/mockData';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { api } from '../api/client';
 
 interface CopilotResponse {
   query: string;
   summary: string;
   kpis: { label: string; value: string; color: string }[];
-  tableProjects: typeof MOCK_PROJECTS;
+  tableProjects: ProjectData[];
   suggestedAction: { label: string; path: string };
 }
 
 export const CopilotPage: React.FC = () => {
   const navigate = useNavigate();
   const [inputQuery, setInputQuery] = useState<string>('');
-  const [activeResponse, setActiveResponse] = useState<CopilotResponse | null>({
-    query: 'Which projects are at risk of missing monsoon deadlines?',
-    summary: 'Identified 4 mega infrastructure projects in coastal & alpine terrain (Maharashtra, J&K, Arunachal Pradesh) with un-cleared earthworks and slope stabilization pending prior to heavy rainfall.',
-    kpis: [
-      { label: 'Projects Flagged', value: '4 Projects', color: 'text-red-600' },
-      { label: 'Total Value at Risk', value: '₹121,000 Cr', color: 'text-orange-600' },
-      { label: 'Avg Schedule Slippage', value: '236 Days', color: 'text-amber-700' },
-    ],
-    tableProjects: MOCK_PROJECTS,
-    suggestedAction: { label: 'Open Risk & Alerts for Critical Monsoon Projects', path: '/interventions' },
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: api.getProjects,
   });
+
+  const [activeResponse, setActiveResponse] = useState<CopilotResponse | null>(null);
+
+  // Initialize active response with projects once they load
+  React.useEffect(() => {
+    if (projects.length > 0 && !activeResponse) {
+      setActiveResponse({
+        query: 'Which projects are at risk of missing monsoon deadlines?',
+        summary: 'Identified 4 mega infrastructure projects in coastal & alpine terrain (Maharashtra, J&K, Arunachal Pradesh) with un-cleared earthworks and slope stabilization pending prior to heavy rainfall.',
+        kpis: [
+          { label: 'Projects Flagged', value: '4 Projects', color: 'text-red-600' },
+          { label: 'Total Value at Risk', value: '₹121,000 Cr', color: 'text-orange-600' },
+          { label: 'Avg Schedule Slippage', value: '236 Days', color: 'text-amber-700' },
+        ],
+        tableProjects: projects,
+        suggestedAction: { label: 'Open Risk & Alerts for Critical Monsoon Projects', path: '/interventions' },
+      });
+    }
+  }, [projects, activeResponse]);
 
   const promptChips = [
     'Which projects are at risk of missing monsoon deadlines?',
@@ -33,48 +47,31 @@ export const CopilotPage: React.FC = () => {
     'List projects with >200 days schedule delay',
   ];
 
-  const handleRunQuery = (queryText: string) => {
-    setInputQuery(queryText);
-    const qLower = queryText.toLowerCase();
-
-    if (qLower.includes('cost overrun') || qLower.includes('ministry')) {
+  const copilotMutation = useMutation({
+    mutationFn: (query: string) => api.queryCopilot(query),
+    onSuccess: (response: any) => {
+      const data = response.data;
+      if (!data) return;
+      
+      const matchedProjects = data.project_ids 
+        ? projects.filter(p => data.project_ids.includes(p.id))
+        : projects;
+        
       setActiveResponse({
-        query: queryText,
-        summary: 'Analyzed portfolio cost overruns across all 22 line ministries. Ministry of Jal Shakti and Ministry of Railways exhibit the highest cumulative budget variance.',
-        kpis: [
-          { label: 'Total Portfolio Budget Variance', value: '₹56,470 Cr', color: 'text-red-600' },
-          { label: 'Highest Overrun Ministry', value: 'Jal Shakti (+31.0%)', color: 'text-orange-600' },
-          { label: 'Projects Exceeding Budget', value: '8 Projects', color: 'text-amber-700' },
-        ],
-        tableProjects: MOCK_PROJECTS.filter(p => p.costOverrunPct >= 14),
-        suggestedAction: { label: 'View All Cost Overrun Projects in Explorer', path: '/projects?costOverrun=high' }
-      });
-    } else if (qLower.includes('railway') || qLower.includes('maharashtra')) {
-      setActiveResponse({
-        query: queryText,
-        summary: 'Filtered 5 high-impact railway & urban transit corridors in Maharashtra and Western alignment with active ROW bottlenecks and pier launching delays.',
-        kpis: [
-          { label: 'Matched Projects', value: '3 Projects', color: 'text-[#0d52ce]' },
-          { label: 'Avg Risk Index', value: '0.88', color: 'text-red-600' },
-          { label: 'Pending ROW Land', value: 'Palghar & Hinjewadi', color: 'text-slate-800' },
-        ],
-        tableProjects: MOCK_PROJECTS.filter(p => p.state === 'Maharashtra' || p.ministry.includes('Railways')),
-        suggestedAction: { label: 'Simulate ROW Clearance Disruption', path: '/scenarios?project_id=101' }
-      });
-    } else {
-      setActiveResponse({
-        query: queryText,
-        summary: `Computed spatial & temporal predictive risk vectors for "${queryText}". Found ${MOCK_PROJECTS.length} critical projects requiring immediate ministerial attention.`,
-        kpis: [
-          { label: 'Critical Risk Items', value: '5 Projects', color: 'text-red-600' },
-          { label: 'Portfolio Risk Score', value: '86 / 100', color: 'text-orange-600' },
-          { label: 'Forecast Lead Time', value: '4.8 Months', color: 'text-emerald-600' },
-        ],
-        tableProjects: MOCK_PROJECTS,
-        suggestedAction: { label: 'Review Priority Interventions', path: '/interventions' }
+        query: data.query,
+        summary: data.summary,
+        kpis: data.kpis,
+        tableProjects: matchedProjects.slice(0, 5), // show top 5 matches
+        suggestedAction: data.suggestedAction,
       });
     }
+  });
+
+  const handleRunQuery = (queryText: string) => {
+    setInputQuery(queryText);
+    copilotMutation.mutate(queryText);
   };
+  // Replaced with mutation
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto text-slate-800 font-sans pb-6">

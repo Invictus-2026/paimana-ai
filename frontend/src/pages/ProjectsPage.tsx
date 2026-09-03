@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MOCK_PROJECTS, ProjectData } from '../data/mockData';
+import { ProjectData } from '../data/mockData';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../api/client';
 import {
   Search,
-  Filter,
   ArrowUpDown,
   Layers,
   RefreshCw,
-  Calendar,
-  ChevronRight,
-  ArrowUpRight
+  Calendar
 } from 'lucide-react';
 
 export const ProjectsPage: React.FC = () => {
@@ -33,6 +32,11 @@ export const ProjectsPage: React.FC = () => {
   const [costImpactFilter, setCostImpactFilter] = useState(initialCostImpact);
   const [delayImpactFilter, setDelayImpactFilter] = useState(initialDelayImpact);
 
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: api.getProjects,
+  });
+
   // Sorting state
   const [sortField, setSortField] = useState<keyof ProjectData>('overallRiskScore');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -53,13 +57,13 @@ export const ProjectsPage: React.FC = () => {
   }, [searchTerm, selectedMinistry, selectedSector, selectedState, selectedStatus, costImpactFilter, delayImpactFilter]);
 
   // Unique dropdown option sets
-  const ministries = useMemo(() => Array.from(new Set(MOCK_PROJECTS.map(p => p.ministry))), []);
-  const sectors = useMemo(() => Array.from(new Set(MOCK_PROJECTS.map(p => p.sector))), []);
-  const states = useMemo(() => Array.from(new Set(MOCK_PROJECTS.map(p => p.state))), []);
+  const ministries = useMemo(() => Array.from(new Set(projects.map(p => p.ministry))), [projects]);
+  const sectors = useMemo(() => Array.from(new Set(projects.map(p => p.sector))), [projects]);
+  const states = useMemo(() => Array.from(new Set(projects.map(p => p.state))), [projects]);
 
   // Filter & sort execution
   const filteredProjects = useMemo(() => {
-    return MOCK_PROJECTS.filter(p => {
+    return projects.filter(p => {
       if (searchTerm && !p.name.toLowerCase().includes(searchTerm.toLowerCase()) && !p.code.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
@@ -83,7 +87,7 @@ export const ProjectsPage: React.FC = () => {
       if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [searchTerm, selectedMinistry, selectedSector, selectedState, selectedStatus, costImpactFilter, delayImpactFilter, sortField, sortOrder]);
+  }, [searchTerm, selectedMinistry, selectedSector, selectedState, selectedStatus, costImpactFilter, delayImpactFilter, sortField, sortOrder, projects]);
 
   const handleSort = (field: keyof ProjectData) => {
     if (sortField === field) {
@@ -128,7 +132,7 @@ export const ProjectsPage: React.FC = () => {
 
         <div className="flex items-center space-x-3 shrink-0">
           <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3.5 py-2 rounded-xl border border-slate-200">
-            Showing <strong>{filteredProjects.length}</strong> of {MOCK_PROJECTS.length} Projects
+            Showing <strong>{filteredProjects.length}</strong> of {projects.length} Projects
           </span>
           <button
             onClick={resetFilters}

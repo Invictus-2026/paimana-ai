@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../api/client';
 import {
   DASHBOARD_STATS,
   SECTOR_DISTRIBUTION,
   COST_OVERRUN_RISK_DISTRIBUTION,
   TOP_HIGH_RISK_PROJECTS,
-  OVERRUN_TRENDS,
-  AI_INSIGHTS,
-  RECENT_ALERTS
+  OVERRUN_TRENDS
 } from '../data/mockData';
 import {
   PieChart,
@@ -46,6 +46,31 @@ import {
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
 
+  const { data: overviewResponse } = useQuery({
+    queryKey: ['analytics-overview'],
+    queryFn: api.getAnalyticsOverview,
+  });
+  const overview = overviewResponse?.data;
+
+  const { data: sectorResponse } = useQuery({
+    queryKey: ['sector-analytics'],
+    queryFn: api.getSectorAnalytics,
+  });
+
+  const sectorChartData = React.useMemo(() => {
+    if (!sectorResponse?.data?.sectors || sectorResponse.data.sectors.length === 0) {
+      return SECTOR_DISTRIBUTION;
+    }
+    const realSectors = sectorResponse.data.sectors;
+    const totalProjects = overview?.total_projects || 1775;
+    return realSectors.map((sec: any, idx: number) => ({
+      name: sec.category_name || 'Unknown',
+      count: sec.project_count || 0,
+      pct: ((sec.project_count / totalProjects) * 100).toFixed(1) + '%',
+      color: SECTOR_DISTRIBUTION[idx % SECTOR_DISTRIBUTION.length].color
+    }));
+  }, [sectorResponse, overview?.total_projects]);
+
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto font-sans pb-6 text-slate-800">
       {/* 1. Top Header Banner */}
@@ -79,7 +104,7 @@ export const DashboardPage: React.FC = () => {
         <div className="light-card p-4 flex items-start justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500">Total Projects</span>
-            <h2 className="text-2xl font-black text-slate-900 mt-1 font-sans">{DASHBOARD_STATS.totalProjects}</h2>
+            <h2 className="text-2xl font-black text-slate-900 mt-1 font-sans">{overview ? overview.total_projects.toLocaleString() : DASHBOARD_STATS.totalProjects}</h2>
             <p className="text-[11px] font-bold text-emerald-600 mt-1 flex items-center gap-1">
               <span>↑ 2.4%</span> <span className="text-slate-400 font-normal">from Mar 2026</span>
             </p>
@@ -93,7 +118,7 @@ export const DashboardPage: React.FC = () => {
         <div className="light-card p-4 flex items-start justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500">Original Cost</span>
-            <h2 className="text-xl font-black text-slate-900 mt-1 font-sans">{DASHBOARD_STATS.originalCost}</h2>
+            <h2 className="text-xl font-black text-slate-900 mt-1 font-sans">{overview ? '₹' + overview.total_budget_cr.toLocaleString() + ' Cr' : DASHBOARD_STATS.originalCost}</h2>
             <p className="text-[11px] font-normal text-slate-400 mt-1">{DASHBOARD_STATS.originalCostSub}</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-md shadow-orange-500/20 shrink-0">
@@ -105,7 +130,7 @@ export const DashboardPage: React.FC = () => {
         <div className="light-card p-4 flex items-start justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500">Revised Cost</span>
-            <h2 className="text-xl font-black text-slate-900 mt-1 font-sans">{DASHBOARD_STATS.revisedCost}</h2>
+            <h2 className="text-xl font-black text-slate-900 mt-1 font-sans">{overview ? '₹' + (overview.total_budget_cr + overview.total_cost_overrun_exposure_cr).toLocaleString() + ' Cr' : DASHBOARD_STATS.revisedCost}</h2>
             <p className="text-[11px] font-bold text-emerald-600 mt-1 flex items-center gap-1">
               <span>↑ 4.1%</span> <span className="text-slate-400 font-normal">from Mar 2026</span>
             </p>
@@ -131,7 +156,7 @@ export const DashboardPage: React.FC = () => {
         <div className="light-card p-4 flex items-start justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500">High Risk Projects</span>
-            <h2 className="text-2xl font-black text-slate-900 mt-1 font-sans">{DASHBOARD_STATS.highRiskProjects}</h2>
+            <h2 className="text-2xl font-black text-slate-900 mt-1 font-sans">{overview ? overview.at_risk_projects_count.toLocaleString() : DASHBOARD_STATS.highRiskProjects}</h2>
             <p className="text-[11px] font-normal text-slate-400 mt-1">{DASHBOARD_STATS.highRiskProjectsSub}</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-md shadow-red-500/20 shrink-0">
@@ -155,7 +180,7 @@ export const DashboardPage: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={SECTOR_DISTRIBUTION}
+                      data={sectorChartData}
                       cx="50%"
                       cy="50%"
                       innerRadius={45}
@@ -163,21 +188,21 @@ export const DashboardPage: React.FC = () => {
                       paddingAngle={3}
                       dataKey="count"
                     >
-                      {SECTOR_DISTRIBUTION.map((entry, index) => (
+                      {sectorChartData.map((entry: any, index: number) => (
                         <Cell key={`sector-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                  <span className="text-base font-black text-slate-900">1,981</span>
+                  <span className="text-base font-black text-slate-900">{overview ? overview.total_projects.toLocaleString() : "1,981"}</span>
                   <span className="text-[10px] text-slate-400 font-semibold">Total</span>
                 </div>
               </div>
 
               {/* Legend List */}
               <div className="space-y-1.5 flex-1 text-xs">
-                {SECTOR_DISTRIBUTION.map((sec) => (
+                {sectorChartData.map((sec: any) => (
                   <div key={sec.name} className="flex items-center justify-between text-[11px]">
                     <div className="flex items-center space-x-1.5 truncate">
                       <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: sec.color }} />
@@ -240,7 +265,7 @@ export const DashboardPage: React.FC = () => {
         <div className="light-card p-5 lg:col-span-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-sm text-slate-900">Top High Risk Projects</h3>
+              <h3 className="font-bold text-sm text-slate-900">Top High Risk Projects <span className="text-[10px] text-slate-400 font-normal ml-2">(sample data)</span></h3>
               <button onClick={() => navigate('/projects?status=High Risk')} className="text-xs font-bold text-[#0d52ce] hover:underline flex items-center space-x-0.5">
                 <span>View all</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -280,7 +305,7 @@ export const DashboardPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-sm text-slate-900">Cost vs Time Overrun Trends</h3>
+                <h3 className="font-bold text-sm text-slate-900">Cost vs Time Overrun Trends <span className="text-[10px] text-slate-400 font-normal ml-2">(sample data)</span></h3>
               </div>
               <button onClick={() => navigate('/analytics')} className="text-xs font-bold text-[#0d52ce] hover:underline flex items-center space-x-0.5">
                 <span>View analytics</span>
@@ -319,7 +344,7 @@ export const DashboardPage: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-[#0d52ce]" />
-                <h3 className="font-bold text-sm text-slate-900">AI Insights</h3>
+                <h3 className="font-bold text-sm text-slate-900">AI Insights <span className="text-[10px] text-slate-400 font-normal ml-2">(sample data)</span></h3>
               </div>
               <button onClick={() => navigate('/copilot')} className="text-xs font-bold text-[#0d52ce] hover:underline flex items-center space-x-0.5">
                 <span>View all insights</span>
@@ -403,7 +428,7 @@ export const DashboardPage: React.FC = () => {
         <div className="light-card p-5 lg:col-span-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-sm text-slate-900">Recent Alerts</h3>
+              <h3 className="font-bold text-sm text-slate-900">Recent Alerts <span className="text-[10px] text-slate-400 font-normal ml-2">(sample data)</span></h3>
               <button onClick={() => navigate('/interventions')} className="text-xs font-bold text-[#0d52ce] hover:underline flex items-center space-x-0.5">
                 <span>View all</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />

@@ -1,16 +1,35 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_INTERVENTIONS, InterventionData } from '../data/mockData';
-import { AlertTriangle, CheckCircle2, XCircle, Clock, ShieldAlert } from 'lucide-react';
+import { InterventionData } from '../data/mockData';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../api/client';
+import { CheckCircle2, XCircle, Clock, ShieldAlert } from 'lucide-react';
 
 export const InterventionsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [interventions, setInterventions] = useState<InterventionData[]>(MOCK_INTERVENTIONS);
+  const queryClient = useQueryClient();
+  const { data: interventionsResponse } = useQuery({
+    queryKey: ['interventions'],
+    queryFn: api.getInterventions,
+  });
+  const interventions: InterventionData[] = interventionsResponse?.data?.interventions ?? [];
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, newStatus }: { id: string; newStatus: 'Approved' | 'Under Review' | 'Rejected' }) => {
+      const response = await fetch(`${(import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/interventions/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ new_status: newStatus.toUpperCase().replace(' ', '_'), reviewer_name: 'Admin', reviewer_notes: '' }),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interventions'] });
+    },
+  });
 
   const handleUpdateStatus = (id: string, newStatus: 'Approved' | 'Under Review' | 'Rejected') => {
-    setInterventions(prev =>
-      prev.map(item => item.id === id ? { ...item, status: newStatus, lastUpdated: new Date().toISOString().split('T')[0] } : item)
-    );
+    updateStatusMutation.mutate({ id, newStatus });
   };
 
   const getStatusBadge = (status: InterventionData['status']) => {

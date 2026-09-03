@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutGrid,
@@ -11,9 +11,7 @@ import {
   Bot,
   Settings,
   ChevronDown,
-  Calendar,
-  Building2,
-  Sparkles
+  Calendar
 } from 'lucide-react';
 
 interface NavItem {
@@ -38,7 +36,7 @@ const mainNavItems: NavItem[] = [
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  // Removed analyticsOpen state
 
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between h-screen sticky top-0 z-20 shrink-0 text-slate-700 font-sans">

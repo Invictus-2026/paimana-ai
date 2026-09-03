@@ -1,6 +1,6 @@
-import { MOCK_PROJECTS, MOCK_INTERVENTIONS, STATE_RISK_SUMMARY, ProjectData, InterventionData } from '../data/mockData';
+import { MOCK_PROJECTS, MOCK_INTERVENTIONS, STATE_RISK_SUMMARY, ProjectData } from '../data/mockData';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 async function fetchJson<T>(endpoint: string, fallback: T): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -37,9 +37,13 @@ export const api = {
   getProjects: async (): Promise<ProjectData[]> => {
     const data = await fetchJson<any[]>('/projects', []);
     if (data && Array.isArray(data) && data.length > 0) {
-      // Map API entities if returned
-      return data.map((p, idx) => {
-        const mockMatch = MOCK_PROJECTS.find(m => m.id === p.id) || MOCK_PROJECTS[idx % MOCK_PROJECTS.length];
+      // Map API entities if returned. Fields with no real backend equivalent
+      // (nextMilestone, monthlyRiskHistory, topRiskDrivers, etc.) fall back to
+      // a single shared illustrative template rather than a per-index mock
+      // match, since with more real projects (1775) than mock templates (18)
+      // an index-wrapped match produced misleading duplicate-looking fake data.
+      return data.map((p) => {
+        const mockMatch = MOCK_PROJECTS.find(m => m.id === p.id) || MOCK_PROJECTS[0];
         return {
           ...mockMatch,
           id: p.id || mockMatch.id,
@@ -82,7 +86,24 @@ export const api = {
     return mockMatch;
   },
 
-  getAlerts: () => fetchJson('/alerts', MOCK_INTERVENTIONS),
-  getInterventions: () => fetchJson('/interventions', MOCK_INTERVENTIONS),
+  getAlerts: () => fetchJson('/alerts', MOCK_INTERVENTIONS), // Real backend returns list directly
+  getInterventions: () => fetchJson('/interventions', { status: 'success', data: { interventions: MOCK_INTERVENTIONS } }),
   getStateSummaries: () => Promise.resolve(STATE_RISK_SUMMARY),
+  getAnalyticsOverview: () => fetchJson('/analytics/overview', { status: 'success', data: null as any }),
+  getSectorAnalytics: () => fetchJson('/analytics/sectors', { status: 'success', data: { sectors: [] } as any }),
+  getMinistryAnalytics: () => fetchJson('/analytics/ministries', { status: 'success', data: { ministries: [] } as any }),
+  getGeographyAnalytics: () => fetchJson('/analytics/geography', { status: 'success', data: { geography: [] } as any }),
+  getBenchmarks: (dimension: string, sector?: string) => {
+    const params = new URLSearchParams({ dimension });
+    if (sector && sector !== 'ALL') params.set('sector', sector);
+    return fetchJson(`/analytics/benchmarks?${params.toString()}`, { status: 'success', data: null as any });
+  },
+  queryCopilot: (query: string) => {
+    const url = `${API_BASE_URL}/copilot/query`;
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    }).then(res => res.json());
+  },
 };

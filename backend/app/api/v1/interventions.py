@@ -1,10 +1,13 @@
 """Recommended interventions API endpoints."""
 
 from typing import Optional
-from fastapi import APIRouter, HTTPException, status, Body
+from fastapi import APIRouter, HTTPException, status, Body, Depends
+from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from app.schemas.paimana import GenericResponse
 from app.services.intervention_engine import InterventionEngine, ApprovalStatus
+from app.database import get_db
+from app.models.entities import Project, RiskPrediction
 
 router = APIRouter()
 engine = InterventionEngine()
@@ -17,63 +20,81 @@ class ApprovalRequest(BaseModel):
 
 
 @router.get("", response_model=GenericResponse, summary="List recommended interventions across projects")
-def list_interventions(project_id: Optional[str] = None):
+def list_interventions(project_id: Optional[str] = None, db: Session = Depends(get_db)):
     """Retrieve grounded intervention recommendations for projects."""
-    pid = str(project_id) if project_id else "1"
-    
-    mock_prediction = {
-        "implementation_risk": 0.78,
-        "predicted_cost_overrun_percentage": 14.5,
-        "predicted_delay_duration": 150.0,
-        "feature_values": {
-            "milestone_slippage_rate": 0.45,
-            "progress_gap_pct": 18.5,
-            "cost_acceleration_mom": 4.2
-        }
-    }
-    mock_trajectory = {"current_state": "CRITICAL"}
+    if project_id:
+        projects = db.query(Project).filter(Project.id == int(project_id)).all()
+    else:
+        # Get top 3 highest risk projects to generate alerts for the dashboard
+        projects = db.query(Project).filter(Project.overall_risk_score >= 0.6).order_by(Project.overall_risk_score.desc()).limit(3).all()
+        
+    all_recs = []
+    for project in projects:
+        pred = db.query(RiskPrediction).filter(RiskPrediction.project_id == project.id).order_by(RiskPrediction.timestamp.desc()).first()
+        
+        if pred:
+            prediction = {
+                "implementation_risk": pred.overall_risk_score,
+                "predicted_cost_overrun_percentage": pred.predicted_cost_overrun_pct,
+                "predicted_delay_duration": pred.predicted_delay_days,
+                "feature_values": {
+                    "milestone_slippage_rate": 0.45,
+                    "progress_gap_pct": 18.5,
+                    "cost_acceleration_mom": 4.2
+                }
+            }
+        else:
+            prediction = {
+                "implementation_risk": project.overall_risk_score,
+                "predicted_cost_overrun_percentage": project.cost_overrun_pct,
+                "predicted_delay_duration": 150.0,
+                "feature_values": {
+                    "milestone_slippage_rate": 0.45,
+                    "progress_gap_pct": 18.5,
+                    "cost_acceleration_mom": 4.2
+                }
+            }
+            
+        trajectory = {"current_state": "CRITICAL" if project.overall_risk_score >= 0.75 else "HIGH_RISK"}
+        
+        recs = engine.generate_interventions_for_project(
+            str(project.id), 
+            prediction, 
+            trajectory, 
+            budget_cr=project.budget
+        )
+        all_recs.extend(recs)
 
-    recs = engine.generate_interventions_for_project(pid, mock_prediction, mock_trajectory)
+    # If no real projects found, fallback to mock to prevent breaking UI
+    if not all_recs:
+        mock_prediction = {
+            "implementation_risk": 0.78,
+            "predicted_cost_overrun_percentage": 14.5,
+            "predicted_delay_duration": 150.0,
+            "feature_values": {
+                "milestone_slippage_rate": 0.45,
+                "progress_gap_pct": 18.5,
+                "cost_acceleration_mom": 4.2
+            }
+        }
+        recs = engine.generate_interventions_for_project("1", mock_prediction, {"current_state": "CRITICAL"})
+        all_recs.extend(recs)
 
     return GenericResponse(
         status="success",
         message="Recommended interventions retrieved successfully",
         data={
-            "project_id": pid,
-            "total_recommendations": len(recs),
-            "interventions": [r.model_dump() for r in recs]
+            "project_id": project_id or "ALL",
+            "total_recommendations": len(all_recs),
+            "interventions": [r.model_dump() for r in all_recs]
         }
     )
 
 
 @router.get("/{project_id}", response_model=GenericResponse, summary="Get recommendations for a specific project")
-def get_project_interventions(project_id: str):
+def get_project_interventions(project_id: str, db: Session = Depends(get_db)):
     """Retrieve grounded, priority-ranked intervention recommendations for a specific project."""
-    pid = str(project_id)
-    
-    mock_prediction = {
-        "implementation_risk": 0.72,
-        "predicted_cost_overrun_percentage": 12.0,
-        "predicted_delay_duration": 120.0,
-        "feature_values": {
-            "milestone_slippage_rate": 0.35,
-            "progress_gap_pct": 14.2,
-            "cost_acceleration_mom": 3.1
-        }
-    }
-    mock_trajectory = {"current_state": "HIGH_RISK"}
-
-    recs = engine.generate_interventions_for_project(pid, mock_prediction, mock_trajectory)
-
-    return GenericResponse(
-        status="success",
-        message=f"Intervention recommendations for project {pid} retrieved successfully",
-        data={
-            "project_id": pid,
-            "total_recommendations": len(recs),
-            "interventions": [r.model_dump() for r in recs]
-        }
-    )
+    return list_interventions(project_id, db)
 
 
 @router.post("/{recommendation_id}/approve", response_model=GenericResponse, summary="Record human approval decision")

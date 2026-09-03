@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../api/client';
 import {
   Award,
-  ShieldAlert,
   Info,
   CheckCircle2,
   AlertTriangle,
   HelpCircle,
   BarChart3,
   Layers,
-  Filter,
   ArrowRight
 } from 'lucide-react';
 import {
@@ -21,8 +20,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  CartesianGrid,
-  Cell
+  CartesianGrid
 } from 'recharts';
 
 interface BenchmarkGroup {
@@ -61,15 +59,12 @@ interface BenchmarkData {
 export const BenchmarksPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedDimension, setSelectedDimension] = useState<string>('sector');
-  const [selectedSectorFilter, setSelectedSectorFilter] = useState<string>('ALL');
+  const [selectedSectorFilter] = useState<string>('ALL');
 
   // Fetch benchmark analytics from FastAPI backend endpoint
-  const { data, isLoading } = useQuery<{ data: BenchmarkData }>({
+  const { data } = useQuery<{ data: BenchmarkData }>({
     queryKey: ['benchmarks', selectedDimension, selectedSectorFilter],
-    queryFn: async () => {
-      const res = await fetch(`http://localhost:8000/api/v1/analytics/benchmarks?dimension=${selectedDimension}&sector=${selectedSectorFilter}`);
-      return res.json();
-    }
+    queryFn: () => api.getBenchmarks(selectedDimension, selectedSectorFilter),
   });
 
   const benchmarkData = data?.data;
@@ -252,7 +247,7 @@ export const BenchmarksPage: React.FC = () => {
             </div>
 
             <div className="space-y-3 mt-4">
-              {benchmarkData?.benchmark_groups.map((grp) => (
+              {benchmarkData?.benchmark_groups.map((grp: any) => (
                 <div key={grp.category} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <div className="flex justify-between items-center text-xs">
                     <span className="font-bold text-slate-800">{grp.category}</span>
@@ -310,7 +305,7 @@ export const BenchmarksPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {benchmarkData?.benchmark_groups.map((grp) => (
+              {benchmarkData?.benchmark_groups.map((grp: any) => (
                 <tr key={grp.category} className="hover:bg-slate-50 transition">
                   <td className="p-3.5 font-bold text-slate-900">{grp.category}</td>
                   <td className="p-3.5 font-mono font-bold text-slate-700">N = {grp.sample_size}</td>
