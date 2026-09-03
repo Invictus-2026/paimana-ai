@@ -43,6 +43,9 @@ class ProjectBase(BaseModel):
     status: str = "active"
     overall_risk_score: float = 0.0
     cost_overrun_pct: float = 0.0
+    revised_cost: float = 0.0
+    cumulative_expenditure: float = 0.0
+    external_project_id: Optional[str] = None
     is_synthetic: bool = False
 
 
