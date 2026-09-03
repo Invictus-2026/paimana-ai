@@ -2,8 +2,9 @@
 and loads the result into the projects database.
 
 Usage:
-    cd backend && .venv/bin/python3 -m scripts.load_real_dataset
-(run from the repo root with backend/ on the path, or adjust PYTHONPATH)
+    backend/.venv/bin/python3 -m scripts.load_real_dataset
+(run from the repo root, NOT from inside backend/ — this script imports
+backend.app.* using the repo root as the package root)
 """
 
 import logging

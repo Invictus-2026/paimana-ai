@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Tuple
 
 import joblib
-import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import (
