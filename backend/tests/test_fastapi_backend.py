@@ -1,20 +1,13 @@
 import pytest
 from datetime import date, datetime
-from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from app.main import app
-from app.database import get_db, SessionLocal, engine, Base
 from app.models.entities import Project, RiskPrediction, Alert, Intervention, ModelVersion
-
-client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def setup_test_db():
-    """Seeds test data into the database before running tests."""
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    db: Session = SessionLocal()
+def setup_test_db(db_session):
+    """Seeds test data into the isolated in-memory test database before running tests."""
+    db: Session = db_session
 
     # Seed Projects
     p1 = Project(
@@ -108,22 +101,13 @@ def setup_test_db():
     )
     db.add(mv1)
     db.commit()
-    db.close()
 
     yield
-
-    # Clean up after test
-    db = SessionLocal()
-    db.query(Alert).delete()
-    db.query(Intervention).delete()
-    db.query(RiskPrediction).delete()
-    db.query(Project).delete()
-    db.query(ModelVersion).delete()
-    db.commit()
-    db.close()
+    # Cleanup is handled by conftest.py's autouse setup_test_database fixture,
+    # which drops and recreates all tables around every test.
 
 
-def test_get_projects_list_and_pagination():
+def test_get_projects_list_and_pagination(client):
     """Test GET /api/v1/projects with pagination."""
     response = client.get("/api/v1/projects?limit=2&offset=0")
     assert response.status_code == 200
@@ -131,7 +115,7 @@ def test_get_projects_list_and_pagination():
     assert len(data) == 2
 
 
-def test_get_projects_filtering():
+def test_get_projects_filtering(client):
     """Test GET /api/v1/projects with sector & status filters."""
     response = client.get("/api/v1/projects?sector=Railways&status=active")
     assert response.status_code == 200
@@ -140,7 +124,7 @@ def test_get_projects_filtering():
     assert data[0]["name"] == "Mumbai-Ahmedabad High Speed Rail"
 
 
-def test_get_single_project():
+def test_get_single_project(client):
     """Test GET /api/v1/projects/{id} success & 404."""
     response = client.get("/api/v1/projects/1")
     assert response.status_code == 200
@@ -150,7 +134,7 @@ def test_get_single_project():
     assert err_response.status_code == 404
 
 
-def test_get_project_predictions():
+def test_get_project_predictions(client):
     """Test GET /api/v1/projects/{id}/predictions success & 404."""
     response = client.get("/api/v1/projects/1/predictions")
     assert response.status_code == 200
@@ -162,7 +146,7 @@ def test_get_project_predictions():
     assert err_response.status_code == 404
 
 
-def test_get_project_risk():
+def test_get_project_risk(client):
     """Test GET /api/v1/projects/{id}/risk."""
     response = client.get("/api/v1/projects/1/risk")
     assert response.status_code == 200
@@ -172,7 +156,7 @@ def test_get_project_risk():
     assert json_data["data"]["risk_level"] == "Critical"
 
 
-def test_get_project_risk_trajectory():
+def test_get_project_risk_trajectory(client):
     """Test GET /api/v1/projects/{id}/risk-trajectory."""
     response = client.get("/api/v1/projects/1/risk-trajectory")
     assert response.status_code == 200
@@ -181,7 +165,7 @@ def test_get_project_risk_trajectory():
     assert "metrics" in json_data["data"]
 
 
-def test_get_alerts_list_and_filtering():
+def test_get_alerts_list_and_filtering(client):
     """Test GET /api/v1/alerts with filtering."""
     response = client.get("/api/v1/alerts?severity=critical")
     assert response.status_code == 200
@@ -190,7 +174,7 @@ def test_get_alerts_list_and_filtering():
     assert data[0]["severity"] == "critical"
 
 
-def test_get_single_alert():
+def test_get_single_alert(client):
     """Test GET /api/v1/alerts/{id} success & 404."""
     response = client.get("/api/v1/alerts/1")
     assert response.status_code == 200
@@ -200,7 +184,7 @@ def test_get_single_alert():
     assert err_response.status_code == 404
 
 
-def test_get_analytics_overview():
+def test_get_analytics_overview(client):
     """Test GET /api/v1/analytics/overview database query aggregation."""
     response = client.get("/api/v1/analytics/overview")
     assert response.status_code == 200
@@ -213,7 +197,7 @@ def test_get_analytics_overview():
     assert overview["at_risk_projects_count"] == 2
 
 
-def test_get_analytics_breakdowns():
+def test_get_analytics_breakdowns(client):
     """Test sector, ministry, and geography analytics endpoints."""
     res_sector = client.get("/api/v1/analytics/sectors")
     assert res_sector.status_code == 200
@@ -228,7 +212,7 @@ def test_get_analytics_breakdowns():
     assert res_geo.json()["data"]["total_states"] >= 1
 
 
-def test_get_project_interventions():
+def test_get_project_interventions(client):
     """Test GET /api/v1/projects/{id}/interventions."""
     response = client.get("/api/v1/projects/1/interventions")
     assert response.status_code == 200
@@ -237,7 +221,7 @@ def test_get_project_interventions():
     assert data[0]["priority"] == "critical"
 
 
-def test_scenario_simulate_endpoint():
+def test_scenario_simulate_endpoint(client):
     """Test POST /api/v1/scenarios/simulate endpoint."""
     payload = {
         "project_id": "1",
@@ -250,7 +234,7 @@ def test_scenario_simulate_endpoint():
     assert "delta" in json_data["data"]
 
 
-def test_get_models_list():
+def test_get_models_list(client):
     """Test GET /api/v1/models endpoint."""
     response = client.get("/api/v1/models")
     assert response.status_code == 200
