@@ -1,15 +1,25 @@
 """Pydantic Schemas for Request and Response Objects."""
 
 from datetime import datetime, date
-from typing import Optional, List, Any, Dict
+from typing import Optional, List, Any, Dict, Generic, TypeVar
 from pydantic import BaseModel, ConfigDict, Field
+
+T = TypeVar("T")
 
 
 class GenericResponse(BaseModel):
-    """Generic status payload for placeholders."""
-    status: str = "placeholder"
-    message: str = "Not yet implemented"
+    """Generic status payload."""
+    status: str = "success"
+    message: str = "Operation completed successfully"
     data: Optional[Dict[str, Any]] = None
+
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    """Standard pagination wrapper schema."""
+    total: int
+    limit: int
+    offset: int
+    items: List[T]
 
 
 class HealthCheck(BaseModel):
@@ -24,10 +34,19 @@ class HealthCheck(BaseModel):
 class ProjectBase(BaseModel):
     name: str
     description: Optional[str] = None
+    sector: Optional[str] = "Road Transport & Highways"
+    ministry: Optional[str] = "MoRTH"
+    state: Optional[str] = "Maharashtra"
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     budget: float = 0.0
     status: str = "active"
+    overall_risk_score: float = 0.0
+    cost_overrun_pct: float = 0.0
+    revised_cost: float = 0.0
+    cumulative_expenditure: float = 0.0
+    external_project_id: Optional[str] = None
+    risk_score_method: str = "unscored"
     is_synthetic: bool = False
 
 
@@ -70,6 +89,9 @@ class RiskPredictionResponse(BaseModel):
     project_id: int
     cost_risk_score: float
     delay_risk_score: float
+    overall_risk_score: float = 0.0
+    predicted_delay_days: float = 0.0
+    predicted_cost_overrun_pct: float = 0.0
     model_version: str
     prediction_timestamp: datetime
     factors: List[RiskFactorSchema] = []
@@ -85,6 +107,31 @@ class AlertResponse(BaseModel):
     alert_type: str
     message: str
     is_resolved: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModelVersionResponse(BaseModel):
+    id: int
+    model_name: str
+    version: str
+    status: str
+    training_timestamp: datetime
+    deployment_timestamp: Optional[datetime] = None
+    metrics: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class InterventionResponse(BaseModel):
+    id: int
+    project_id: int
+    risk_prediction_id: Optional[int] = None
+    intervention_type: str
+    priority: str
+    status: str
+    description: Optional[str] = None
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -105,14 +152,18 @@ class ScenarioResponse(BaseModel):
     model_version: str = "v0.1-placeholder"
 
 
-class InterventionResponse(BaseModel):
-    id: int
-    project_id: int
-    risk_prediction_id: Optional[int] = None
-    intervention_type: str
-    priority: str
-    status: str
-    description: Optional[str] = None
-    created_at: datetime
+class AnalyticsOverviewResponse(BaseModel):
+    total_projects: int
+    total_budget_cr: float
+    average_risk_score: float
+    active_alerts_count: int
+    at_risk_projects_count: int
+    total_cost_overrun_exposure_cr: float
 
-    model_config = ConfigDict(from_attributes=True)
+
+class AnalyticsGroupItem(BaseModel):
+    category_name: str
+    project_count: int
+    total_budget_cr: float
+    average_risk_score: float
+    at_risk_count: int

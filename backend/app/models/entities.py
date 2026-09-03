@@ -16,18 +16,28 @@ class Project(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    sector: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
+    ministry: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
+    state: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
     start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     end_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     budget: Mapped[float] = mapped_column(Float, default=0.0)
-    status: Mapped[str] = mapped_column(String(50), default="active")
+    status: Mapped[str] = mapped_column(String(50), default="active", index=True)
+    overall_risk_score: Mapped[float] = mapped_column(Float, default=0.0, index=True)
+    cost_overrun_pct: Mapped[float] = mapped_column(Float, default=0.0)
+    revised_cost: Mapped[float] = mapped_column(Float, default=0.0)
+    cumulative_expenditure: Mapped[float] = mapped_column(Float, default=0.0)
+    external_project_id: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, unique=True, index=True)
+    risk_score_method: Mapped[str] = mapped_column(String(50), default="unscored")
     is_synthetic: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
 
     updates: Mapped[List["ProjectUpdate"]] = relationship("ProjectUpdate", back_populates="project", cascade="all, delete-orphan")
     milestones: Mapped[List["Milestone"]] = relationship("Milestone", back_populates="project", cascade="all, delete-orphan")
     cost_records: Mapped[List["CostRecord"]] = relationship("CostRecord", back_populates="project", cascade="all, delete-orphan")
     risk_predictions: Mapped[List["RiskPrediction"]] = relationship("RiskPrediction", back_populates="project", cascade="all, delete-orphan")
     alerts: Mapped[List["Alert"]] = relationship("Alert", back_populates="project", cascade="all, delete-orphan")
+    interventions: Mapped[List["Intervention"]] = relationship("Intervention", back_populates="project", cascade="all, delete-orphan")
 
 
 class ProjectUpdate(Base):
@@ -35,7 +45,7 @@ class ProjectUpdate(Base):
     __tablename__ = "project_updates"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
     cost_actual: Mapped[float] = mapped_column(Float, default=0.0)
     schedule_variance: Mapped[float] = mapped_column(Float, default=0.0)
@@ -50,7 +60,7 @@ class Milestone(Base):
     __tablename__ = "milestones"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     planned_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     actual_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
@@ -65,7 +75,7 @@ class CostRecord(Base):
     __tablename__ = "cost_records"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     cost_category: Mapped[str] = mapped_column(String(100), nullable=False)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
@@ -79,10 +89,13 @@ class RiskPrediction(Base):
     __tablename__ = "risk_predictions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
     cost_risk_score: Mapped[float] = mapped_column(Float, default=0.0)
     delay_risk_score: Mapped[float] = mapped_column(Float, default=0.0)
+    overall_risk_score: Mapped[float] = mapped_column(Float, default=0.0)
+    predicted_delay_days: Mapped[float] = mapped_column(Float, default=0.0)
+    predicted_cost_overrun_pct: Mapped[float] = mapped_column(Float, default=0.0)
     model_version: Mapped[str] = mapped_column(String(100), nullable=False)
     prediction_timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
@@ -95,7 +108,7 @@ class RiskFactor(Base):
     __tablename__ = "risk_factors"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    prediction_id: Mapped[int] = mapped_column(Integer, ForeignKey("risk_predictions.id", ondelete="CASCADE"), nullable=False)
+    prediction_id: Mapped[int] = mapped_column(Integer, ForeignKey("risk_predictions.id", ondelete="CASCADE"), nullable=False, index=True)
     factor_name: Mapped[str] = mapped_column(String(100), nullable=False)
     factor_value: Mapped[float] = mapped_column(Float, nullable=False)
     shap_value: Mapped[float] = mapped_column(Float, nullable=False)
@@ -108,12 +121,12 @@ class Alert(Base):
     __tablename__ = "alerts"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
-    severity: Mapped[str] = mapped_column(String(50), default="medium")  # low, medium, high, critical
+    severity: Mapped[str] = mapped_column(String(50), default="medium", index=True)  # low, medium, high, critical
     alert_type: Mapped[str] = mapped_column(String(100), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
-    is_resolved: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_resolved: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
 
     project: Mapped["Project"] = relationship("Project", back_populates="alerts")
 
@@ -123,8 +136,9 @@ class ModelVersion(Base):
     __tablename__ = "model_versions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    model_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    model_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     version: Mapped[str] = mapped_column(String(50), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), default="active")
     training_timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     deployment_timestamp: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     metrics: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -135,10 +149,12 @@ class Intervention(Base):
     __tablename__ = "interventions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    project_id: Mapped[int] = mapped_column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
     risk_prediction_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("risk_predictions.id", ondelete="SET NULL"), nullable=True)
     intervention_type: Mapped[str] = mapped_column(String(100), nullable=False)
     priority: Mapped[str] = mapped_column(String(50), default="medium")
     status: Mapped[str] = mapped_column(String(50), default="proposed")
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    project: Mapped["Project"] = relationship("Project", back_populates="interventions")

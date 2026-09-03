@@ -11,6 +11,8 @@ from app.api.v1 import (
     analytics,
     scenarios,
     interventions,
+    models,
+    copilot,
 )
 
 api_router = APIRouter()
@@ -24,3 +26,6 @@ api_router.include_router(alerts.router, prefix="/alerts", tags=["Alerts"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 api_router.include_router(scenarios.router, prefix="/scenarios", tags=["Scenarios"])
 api_router.include_router(interventions.router, prefix="/interventions", tags=["Interventions"])
+api_router.include_router(models.router, prefix="/models", tags=["Models"])
+api_router.include_router(copilot.router, tags=["Copilot"])
+

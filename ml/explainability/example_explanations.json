@@ -1,0 +1,88 @@
+{
+  "system_info": {
+    "module": "ml.explainability.shap_explainer",
+    "model_version": "PAIMANA-ML-v1.0.0",
+    "timestamp": "2026-09-02T21:27:00Z"
+  },
+  "sample_explanations": [
+    {
+      "project_id": "P123_RAILWAY_EXPANSION",
+      "risk_score": 0.84,
+      "risk_level": "Critical",
+      "drivers": [
+        {
+          "feature_name": "milestone_slippage_rate",
+          "shap_value": 0.21,
+          "actual_value": 0.65,
+          "description": "Ratio of Missed Milestone Targets (value: 0.65) contributed +0.2100 toward increased risk."
+        },
+        {
+          "feature_name": "progress_gap_pct",
+          "shap_value": 0.17,
+          "actual_value": 18.5,
+          "description": "Physical Progress vs. Elapsed Time Divergence (%) (value: 18.50) contributed +0.1700 toward increased risk."
+        },
+        {
+          "feature_name": "cost_acceleration_mom",
+          "shap_value": 0.12,
+          "actual_value": 5.4,
+          "description": "Month-over-Month Expenditure Rate Change (value: 5.40) contributed +0.1200 toward increased risk."
+        }
+      ],
+      "protective_factors": [
+        {
+          "feature_name": "progress_velocity_mom",
+          "shap_value": -0.06,
+          "actual_value": 2.8,
+          "description": "Month-over-Month Physical Progress Velocity (value: 2.80) acted as a protective factor (-0.0600)."
+        }
+      ],
+      "feature_values": {
+        "project_original_budget_cr": 1200.0,
+        "milestone_slippage_rate": 0.65,
+        "progress_gap_pct": 18.5,
+        "cost_acceleration_mom": 5.4,
+        "progress_velocity_mom": 2.8
+      },
+      "model_version": "PAIMANA-ML-v1.0.0",
+      "prediction_timestamp": "2026-09-02T21:27:00Z",
+      "disclaimer": "NOTICE: Feature attributions represent SHAP (SHapley Additive exPlanations) statistical values within the predictive model. They indicate feature influence on the model output and DO NOT constitute direct causal proof of delay or failure."
+    },
+    {
+      "project_id": "P456_HIGHWAY_CORRIDOR",
+      "risk_score": 0.18,
+      "risk_level": "Low",
+      "drivers": [
+        {
+          "feature_name": "sector_historical_overrun_avg",
+          "shap_value": 0.03,
+          "actual_value": 15.2,
+          "description": "Sector Historical Overrun Average (%) (value: 15.20) contributed +0.0300 toward increased risk."
+        }
+      ],
+      "protective_factors": [
+        {
+          "feature_name": "progress_velocity_mom",
+          "shap_value": -0.14,
+          "actual_value": 4.5,
+          "description": "Month-over-Month Physical Progress Velocity (value: 4.50) acted as a protective factor (-0.1400)."
+        },
+        {
+          "feature_name": "milestone_slippage_rate",
+          "shap_value": -0.11,
+          "actual_value": 0.0,
+          "description": "Ratio of Missed Milestone Targets (value: 0.00) acted as a protective factor (-0.1100)."
+        }
+      ],
+      "feature_values": {
+        "project_original_budget_cr": 450.0,
+        "milestone_slippage_rate": 0.0,
+        "progress_gap_pct": -2.1,
+        "progress_velocity_mom": 4.5
+      },
+      "model_version": "PAIMANA-ML-v1.0.0",
+      "prediction_timestamp": "2026-09-02T21:27:00Z",
+      "disclaimer": "NOTICE: Feature attributions represent SHAP (SHapley Additive exPlanations) statistical values within the predictive model. They indicate feature influence on the model output and DO NOT constitute direct causal proof of delay or failure."
+    }
+  ]
+}

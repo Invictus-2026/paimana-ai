@@ -55,6 +55,7 @@ models/*.h5
 models/*.safetensors
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/paimana_projects_master.csv
 data/interim/*
 !data/interim/.gitkeep
 data/processed/*
@@ -66,3 +67,4 @@ data/processed/*
 .vscode/
 *.swp
 *.swo
+.worktrees/

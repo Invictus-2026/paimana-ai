@@ -3,12 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from './components/layout/Layout';
 import { DashboardPage } from './pages/DashboardPage';
+import { RiskMapPage } from './pages/RiskMapPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
-import { AlertsPage } from './pages/AlertsPage';
-import { AnalyticsPage } from './pages/AnalyticsPage';
 import { ScenariosPage } from './pages/ScenariosPage';
+import { InterventionsPage } from './pages/InterventionsPage';
 import { CopilotPage } from './pages/CopilotPage';
+import { BenchmarksPage } from './pages/BenchmarksPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,11 +28,13 @@ export const App: React.FC = () => {
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="map" element={<RiskMapPage />} />
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="projects/:id" element={<ProjectDetailPage />} />
-            <Route path="alerts" element={<AlertsPage />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="scenarios" element={<ScenariosPage />} />
+            <Route path="interventions" element={<InterventionsPage />} />
+            <Route path="alerts" element={<Navigate to="/interventions" replace />} />
+            <Route path="benchmarks" element={<BenchmarksPage />} />
             <Route path="copilot" element={<CopilotPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>

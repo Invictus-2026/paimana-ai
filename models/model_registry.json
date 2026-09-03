@@ -1,0 +1,83 @@
+{
+  "system_version": "1.0.0",
+  "models": {
+    "XGBoost_Cost_Regressor_v1.0.0": {
+      "model_name": "XGBoost_Cost_Regressor",
+      "version": "v1.0.0",
+      "model_type": "XGBoost",
+      "target_name": "target_continuous_cost_overrun_pct",
+      "feature_columns": [
+        "project_original_budget_cr",
+        "project_planned_duration_days",
+        "sector_historical_overrun_avg",
+        "sector_historical_delay_avg_months",
+        "ministry_active_projects_count",
+        "ministry_avg_completion_rate",
+        "cost_expenditure_ratio",
+        "cost_acceleration_mom",
+        "schedule_remaining_days",
+        "schedule_elapsed_pct",
+        "progress_physical_pct",
+        "progress_gap_pct",
+        "progress_velocity_mom",
+        "progress_trend_3m",
+        "progress_trend_6m",
+        "milestone_slippage_rate",
+        "temporal_project_age_months",
+        "historical_contractor_delay_score"
+      ],
+      "feature_count": 18,
+      "training_period": "2025-10-01",
+      "validation_period": "2025-11-01",
+      "performance_metrics": {
+        "reg_mae": 2.4266928183292786,
+        "reg_rmse": 3.273155533304628,
+        "reg_r2": 0.9303665680583807,
+        "clf_roc_auc": 0.5,
+        "clf_brier_score": 0.25999999046325684
+      },
+      "artifact_path": "models/xgboost_cost_regressor.joblib",
+      "calibration_status": "UNAVAILABLE",
+      "missing_feature_threshold_pct": 20.0,
+      "created_timestamp": "2026-09-02T16:30:57.524297Z"
+    },
+    "CatBoost_Risk_Regressor_v1.0.0": {
+      "model_name": "CatBoost_Risk_Regressor",
+      "version": "v1.0.0",
+      "model_type": "CatBoost",
+      "target_name": "target_risk_composite_score",
+      "feature_columns": [
+        "project_original_budget_cr",
+        "project_planned_duration_days",
+        "sector_historical_overrun_avg",
+        "sector_historical_delay_avg_months",
+        "ministry_active_projects_count",
+        "ministry_avg_completion_rate",
+        "cost_expenditure_ratio",
+        "cost_acceleration_mom",
+        "schedule_remaining_days",
+        "schedule_elapsed_pct",
+        "progress_physical_pct",
+        "progress_gap_pct",
+        "progress_velocity_mom",
+        "progress_trend_3m",
+        "progress_trend_6m",
+        "milestone_slippage_rate",
+        "temporal_project_age_months",
+        "historical_contractor_delay_score"
+      ],
+      "feature_count": 18,
+      "training_period": "2025-10-01",
+      "validation_period": "2025-11-01",
+      "performance_metrics": {
+        "reg_mae": 0.06656826657455463,
+        "reg_rmse": 0.09947167403104742,
+        "reg_r2": 0.7278576032313235
+      },
+      "artifact_path": "models/catboost_risk_regressor.joblib",
+      "calibration_status": "UNAVAILABLE",
+      "missing_feature_threshold_pct": 20.0,
+      "created_timestamp": "2026-09-02T16:30:57.525313Z"
+    }
+  }
+}

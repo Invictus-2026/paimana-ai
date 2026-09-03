@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "random_seed": 42,
+    "feature_columns": [
+      "project_original_budget_cr",
+      "project_planned_duration_days",
+      "sector_historical_overrun_avg",
+      "sector_historical_delay_avg_months",
+      "ministry_active_projects_count",
+      "ministry_avg_completion_rate",
+      "cost_expenditure_ratio",
+      "cost_acceleration_mom",
+      "schedule_remaining_days",
+      "schedule_elapsed_pct",
+      "progress_physical_pct",
+      "progress_gap_pct",
+      "progress_velocity_mom",
+      "progress_trend_3m",
+      "progress_trend_6m",
+      "milestone_slippage_rate",
+      "temporal_project_age_months",
+      "historical_contractor_delay_score"
+    ],
+    "train_size": 5,
+    "val_size": 5,
+    "test_size": 6
+  },
+  "target_1_cost_overrun": {
+    "random_forest": {
+      "reg_mae": 6.593655466991666,
+      "reg_rmse": 6.858774426724828,
+      "reg_r2": 0.6942421928784628,
+      "clf_roc_auc": 1.0,
+      "clf_brier_score": 0.061449999999999984
+    },
+    "xgboost": {
+      "reg_mae": 2.4266928183292786,
+      "reg_rmse": 3.273155533304628,
+      "reg_r2": 0.9303665680583807,
+      "clf_roc_auc": 0.5,
+      "clf_brier_score": 0.25999999046325684
+    },
+    "lightgbm": {
+      "reg_mae": 12.403074905003649,
+      "reg_rmse": 12.84620800969951,
+      "reg_r2": -0.07259165842436954,
+      "clf_roc_auc": 0.5,
+      "clf_brier_score": 0.26
+    },
+    "catboost": {
+      "reg_mae": 4.735710995212738,
+      "reg_rmse": 5.1679365038839675,
+      "reg_r2": 0.82641233821739,
+      "clf_roc_auc": 1.0,
+      "clf_brier_score": 0.11306734948473122
+    }
+  },
+  "target_2_time_overrun": {
+    "xgboost_delay": {
+      "reg_mae_days": 253.59174601236978,
+      "reg_rmse_days": 552.7361174428906,
+      "reg_r2": 0.1998250045811928
+    }
+  },
+  "target_3_implementation_risk": {
+    "catboost_risk": {
+      "reg_mae": 0.06656826657455463,
+      "reg_rmse": 0.09947167403104742,
+      "reg_r2": 0.7278576032313235
+    }
+  },
+  "baseline_comparison_summary": {}
+}
