@@ -1,4 +1,4 @@
-import { MOCK_PROJECTS, MOCK_INTERVENTIONS, STATE_RISK_SUMMARY, ProjectData } from '../data/mockData';
+import { MOCK_INTERVENTIONS, STATE_RISK_SUMMARY, ProjectData } from '../data/mockData';
 
 const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
@@ -37,53 +37,82 @@ export const api = {
   getProjects: async (): Promise<ProjectData[]> => {
     const data = await fetchJson<any[]>('/projects', []);
     if (data && Array.isArray(data) && data.length > 0) {
-      // Map API entities if returned. Fields with no real backend equivalent
-      // (nextMilestone, monthlyRiskHistory, topRiskDrivers, etc.) fall back to
-      // a single shared illustrative template rather than a per-index mock
-      // match, since with more real projects (1775) than mock templates (18)
-      // an index-wrapped match produced misleading duplicate-looking fake data.
       return data.map((p) => {
-        const mockMatch = MOCK_PROJECTS.find(m => m.id === p.id) || MOCK_PROJECTS[0];
         return {
-          ...mockMatch,
-          id: p.id || mockMatch.id,
-          name: p.name || mockMatch.name,
-          sector: p.sector || mockMatch.sector,
-          ministry: p.ministry || mockMatch.ministry,
-          state: p.state || mockMatch.state,
-          budgetCr: p.budget || mockMatch.budgetCr,
-          revisedBudgetCr: p.revised_cost || mockMatch.revisedBudgetCr,
-          cumulativeExpenditureCr: p.cumulative_expenditure || mockMatch.cumulativeExpenditureCr,
-          overallRiskScore: Math.round((p.overall_risk_score || mockMatch.overallRiskScore / 100) * 100),
-          costOverrunPct: p.cost_overrun_pct || mockMatch.costOverrunPct,
-          status: p.status === 'active' ? (p.overall_risk_score >= 0.75 ? 'Critical' : p.overall_risk_score >= 0.5 ? 'At Risk' : 'Active') : mockMatch.status,
+          id: p.id,
+          code: p.external_project_id || `PRJ-${p.id}`,
+          name: p.name,
+          sector: p.sector || 'Unknown',
+          ministry: p.ministry || 'Unknown',
+          state: p.state || 'Unknown',
+          status: p.status === 'active' ? (p.overall_risk_score >= 0.75 ? 'Critical' : p.overall_risk_score >= 0.5 ? 'At Risk' : 'Active') : p.status,
+          budgetCr: p.budget || 0,
+          revisedBudgetCr: p.revised_cost || 0,
+          cumulativeExpenditureCr: p.cumulative_expenditure || 0,
+          overallRiskScore: Math.round((p.overall_risk_score || 0) * 100),
+          costRiskScore: p.cost_risk_score ? Math.round(p.cost_risk_score * 100) : Math.round((p.overall_risk_score || 0) * 80),
+          delayRiskScore: p.delay_risk_score ? Math.round(p.delay_risk_score * 100) : Math.round((p.overall_risk_score || 0) * 90),
+          executionRiskScore: Math.round((p.overall_risk_score || 0) * 85),
+          costOverrunPct: p.cost_overrun_pct || 0,
+          scheduleDelayDays: p.predicted_delay_days || 0,
+          // Generate synthetic values for missing fields to satisfy the UI type
+          nextMilestone: "Standard Progress Review",
+          nextMilestoneDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          plannedCompletionDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          forecastCompletionDate: new Date(Date.now() + (180 + (p.predicted_delay_days || 0)) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          earlyWarningLeadMonths: 4.5,
+          topRiskDrivers: [
+            { driver: "Cost Escalation", shapContribution: 0.25, description: "Escalation in material cost", category: "cost" as const },
+            { driver: "Execution Delay", shapContribution: 0.15, description: "Milestone completion delayed", category: "milestone" as const }
+          ],
+          monthlyRiskHistory: [
+            { month: "Jan", score: Math.round(((p.overall_risk_score || 0) - 0.05) * 100) },
+            { month: "Feb", score: Math.round(((p.overall_risk_score || 0) - 0.02) * 100) },
+            { month: "Mar", score: Math.round((p.overall_risk_score || 0) * 100) }
+          ]
         };
       });
     }
-    return MOCK_PROJECTS;
+    return [];
   },
 
   getProjectById: async (id: string | number): Promise<ProjectData | undefined> => {
-    const numId = Number(id);
-    const mockMatch = MOCK_PROJECTS.find(p => p.id === numId);
-    if (!mockMatch) return MOCK_PROJECTS[0];
-
     const data = await fetchJson<any>(`/projects/${id}`, null);
     if (data && data.name) {
       return {
-        ...mockMatch,
         id: data.id,
+        code: data.external_project_id || `PRJ-${data.id}`,
         name: data.name,
-        sector: data.sector || mockMatch.sector,
-        ministry: data.ministry || mockMatch.ministry,
-        state: data.state || mockMatch.state,
-        budgetCr: data.budget || mockMatch.budgetCr,
-        revisedBudgetCr: data.revised_cost || mockMatch.revisedBudgetCr,
-        cumulativeExpenditureCr: data.cumulative_expenditure || mockMatch.cumulativeExpenditureCr,
-        overallRiskScore: data.overall_risk_score ? Math.round(data.overall_risk_score * 100) : mockMatch.overallRiskScore,
+        sector: data.sector || 'Unknown',
+        ministry: data.ministry || 'Unknown',
+        state: data.state || 'Unknown',
+        status: data.status === 'active' ? (data.overall_risk_score >= 0.75 ? 'Critical' : data.overall_risk_score >= 0.5 ? 'At Risk' : 'Active') : data.status,
+        budgetCr: data.budget || 0,
+        revisedBudgetCr: data.revised_cost || 0,
+        cumulativeExpenditureCr: data.cumulative_expenditure || 0,
+        overallRiskScore: data.overall_risk_score ? Math.round(data.overall_risk_score * 100) : 0,
+        costRiskScore: data.cost_risk_score ? Math.round(data.cost_risk_score * 100) : Math.round((data.overall_risk_score || 0) * 80),
+        delayRiskScore: data.delay_risk_score ? Math.round(data.delay_risk_score * 100) : Math.round((data.overall_risk_score || 0) * 90),
+        executionRiskScore: Math.round((data.overall_risk_score || 0) * 85),
+        costOverrunPct: data.cost_overrun_pct || 0,
+        scheduleDelayDays: data.predicted_delay_days || 0,
+        nextMilestone: "Standard Progress Review",
+        nextMilestoneDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        plannedCompletionDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        forecastCompletionDate: new Date(Date.now() + (180 + (data.predicted_delay_days || 0)) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        earlyWarningLeadMonths: 4.5,
+        topRiskDrivers: [
+          { driver: "Cost Escalation", shapContribution: 0.25, description: "Escalation in material cost", category: "cost" as const },
+          { driver: "Execution Delay", shapContribution: 0.15, description: "Milestone completion delayed", category: "milestone" as const }
+        ],
+        monthlyRiskHistory: [
+          { month: "Jan", score: Math.round(((data.overall_risk_score || 0) - 0.05) * 100) },
+          { month: "Feb", score: Math.round(((data.overall_risk_score || 0) - 0.02) * 100) },
+          { month: "Mar", score: Math.round((data.overall_risk_score || 0) * 100) }
+        ]
       };
     }
-    return mockMatch;
+    return undefined;
   },
 
   getAlerts: () => fetchJson('/alerts', MOCK_INTERVENTIONS), // Real backend returns list directly
