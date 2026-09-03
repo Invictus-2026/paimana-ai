@@ -63,6 +63,7 @@ def load_projects_from_dataframe(db: Session, df: pd.DataFrame) -> int:
         project.cumulative_expenditure = float(row.get("cumulative_expenditure") or 0.0)
         project.cost_overrun_pct = float(cost_growth_pct)
         project.overall_risk_score = _compute_risk_score(cost_growth_pct)
+        project.risk_score_method = "rule_based_cost_growth_v1"
         project.status = "active"
 
         count += 1

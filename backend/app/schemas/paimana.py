@@ -46,6 +46,7 @@ class ProjectBase(BaseModel):
     revised_cost: float = 0.0
     cumulative_expenditure: float = 0.0
     external_project_id: Optional[str] = None
+    risk_score_method: str = "unscored"
     is_synthetic: bool = False
 
 

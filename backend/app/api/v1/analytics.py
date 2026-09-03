@@ -41,7 +41,7 @@ DIMENSION_CAVEATS: Dict[str, Dict[str, str]] = {
     },
     "risk_profile": {
         "what": "Cost and schedule variance breakdown grouped by baseline predictive risk tiers (Low, Moderate, High, Critical).",
-        "why": "ML risk models categorize projects based on historical feature correlations and early warning indicators.",
+        "why": "Risk tiers for real MoSPI projects are currently derived from a rule-based cost-growth heuristic (not a trained ML model), pending a validated predictive risk model; see risk_score_method on each project.",
         "not": "High risk classification is a proactive warning, not a definitive outcome prediction or judgment."
     }
 }
