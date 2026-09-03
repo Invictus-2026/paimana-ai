@@ -88,6 +88,7 @@ def get_project_risk(project_id: int, db: Session = Depends(get_db)):
             "predicted_delay_days": latest_pred.predicted_delay_days if latest_pred else 0.0,
             "predicted_cost_overrun_pct": latest_pred.predicted_cost_overrun_pct if latest_pred else project.cost_overrun_pct,
             "risk_level": "Critical" if (project.overall_risk_score >= 0.75) else ("High" if project.overall_risk_score >= 0.50 else "Moderate"),
+            "risk_score_method": project.risk_score_method,
             "last_evaluated": latest_pred.timestamp.isoformat() if latest_pred else project.created_at.isoformat()
         }
     )

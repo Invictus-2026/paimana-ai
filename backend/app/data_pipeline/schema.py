@@ -43,6 +43,15 @@ COLUMN_ALIASES: Dict[str, str] = {
     "Sector": "sector",
     "sector": "sector",
     "sector_group": "sector",
+
+    # Real MoSPI dataset headers (multi-line headers normalized to single spaces
+    # by flatten_and_map_columns before this lookup)
+    "ProjectID": "project_id",
+    "Project Name": "project_name",
+    "Line Ministry": "ministry_name",
+    "Original Cost (in Cr)": "original_cost",
+    "Latest Revised Cost (in Cr)": "revised_cost",
+    "Expenditure (Cumm.) (in Cr)": "cumulative_expenditure",
     
     # State / Location
     "State": "state_location",

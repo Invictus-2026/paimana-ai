@@ -12,19 +12,16 @@ Below is the summary of schema mapping across input files:
 
 | File Name | Raw Column Count | Mapped Canonical Columns | Unmapped Columns |
 |---|---|---|---|
-| `pdf_flash_report_extracted.csv` | 15 | 14 | pdf_page |
-| `projects_batch1.csv` | 14 | 14 | None |
-| `energy_sector_monitoring.xlsx` | 14 | 13 | project_name |
-| `projects_batch2.json` | 14 | 14 | None |
+| `paimana_projects_master.csv` | 8 | 7 | Sr.No. |
 
 ---
 
 ## 2. Duplicate Detection Report (Stage 4)
 
-- **Total Ingested Records**: `16`
-- **Exact Duplicate Rows**: `1`
-- **Key Duplicate Snapshots (Same Project & Month)**: `2`
-- **Affected Project IDs**: `1001`
+- **Total Ingested Records**: `1775`
+- **Exact Duplicate Rows**: `0`
+- **Key Duplicate Snapshots (Same Project & Month)**: `0`
+- **Affected Project IDs**: `None`
 
 *Note: In accordance with pipeline constraints, duplicate records are NOT automatically deleted; they are preserved with `is_duplicate = True` quality flags for downstream review.*
 
@@ -34,25 +31,25 @@ Below is the summary of schema mapping across input files:
 
 | Field Name | Missing Count | Missing Percentage (%) | Quality Assessment |
 |---|---|---|---|
-| `pdf_page` | 13 | 81.25% | High Missingness |
+| `Sr.No.` | 0 | 0.0% | Pass |
+| `sector` | 0 | 0.0% | Pass |
+| `ministry_name` | 0 | 0.0% | Pass |
 | `project_id` | 0 | 0.0% | Pass |
 | `project_name` | 0 | 0.0% | Pass |
-| `ministry_name` | 0 | 0.0% | Pass |
-| `sector` | 0 | 0.0% | Pass |
-| `state_location` | 0 | 0.0% | Pass |
 | `original_cost` | 0 | 0.0% | Pass |
 | `revised_cost` | 0 | 0.0% | Pass |
 | `cumulative_expenditure` | 0 | 0.0% | Pass |
-| `start_date` | 0 | 0.0% | Pass |
-| `planned_end_date` | 0 | 0.0% | Pass |
-| `revised_end_date` | 0 | 0.0% | Pass |
-| `observation_date` | 0 | 0.0% | Pass |
-| `physical_progress_pct` | 0 | 0.0% | Pass |
-| `delay_reason_category` | 0 | 0.0% | Pass |
 | `raw_source_file` | 0 | 0.0% | Pass |
+| `state_location` | 1775 | 100.0% | High Missingness |
+| `start_date` | 1775 | 100.0% | High Missingness |
+| `planned_end_date` | 1775 | 100.0% | High Missingness |
+| `revised_end_date` | 1775 | 100.0% | High Missingness |
+| `observation_date` | 1775 | 100.0% | High Missingness |
+| `physical_progress_pct` | 1775 | 100.0% | High Missingness |
+| `delay_reason_category` | 1775 | 100.0% | High Missingness |
 | `is_duplicate` | 0 | 0.0% | Pass |
-| `quality_flags` | 16 | 100.0% | High Missingness |
-| `observation_month` | 0 | 0.0% | Pass |
+| `quality_flags` | 1775 | 100.0% | High Missingness |
+| `observation_month` | 1775 | 100.0% | High Missingness |
 
 ---
 
@@ -62,10 +59,10 @@ The pipeline applied domain validation rules to flag suspicious data records:
 
 | Anomaly Classification Rule | Detected Flag Count | Remediation / Quality Action |
 |---|---|---|
-| **Physical Progress > 100%** | `1` | Flagged with `PROGRESS_EXCEEDS_100%` |
-| **Negative Cumulative Expenditure** | `1` | Flagged with `NEGATIVE_EXPENDITURE` |
+| **Physical Progress > 100%** | `0` | Flagged with `PROGRESS_EXCEEDS_100%` |
+| **Negative Cumulative Expenditure** | `0` | Flagged with `NEGATIVE_EXPENDITURE` |
 | **Planned End Date Before Start Date** | `0` | Flagged with `PLANNED_END_BEFORE_START` |
-| **Revised Cost Below Original Cost** | `0` | Flagged with `REVISED_COST_BELOW_ORIGINAL` |
+| **Revised Cost Below Original Cost** | `316` | Flagged with `REVISED_COST_BELOW_ORIGINAL` |
 | **Revised End Date Past Observation Date** | `0` | Flagged with `REVISED_END_PAST_OBSERVATION` |
 
 ---

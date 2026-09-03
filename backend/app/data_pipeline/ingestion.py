@@ -35,8 +35,10 @@ def flatten_and_map_columns(df: pd.DataFrame, source_filename: str) -> Tuple[pd.
     # Clean column names (strip whitespace, lowercase lookup)
     col_rename_dict = {}
     for col in initial_cols:
-        # Check direct mapping
-        clean_col = col.strip()
+        # Check direct mapping (collapse embedded newlines/whitespace first,
+        # since multi-line CSV headers like "Original Cost\n(in Cr)" are common
+        # in real government export files)
+        clean_col = " ".join(col.split())
         if clean_col in COLUMN_ALIASES:
             col_rename_dict[col] = COLUMN_ALIASES[clean_col]
             mapped_cols[col] = COLUMN_ALIASES[clean_col]

@@ -18,11 +18,22 @@ def compute_linear_trend(series: pd.Series) -> float:
         return 0.0
 
 def generate_derived_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Stage 15: Computes 13 derived point-in-time features with strict target leakage validation."""
+    """Stage 15: Computes derived point-in-time features with strict target leakage validation.
+
+    Cost-based features (cost_growth_percent, expenditure_ratio) are always computed.
+    Date/progress-dependent features are skipped entirely when the source dataset has
+    no temporal data at all (a single-snapshot dataset), rather than emitting misleading
+    zero/NaT-derived values for fields that were never actually observed.
+    """
     logger.info("Computing derived temporal features...")
     df = df.copy()
 
-    # Ensure dataset is sorted chronologically per project
+    temporal_cols = ["start_date", "planned_end_date", "observation_date", "physical_progress_pct"]
+    has_temporal_data = any(
+        col in df.columns and df[col].notna().any() for col in temporal_cols
+    )
+
+    # Ensure dataset is sorted chronologically per project (no-op ordering if no dates)
     df = df.sort_values(by=["project_id", "observation_date"]).reset_index(drop=True)
 
     # 1. cost_growth_percent: Percentage change in total project cost over original budget
@@ -38,6 +49,10 @@ def generate_derived_features(df: pd.DataFrame) -> pd.DataFrame:
         (df["cumulative_expenditure"] / df["original_cost"]) * 100.0,
         0.0
     )
+
+    if not has_temporal_data:
+        logger.info("No temporal data present (snapshot-only dataset) — skipping 11 date/progress-dependent features.")
+        return df
 
     # 3. elapsed_duration_percent: Time elapsed from start date to observation date as % of planned duration
     planned_duration_days = (df["planned_end_date"] - df["start_date"]).dt.days

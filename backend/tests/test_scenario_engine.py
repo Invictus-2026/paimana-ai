@@ -4,10 +4,6 @@ from app.services.scenario_engine import (
     ScenarioType,
     ScenarioSimulationResult,
 )
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
 
 
 @pytest.fixture
@@ -54,7 +50,7 @@ def test_schedule_recovery_reduces_risk(engine):
     assert result.delta.is_risk_escalated is False
 
 
-def test_scenario_simulate_api_endpoint():
+def test_scenario_simulate_api_endpoint(client):
     """Test 4: Verifies POST /api/v1/scenarios/simulate endpoint."""
     payload = {
         "project_id": "P104",

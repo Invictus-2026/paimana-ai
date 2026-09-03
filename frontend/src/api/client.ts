@@ -48,6 +48,8 @@ export const api = {
           ministry: p.ministry || mockMatch.ministry,
           state: p.state || mockMatch.state,
           budgetCr: p.budget || mockMatch.budgetCr,
+          revisedBudgetCr: p.revised_cost || mockMatch.revisedBudgetCr,
+          cumulativeExpenditureCr: p.cumulative_expenditure || mockMatch.cumulativeExpenditureCr,
           overallRiskScore: Math.round((p.overall_risk_score || mockMatch.overallRiskScore / 100) * 100),
           costOverrunPct: p.cost_overrun_pct || mockMatch.costOverrunPct,
           status: p.status === 'active' ? (p.overall_risk_score >= 0.75 ? 'Critical' : p.overall_risk_score >= 0.5 ? 'At Risk' : 'Active') : mockMatch.status,
@@ -72,6 +74,8 @@ export const api = {
         ministry: data.ministry || mockMatch.ministry,
         state: data.state || mockMatch.state,
         budgetCr: data.budget || mockMatch.budgetCr,
+        revisedBudgetCr: data.revised_cost || mockMatch.revisedBudgetCr,
+        cumulativeExpenditureCr: data.cumulative_expenditure || mockMatch.cumulativeExpenditureCr,
         overallRiskScore: data.overall_risk_score ? Math.round(data.overall_risk_score * 100) : mockMatch.overallRiskScore,
       };
     }

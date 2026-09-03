@@ -70,7 +70,7 @@ def run_etl_pipeline(
     )
     
     # Stage 15: Feature Generation (Derived Point-in-Time Variables)
-    logger.info("Stage 15: Generating 13 derived point-in-time features...")
+    logger.info("Stage 15: Generating derived point-in-time features...")
     featured_df = generate_derived_features(quality_df)
     
     # Stage 16: Dataset Validation & Target Leakage Check

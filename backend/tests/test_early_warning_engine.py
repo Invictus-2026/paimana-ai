@@ -7,10 +7,6 @@ from app.services.early_warning_engine import (
     AlertType,
     RiskMetrics,
 )
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
 
 
 @pytest.fixture
@@ -79,7 +75,7 @@ def test_alert_cooldown_deduplication(engine):
     assert alert2 is None
 
 
-def test_alerts_api_endpoint():
+def test_alerts_api_endpoint(client):
     """Test 5: Verifies GET /api/v1/alerts endpoint."""
     response = client.get("/api/v1/alerts")
     assert response.status_code == 200
@@ -87,7 +83,7 @@ def test_alerts_api_endpoint():
     assert isinstance(json_data, list)
 
 
-def test_project_risk_trajectory_api_endpoint():
+def test_project_risk_trajectory_api_endpoint(client):
     """Test 6: Verifies GET /api/v1/projects/{id}/risk-trajectory endpoint."""
     response = client.get("/api/v1/projects/1/risk-trajectory")
     assert response.status_code == 200

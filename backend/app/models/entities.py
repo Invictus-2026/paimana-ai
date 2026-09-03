@@ -25,6 +25,10 @@ class Project(Base):
     status: Mapped[str] = mapped_column(String(50), default="active", index=True)
     overall_risk_score: Mapped[float] = mapped_column(Float, default=0.0, index=True)
     cost_overrun_pct: Mapped[float] = mapped_column(Float, default=0.0)
+    revised_cost: Mapped[float] = mapped_column(Float, default=0.0)
+    cumulative_expenditure: Mapped[float] = mapped_column(Float, default=0.0)
+    external_project_id: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, unique=True, index=True)
+    risk_score_method: Mapped[str] = mapped_column(String(50), default="unscored")
     is_synthetic: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
 

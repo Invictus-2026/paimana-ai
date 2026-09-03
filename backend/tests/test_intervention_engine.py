@@ -5,10 +5,6 @@ from app.services.intervention_engine import (
     InterventionPriority,
     InterventionRecommendation,
 )
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
 
 
 @pytest.fixture
@@ -72,7 +68,7 @@ def test_human_approval_status_transition(engine):
     assert updated.reviewed_at is not None
 
 
-def test_get_project_interventions_api():
+def test_get_project_interventions_api(client):
     """Test 4: Verifies GET /api/v1/interventions/{project_id} endpoint."""
     response = client.get("/api/v1/interventions/P101")
     assert response.status_code == 200
@@ -82,7 +78,7 @@ def test_get_project_interventions_api():
     assert len(json_data["data"]["interventions"]) > 0
 
 
-def test_approve_intervention_api():
+def test_approve_intervention_api(client):
     """Test 5: Verifies POST /api/v1/interventions/{id}/approve endpoint."""
     # First get a recommendation ID
     res_get = client.get("/api/v1/interventions/P101")
