@@ -5,29 +5,68 @@
     --bg-main: #f8fafc;
     --bg-card: #ffffff;
     --border-color: #e2e8f0;
+    --color-navy: #0b172a;
+    --color-gov-blue: #003366;
     --color-primary: #0d52ce;
     --color-primary-hover: #0b45ad;
+    --color-electric: #2563eb;
+    --color-risk-low: #10b981;
+    --color-risk-mod: #f59e0b;
+    --color-risk-high: #f97316;
+    --color-risk-crit: #ef4444;
   }
 
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: #f8fafc;
     color: #0f172a;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, .font-heading {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    letter-spacing: -0.025em;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
+/* Sophisticated Data Panel System */
+.command-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.command-panel:hover {
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+}
+
+.command-panel-elevated {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.875rem;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+}
+
+/* Backward compatibility for existing .light-card usage */
 .light-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 0.875rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .light-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  border-color: #cbd5e1;
 }
 
 .light-card-clickable {
@@ -55,4 +94,28 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #0d52ce;
+}
+
+/* Command Center Grid Overlay Utility */
+.bg-command-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(226, 232, 240, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.5) 1px, transparent 1px);
+}
+
+/* Live Status Pulse Animation */
+@keyframes live-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.15);
+  }
+}
+
+.animate-live-pulse {
+  animation: live-pulse 2s infinite ease-in-out;
 }

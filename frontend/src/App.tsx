@@ -10,6 +10,7 @@ import { ScenariosPage } from './pages/ScenariosPage';
 import { InterventionsPage } from './pages/InterventionsPage';
 import { CopilotPage } from './pages/CopilotPage';
 import { BenchmarksPage } from './pages/BenchmarksPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ export const App: React.FC = () => {
             <Route path="interventions" element={<InterventionsPage />} />
             <Route path="alerts" element={<Navigate to="/interventions" replace />} />
             <Route path="benchmarks" element={<BenchmarksPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="copilot" element={<CopilotPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
-import { AlertTriangle, Bell, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { PageContainer } from '../components/ui';
 
 export const AlertsPage: React.FC = () => {
   const { data: alertResponse, isLoading } = useQuery({
@@ -9,24 +10,28 @@ export const AlertsPage: React.FC = () => {
     queryFn: api.getAlerts,
   });
 
-  const alerts = alertResponse?.data?.alerts || [];
+  const alerts = (alertResponse as any)?.data?.alerts || [];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-outfit">Risk & Early Warning Alerts</h1>
-        <p className="text-slate-500 text-sm mt-0.5 font-medium">Real-time threshold monitoring and risk anomaly feed</p>
+    <PageContainer breadcrumb="EARLY WARNING ALERT STREAM">
+      <div className="command-panel p-5 bg-gradient-to-r from-white via-slate-50 to-red-50/20 border border-slate-200/90 rounded-2xl">
+        <h1 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight font-heading">
+          Risk & Early Warning Alert Stream
+        </h1>
+        <p className="text-slate-500 text-xs mt-0.5 font-medium">
+          Real-time threshold monitoring and statistical anomaly feed across central projects
+        </p>
       </div>
 
       {isLoading && (
-        <div className="p-12 dashboard-card text-center text-slate-500">
-          Fetching live alert feed from backend...
+        <div className="p-12 command-panel bg-white text-center text-slate-500 text-xs">
+          Fetching live alert stream from PAIMANA Core...
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {alerts.map((alert: any) => (
-          <div key={alert.id} className="dashboard-card p-5 flex items-start justify-between">
+          <div key={alert.id} className="command-panel p-5 bg-white border border-slate-200/90 rounded-2xl flex items-start justify-between">
             <div className="flex items-start space-x-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 alert.severity === 'critical' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-amber-50 text-amber-600 border border-amber-200'
@@ -53,6 +58,6 @@ export const AlertsPage: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 };

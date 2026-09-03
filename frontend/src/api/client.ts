@@ -1,6 +1,6 @@
-import { MOCK_PROJECTS, MOCK_INTERVENTIONS, STATE_RISK_SUMMARY, ProjectData, InterventionData } from '../data/mockData';
+import { MOCK_PROJECTS, MOCK_INTERVENTIONS, STATE_RISK_SUMMARY, ProjectData } from '../data/mockData';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = (import.meta as { env?: Record<string, string> }).env?.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 async function fetchJson<T>(endpoint: string, fallback: T): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -18,7 +18,7 @@ async function fetchJson<T>(endpoint: string, fallback: T): Promise<T> {
     }
     const data = await response.json();
     return data ?? fallback;
-  } catch (error) {
+  } catch {
     // Return fallback on network error or offline mode
     return fallback;
   }
