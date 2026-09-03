@@ -1,5 +1,7 @@
 """ML Model Registry API endpoints."""
 
+import json
+from pathlib import Path
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -10,13 +12,33 @@ from app.models.entities import ModelVersion
 router = APIRouter()
 
 
+def _load_cost_overrun_model_entry():
+    """Builds a ModelVersionResponse describing the trained cost-overrun model,
+    if scripts/train_cost_overrun_model.py has been run."""
+    report_path = Path("reports/cost-overrun-baseline-results.json")
+    if not report_path.exists():
+        return None
+    with open(report_path) as f:
+        report = json.load(f)
+    return ModelVersionResponse(
+        id=100,
+        model_name="CostOverrun_LogisticRegression_Real",
+        version="v1.0.0-real-data",
+        status="deployed",
+        training_timestamp="2026-09-03T00:00:00Z",
+        deployment_timestamp="2026-09-03T00:00:00Z",
+        metrics=json.dumps(report),
+    )
+
+
 @router.get("", response_model=List[ModelVersionResponse], summary="List available ML models")
 def list_models(db: Session = Depends(get_db)):
     """Retrieve metadata for trained and deployed machine learning models from DB."""
     models = db.query(ModelVersion).order_by(ModelVersion.training_timestamp.desc()).all()
+    real_cost_overrun_entry = _load_cost_overrun_model_entry()
     if not models:
         # Fallback default registry entries if database table is initially empty
-        return [
+        fallback = [
             ModelVersionResponse(
                 id=1,
                 model_name="CatBoost_Cost_Overrun_Classifier",
@@ -45,4 +67,9 @@ def list_models(db: Session = Depends(get_db)):
                 metrics='{"accuracy": 0.865}'
             )
         ]
+        if real_cost_overrun_entry is not None:
+            fallback.append(real_cost_overrun_entry)
+        return fallback
+    if real_cost_overrun_entry is not None:
+        return list(models) + [real_cost_overrun_entry]
     return models
