@@ -21,7 +21,7 @@ early_warning_engine = EarlyWarningEngine(cooldown_days=7.0)
 
 @router.get("", response_model=List[ProjectResponse], summary="List projects with filtering and pagination")
 def get_projects(
-    limit: int = Query(50, ge=1, le=500),
+    limit: int = Query(2000, ge=1, le=5000),
     offset: int = Query(0, ge=0),
     status: Optional[str] = Query(None, description="Filter by status (e.g. active, at_risk, completed)"),
     sector: Optional[str] = Query(None, description="Filter by sector"),

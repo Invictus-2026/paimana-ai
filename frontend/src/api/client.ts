@@ -6,7 +6,7 @@ async function fetchJson<T>(endpoint: string, fallback: T): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   try {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 2500); // 2.5s timeout for fast response
+    const id = setTimeout(() => controller.abort(), 10000); // 10s timeout for large datasets
     const response = await fetch(url, {
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal
@@ -35,7 +35,7 @@ export const api = {
     }),
 
   getProjects: async (): Promise<ProjectData[]> => {
-    const data = await fetchJson<any[]>('/projects', []);
+    const data = await fetchJson<any[]>('/projects?limit=2000', []);
     if (data && Array.isArray(data) && data.length > 0) {
       return data.map((p) => {
         return {

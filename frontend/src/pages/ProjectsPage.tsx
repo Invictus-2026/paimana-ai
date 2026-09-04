@@ -8,7 +8,11 @@ import {
   ArrowUpDown,
   Layers,
   RefreshCw,
-  Calendar
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight
 } from 'lucide-react';
 
 export const ProjectsPage: React.FC = () => {
@@ -40,6 +44,10 @@ export const ProjectsPage: React.FC = () => {
   // Sorting state
   const [sortField, setSortField] = useState<keyof ProjectData>('overallRiskScore');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   // Sync active filter state to URL search parameters & localStorage
   useEffect(() => {
@@ -98,6 +106,13 @@ export const ProjectsPage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedMinistry, selectedSector, selectedState, selectedStatus, costImpactFilter, delayImpactFilter, sortField, sortOrder]);
+
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+  const paginatedProjects = filteredProjects.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedMinistry('ALL');
@@ -110,10 +125,10 @@ export const ProjectsPage: React.FC = () => {
   };
 
   const getRiskBadge = (score: number) => {
-    if (score >= 85 || score > 0.8) return <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold">High Risk ({score})</span>;
-    if (score >= 50) return <span className="px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 text-[11px] font-bold">At Risk ({score})</span>;
-    if (score >= 35) return <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">Moderate ({score})</span>;
-    return <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[11px] font-bold">Active ({score})</span>;
+    if (score >= 85 || score > 0.8) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold whitespace-nowrap">High Risk ({score})</span>;
+    if (score >= 50) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 text-[11px] font-bold whitespace-nowrap">At Risk ({score})</span>;
+    if (score >= 35) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold whitespace-nowrap">Moderate ({score})</span>;
+    return <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[11px] font-bold whitespace-nowrap">Active ({score})</span>;
   };
 
   return (
@@ -238,50 +253,56 @@ export const ProjectsPage: React.FC = () => {
 
       {/* Projects Data Table */}
       <div className="light-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+        <div className="overflow-x-auto pb-4">
+          <table className="w-full text-left text-xs border-collapse min-w-[1400px]">
             <thead>
               <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold uppercase text-[11px] tracking-wider">
-                <th onClick={() => handleSort('name')} className="p-4 cursor-pointer hover:text-slate-900 transition">
+                <th onClick={() => handleSort('name')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[320px]">
                   <div className="flex items-center space-x-1">
                     <span>Project Name & Code</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th onClick={() => handleSort('overallRiskScore')} className="p-4 cursor-pointer hover:text-slate-900 transition">
+                <th onClick={() => handleSort('overallRiskScore')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[120px]">
                   <div className="flex items-center space-x-1">
                     <span>Risk Score</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-4">Ministry & Sector</th>
-                <th className="p-4">State</th>
-                <th className="p-4">Next Milestone</th>
-                <th onClick={() => handleSort('costOverrunPct')} className="p-4 cursor-pointer hover:text-slate-900 transition">
+                <th className="p-4 min-w-[220px]">Ministry & Sector</th>
+                <th className="p-4 min-w-[120px]">State</th>
+                <th onClick={() => handleSort('budgetCr')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[120px]">
+                  <div className="flex items-center space-x-1">
+                    <span>Budget (Cr)</span>
+                    <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                </th>
+                <th className="p-4 min-w-[200px]">Next Milestone</th>
+                <th onClick={() => handleSort('costOverrunPct')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[140px]">
                   <div className="flex items-center space-x-1">
                     <span>Cost Overrun</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th onClick={() => handleSort('scheduleDelayDays')} className="p-4 cursor-pointer hover:text-slate-900 transition">
+                <th onClick={() => handleSort('scheduleDelayDays')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[140px]">
                   <div className="flex items-center space-x-1">
                     <span>Schedule Delay</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-4 text-right">Action</th>
+                <th className="p-4 text-right min-w-[120px]">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {filteredProjects.length > 0 ? (
-                filteredProjects.map((p) => (
+              {paginatedProjects.length > 0 ? (
+                paginatedProjects.map((p) => (
                   <tr
                     key={p.id}
                     onClick={() => navigate(`/projects/${p.id}`)}
                     className="hover:bg-slate-50/80 cursor-pointer transition"
                   >
                     <td className="p-4">
-                      <p className="font-extrabold text-slate-900 text-xs">{p.name}</p>
+                      <p className="font-extrabold text-slate-900 text-xs pr-4">{p.name}</p>
                       <p className="text-[11px] text-[#0d52ce] font-mono font-semibold mt-0.5">{p.code} • ₹{p.budgetCr.toLocaleString()} Cr</p>
                     </td>
 
@@ -298,8 +319,13 @@ export const ProjectsPage: React.FC = () => {
                       {p.state}
                     </td>
 
-                    <td className="p-4 max-w-xs">
-                      <p className="text-slate-800 font-medium truncate">{p.nextMilestone}</p>
+                    <td className="p-4">
+                      <p className="font-bold text-slate-800 text-xs">₹{p.budgetCr.toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-500 font-medium mt-0.5">Exp: ₹{p.cumulativeExpenditureCr.toLocaleString()}</p>
+                    </td>
+
+                    <td className="p-4 pr-4">
+                      <p className="text-slate-800 font-medium line-clamp-2">{p.nextMilestone}</p>
                       <p className="text-[10px] text-slate-400 font-medium mt-0.5 flex items-center gap-1">
                         <Calendar className="w-3 h-3 text-slate-400" />
                         <span>Due: {p.nextMilestoneDate}</span>
@@ -327,7 +353,7 @@ export const ProjectsPage: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-500 italic">
+                  <td colSpan={9} className="p-8 text-center text-slate-500 italic">
                     No projects match the active filter criteria. Click "Reset Filters" to clear.
                   </td>
                 </tr>
@@ -335,6 +361,74 @@ export const ProjectsPage: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white border-t border-slate-100 gap-4">
+            <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProjects.length)} of {filteredProjects.length} entries
+            </div>
+            <div className="flex items-center justify-center space-x-1">
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronsLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              <div className="flex items-center px-1 space-x-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum = currentPage;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition ${
+                        currentPage === pageNum
+                          ? 'bg-[#0d52ce] text-white shadow-sm'
+                          : 'text-slate-600 hover:bg-slate-100 border border-transparent hover:border-slate-200'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronsRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
