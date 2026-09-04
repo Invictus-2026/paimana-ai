@@ -221,20 +221,26 @@ export const ProjectDetailPage: React.FC = () => {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {project.topRiskDrivers.map((driver, idx) => (
-            <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold uppercase">
-                  Driver #{idx + 1}
-                </span>
-                <span className="text-xs font-mono font-bold text-red-600">
-                  SHAP: +{driver.shapContribution.toFixed(2)}
-                </span>
+          {project.topRiskDrivers.length > 0 ? (
+            project.topRiskDrivers.map((driver, idx) => (
+              <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold uppercase">
+                    Driver #{idx + 1}
+                  </span>
+                  <span className="text-xs font-mono font-bold text-red-600">
+                    SHAP: +{driver.shapContribution.toFixed(2)}
+                  </span>
+                </div>
+                <h3 className="font-bold text-sm text-slate-900">{driver.driver}</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">{driver.description}</p>
               </div>
-              <h3 className="font-bold text-sm text-slate-900">{driver.driver}</h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">{driver.description}</p>
+            ))
+          ) : (
+            <div className="col-span-1 md:col-span-3 p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 font-medium text-sm">
+              No causal SHAP driver data is currently available for this project. ML inference may be pending.
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

@@ -55,21 +55,14 @@ export const api = {
           executionRiskScore: Math.round((p.overall_risk_score || 0) * 85),
           costOverrunPct: p.cost_overrun_pct || 0,
           scheduleDelayDays: p.predicted_delay_days || 0,
-          // Generate synthetic values for missing fields to satisfy the UI type
-          nextMilestone: "Standard Progress Review",
-          nextMilestoneDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          plannedCompletionDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          forecastCompletionDate: new Date(Date.now() + (180 + (p.predicted_delay_days || 0)) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          earlyWarningLeadMonths: 4.5,
-          topRiskDrivers: [
-            { driver: "Cost Escalation", shapContribution: 0.25, description: "Escalation in material cost", category: "cost" as const },
-            { driver: "Execution Delay", shapContribution: 0.15, description: "Milestone completion delayed", category: "milestone" as const }
-          ],
-          monthlyRiskHistory: [
-            { month: "Jan", score: Math.round(((p.overall_risk_score || 0) - 0.05) * 100) },
-            { month: "Feb", score: Math.round(((p.overall_risk_score || 0) - 0.02) * 100) },
-            { month: "Mar", score: Math.round((p.overall_risk_score || 0) * 100) }
-          ]
+          // Remove synthetic fields and use real values if available
+          nextMilestone: p.status_text || "Milestone Pending",
+          nextMilestoneDate: p.end_date || new Date().toISOString().split('T')[0],
+          plannedCompletionDate: p.start_date || new Date().toISOString().split('T')[0],
+          forecastCompletionDate: p.end_date || new Date().toISOString().split('T')[0],
+          earlyWarningLeadMonths: 0,
+          topRiskDrivers: [],
+          monthlyRiskHistory: []
         };
       });
     }
@@ -77,8 +70,32 @@ export const api = {
   },
 
   getProjectById: async (id: string | number): Promise<ProjectData | undefined> => {
-    const data = await fetchJson<any>(`/projects/${id}`, null);
+    // Fetch project details, risk assessment, and predictions concurrently
+    const [data, riskRes, trajRes, predRes] = await Promise.all([
+      fetchJson<any>(`/projects/${id}`, null),
+      fetchJson<any>(`/projects/${id}/risk`, null),
+      fetchJson<any>(`/projects/${id}/risk-trajectory`, null),
+      fetchJson<any[]>(`/projects/${id}/predictions`, [])
+    ]);
+    
     if (data && data.name) {
+      const risk = riskRes?.data || {};
+      const latestPrediction = predRes && predRes.length > 0 ? predRes[0] : null;
+      
+      const topRiskDrivers = latestPrediction?.factors?.map((f: any) => ({
+        driver: f.factor_name,
+        shapContribution: f.shap_value,
+        description: `Impact on project: ${f.factor_name}`,
+        category: 'cost' as const
+      })) || [];
+
+      const monthlyHistory = trajRes?.data?.historical_observations?.map((obs: any) => {
+        return {
+          month: new Date(obs.timestamp).toLocaleString('default', { month: 'short' }),
+          score: Math.round(obs.risk_score * 100)
+        };
+      }) || [];
+
       return {
         id: data.id,
         code: data.external_project_id || `PRJ-${data.id}`,
@@ -86,30 +103,23 @@ export const api = {
         sector: data.sector || 'Unknown',
         ministry: data.ministry || 'Unknown',
         state: data.state || 'Unknown',
-        status: data.status === 'active' ? (data.overall_risk_score >= 0.75 ? 'Critical' : data.overall_risk_score >= 0.5 ? 'At Risk' : 'Active') : data.status,
+        status: data.status,
         budgetCr: data.budget || 0,
         revisedBudgetCr: data.revised_cost || 0,
         cumulativeExpenditureCr: data.cumulative_expenditure || 0,
-        overallRiskScore: data.overall_risk_score ? Math.round(data.overall_risk_score * 100) : 0,
-        costRiskScore: data.cost_risk_score ? Math.round(data.cost_risk_score * 100) : Math.round((data.overall_risk_score || 0) * 80),
-        delayRiskScore: data.delay_risk_score ? Math.round(data.delay_risk_score * 100) : Math.round((data.overall_risk_score || 0) * 90),
-        executionRiskScore: Math.round((data.overall_risk_score || 0) * 85),
-        costOverrunPct: data.cost_overrun_pct || 0,
-        scheduleDelayDays: data.predicted_delay_days || 0,
-        nextMilestone: "Standard Progress Review",
-        nextMilestoneDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        plannedCompletionDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        forecastCompletionDate: new Date(Date.now() + (180 + (data.predicted_delay_days || 0)) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        earlyWarningLeadMonths: 4.5,
-        topRiskDrivers: [
-          { driver: "Cost Escalation", shapContribution: 0.25, description: "Escalation in material cost", category: "cost" as const },
-          { driver: "Execution Delay", shapContribution: 0.15, description: "Milestone completion delayed", category: "milestone" as const }
-        ],
-        monthlyRiskHistory: [
-          { month: "Jan", score: Math.round(((data.overall_risk_score || 0) - 0.05) * 100) },
-          { month: "Feb", score: Math.round(((data.overall_risk_score || 0) - 0.02) * 100) },
-          { month: "Mar", score: Math.round((data.overall_risk_score || 0) * 100) }
-        ]
+        overallRiskScore: Math.round((risk.overall_risk_score || data.overall_risk_score || 0) * 100),
+        costRiskScore: risk.cost_risk_score ? Math.round(risk.cost_risk_score * 100) : 0,
+        delayRiskScore: risk.delay_risk_score ? Math.round(risk.delay_risk_score * 100) : 0,
+        executionRiskScore: 0,
+        costOverrunPct: risk.predicted_cost_overrun_pct || data.cost_overrun_pct || 0,
+        scheduleDelayDays: risk.predicted_delay_days || 0,
+        nextMilestone: data.status_text || "Milestone Pending",
+        nextMilestoneDate: data.end_date || new Date().toISOString().split('T')[0],
+        plannedCompletionDate: data.start_date || new Date().toISOString().split('T')[0],
+        forecastCompletionDate: data.end_date || new Date().toISOString().split('T')[0],
+        earlyWarningLeadMonths: trajRes?.data?.metrics?.time_to_critical_months || 0,
+        topRiskDrivers: topRiskDrivers,
+        monthlyRiskHistory: monthlyHistory.length > 0 ? monthlyHistory : [{ month: new Date().toLocaleString('default', { month: 'short' }), score: Math.round((data.overall_risk_score || 0) * 100) }]
       };
     }
     return undefined;
