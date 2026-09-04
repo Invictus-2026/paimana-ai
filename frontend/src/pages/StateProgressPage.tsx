@@ -82,36 +82,39 @@ export const StateProgressPage: React.FC = () => {
         <>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* India Map */}
-            <div className="light-card p-5 lg:col-span-8 flex flex-col justify-center items-center relative">
-               <div className="absolute top-4 left-4 z-10 flex items-center gap-4">
-                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
-                   <span className="w-3 h-3 bg-[#f8fafc] border border-slate-200 block rounded-sm"></span> 0
+            <div className="light-card p-0 lg:col-span-7 flex flex-col h-[500px] relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50">
+               <div className="absolute top-4 left-4 z-10 flex items-center flex-wrap gap-2 max-w-[80%] bg-white/80 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
+                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                   <span className="w-2.5 h-2.5 bg-[#f8fafc] border border-slate-200 block rounded-[2px]"></span> 0
                  </div>
-                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
-                   <span className="w-3 h-3 bg-[#bfdbfe] block rounded-sm"></span> 1-20
+                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                   <span className="w-2.5 h-2.5 bg-[#bfdbfe] block rounded-[2px]"></span> 1-20
                  </div>
-                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
-                   <span className="w-3 h-3 bg-[#60a5fa] block rounded-sm"></span> 21-50
+                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                   <span className="w-2.5 h-2.5 bg-[#60a5fa] block rounded-[2px]"></span> 21-50
                  </div>
-                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
-                   <span className="w-3 h-3 bg-[#3b82f6] block rounded-sm"></span> 51-100
+                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                   <span className="w-2.5 h-2.5 bg-[#3b82f6] block rounded-[2px]"></span> 51-100
                  </div>
-                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
-                   <span className="w-3 h-3 bg-[#1d4ed8] block rounded-sm"></span> 101-200
+                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                   <span className="w-2.5 h-2.5 bg-[#1d4ed8] block rounded-[2px]"></span> 101-200
                  </div>
-                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
-                   <span className="w-3 h-3 bg-[#1e3a8a] block rounded-sm"></span> 200+
+                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                   <span className="w-2.5 h-2.5 bg-[#1e3a8a] block rounded-[2px]"></span> 200+
                  </div>
                </div>
-               <IndiaMap 
-                 stateData={stateData}
-                 activeState={activeState} 
-                 onStateClick={setActiveState} 
-               />
+               
+               <div className="w-full h-full p-4 pt-16">
+                 <IndiaMap 
+                   stateData={stateData}
+                   activeState={activeState} 
+                   onStateClick={setActiveState} 
+                 />
+               </div>
             </div>
             
             {/* Click Details Card */}
-            <div className="light-card p-6 lg:col-span-4 flex flex-col space-y-4">
+            <div className="light-card p-6 lg:col-span-5 flex flex-col relative overflow-hidden">
               <h3 className="font-bold text-sm text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Regional Intelligence</h3>
               
               {activeState ? (

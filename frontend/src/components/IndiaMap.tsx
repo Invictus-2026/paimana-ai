@@ -9,28 +9,12 @@ interface IndiaMapProps {
 
 export const IndiaMap: React.FC<IndiaMapProps> = ({ stateData, activeState, onStateClick }) => {
   const [geoData, setGeoData] = useState<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 600, height: 600 });
 
   useEffect(() => {
     fetch('/india.geojson')
       .then(res => res.json())
       .then(data => setGeoData(data))
       .catch(err => console.error("Error loading map data:", err));
-  }, []);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
-        setDimensions({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height
-        });
-      }
-    });
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
   }, []);
 
   const dataMap = useMemo(() => {
@@ -53,9 +37,12 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({ stateData, activeState, onSt
     );
   }
 
-  // Calculate dynamic scale and translation using fitExtent for perfect centering and sizing
+  // Use a fixed viewBox coordinate system to scale automatically with CSS
+  const mapWidth = 800;
+  const mapHeight = 800;
+
   const projection = d3Geo.geoMercator()
-    .fitExtent([[20, 20], [dimensions.width - 20, dimensions.height - 20]], geoData);
+    .fitExtent([[10, 10], [mapWidth - 10, mapHeight - 10]], geoData);
 
   const pathGenerator = d3Geo.geoPath().projection(projection);
 
@@ -75,8 +62,8 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({ stateData, activeState, onSt
   };
 
   return (
-    <div ref={containerRef} className="w-full h-[500px] relative">
-      <svg width={dimensions.width} height={dimensions.height} className="drop-shadow-sm">
+    <div className="w-full h-full relative">
+      <svg viewBox={`0 0 ${mapWidth} ${mapHeight}`} className="w-full h-full drop-shadow-sm filter">
         <g strokeLinejoin="round">
           {geoData.features.map((feature: any) => {
             const stateName = feature.properties.ST_NM;
@@ -95,8 +82,8 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({ stateData, activeState, onSt
                   fill={getStateColor(stateName)}
                   onClick={() => onStateClick(matchedData)}
                   stroke={isActive ? "#0f172a" : "#ffffff"}
-                  strokeWidth={isActive ? 2 : 0.5}
-                  className={`cursor-pointer transition-all duration-200 ${isActive ? 'opacity-100 drop-shadow-md' : 'opacity-80 hover:opacity-100'}`}
+                  strokeWidth={isActive ? 3 : 0.75}
+                  className={`cursor-pointer transition-all duration-200 ${isActive ? 'opacity-100 drop-shadow-lg' : 'opacity-80 hover:opacity-100'}`}
                 />
               </g>
             );
