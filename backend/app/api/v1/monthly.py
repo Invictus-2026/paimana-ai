@@ -421,3 +421,58 @@ def get_monthly_projects(month: str = Query("2026-07", description="Month in YYY
         })
         
     return GenericResponse(status="success", message="OK", data={"projects": projects})
+
+
+def _parse_summary_file(path: Path) -> List[dict]:
+    """Parse a 5-column summary CSV like state or physical-progress."""
+    if not path.exists():
+        return []
+        
+    with open(path, "r", encoding="utf-8-sig") as f:
+        reader = csv.reader(f)
+        lines = list(reader)
+        
+    results = []
+    # Skip header lines
+    start_idx = 0
+    for i, line in enumerate(lines):
+        if line and len(line) >= 5 and line[0].isdigit():
+            start_idx = i
+            break
+            
+    for row in lines[start_idx:]:
+        if len(row) < 5: continue
+        try:
+            name = row[1].strip()
+            count = int(row[2].replace(",", ""))
+            orig, rev = _parse_cost_string(row[3])
+            exp = float(row[4].replace(",", "") or 0)
+            results.append({
+                "name": name,
+                "count": count,
+                "orig_cost_cr": orig,
+                "revised_cost_cr": rev,
+                "expenditure_cr": exp
+            })
+        except:
+            pass
+            
+    return results
+
+@router.get("/state", response_model=GenericResponse, summary="State-wise project distribution")
+def get_monthly_state(month: str = Query("2026-07")):
+    """Returns the state-wise breakdown for a specific month."""
+    path = _REPO_ROOT / "data" / "dataset" / "state" / f"{month}.csv"
+    data = _parse_summary_file(path)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"No state data found for {month}")
+    return GenericResponse(status="success", message="OK", data={"month": month, "states": data})
+
+@router.get("/physical-progress", response_model=GenericResponse, summary="Physical progress distribution")
+def get_monthly_physical_progress(month: str = Query("2026-07")):
+    """Returns the physical progress distribution for a specific month."""
+    path = _REPO_ROOT / "data" / "dataset" / "physical-progress" / f"{month}.csv"
+    data = _parse_summary_file(path)
+    if not data:
+        raise HTTPException(status_code=404, detail=f"No progress data found for {month}")
+    return GenericResponse(status="success", message="OK", data={"month": month, "progress": data})

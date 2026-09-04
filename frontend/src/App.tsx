@@ -11,6 +11,7 @@ import { ScenariosPage } from './pages/ScenariosPage';
 import { InterventionsPage } from './pages/InterventionsPage';
 import { CopilotPage } from './pages/CopilotPage';
 import { BenchmarksPage } from './pages/BenchmarksPage';
+import { StateProgressPage } from './pages/StateProgressPage';
 
 export const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ export const App: React.FC = () => {
             <Route path="map" element={<RiskMapPage />} />
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="projects/:id" element={<ProjectDetailPage />} />
+            <Route path="progress" element={<StateProgressPage />} />
             <Route path="scenarios" element={<ScenariosPage />} />
             <Route path="interventions" element={<InterventionsPage />} />
             <Route path="alerts" element={<Navigate to="/interventions" replace />} />

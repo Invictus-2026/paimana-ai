@@ -180,6 +180,8 @@ export const api = {
   getMonthlyOverview: () => fetchJson('/monthly/overview', { status: 'success', data: { months: [] } as any }),
   getMonthlyAvailableMonths: () => fetchJson('/monthly/available-months', { status: 'success', data: { months: [] } as any }),
   getMonthlySectors: (month: string) => fetchJson(`/monthly/sectors?month=${month}`, { status: 'success', data: { sectors: [] } as any }),
+  getMonthlyState: (month: string) => fetchJson(`/monthly/state?month=${month}`, { status: 'success', data: { states: [] } as any }),
+  getMonthlyPhysicalProgress: (month: string) => fetchJson(`/monthly/physical-progress?month=${month}`, { status: 'success', data: { progress: [] } as any }),
   getProjectMonthlyTrajectory: (extProjectId: string) => fetchJson(`/monthly/project/${extProjectId}`, { status: 'success', data: null as any }),
   queryCopilot: (query: string) => {
     const url = `${API_BASE_URL}/copilot/query`;

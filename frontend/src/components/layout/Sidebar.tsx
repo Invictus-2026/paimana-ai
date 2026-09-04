@@ -25,6 +25,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutGrid },
   { name: 'Projects', path: '/projects', icon: FolderKanban },
+  { name: 'State & Progress', path: '/progress', icon: LayoutGrid, badge: 'New' },
   { name: 'Analytics', path: '/analytics', icon: TrendingUp, hasDropdown: true },
   { name: 'Risk & Alerts', path: '/interventions', icon: AlertTriangle },
   { name: 'Forecasting', path: '/scenarios', icon: LineChart },
