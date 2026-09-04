@@ -18,7 +18,7 @@ export const CopilotPage: React.FC = () => {
   const [inputQuery, setInputQuery] = useState<string>('');
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: api.getProjects,
+    queryFn: () => api.getProjects(),
   });
 
   const [activeResponse, setActiveResponse] = useState<CopilotResponse | null>(null);

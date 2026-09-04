@@ -11,7 +11,7 @@ export const ScenariosPage: React.FC = () => {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: api.getProjects,
+    queryFn: () => api.getProjects(),
   });
   const project = projects.find(p => p.id === parseInt(selectedProjectId)) || projects[0] || MOCK_PROJECTS[0];
 

@@ -12,8 +12,16 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  Filter
 } from 'lucide-react';
+
+const MONTH_LABELS: Record<string, string> = {
+  "2025-07":"Jul '25","2025-08":"Aug '25","2025-09":"Sep '25","2025-10":"Oct '25",
+  "2025-11":"Nov '25","2025-12":"Dec '25","2026-01":"Jan '26","2026-02":"Feb '26",
+  "2026-03":"Mar '26","2026-04":"Apr '26","2026-05":"May '26","2026-06":"Jun '26",
+  "2026-07":"Jul '26",
+};
 
 export const ProjectsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,11 +43,18 @@ export const ProjectsPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState(initialStatus);
   const [costImpactFilter, setCostImpactFilter] = useState(initialCostImpact);
   const [delayImpactFilter, setDelayImpactFilter] = useState(initialDelayImpact);
+  const [selectedMonth, setSelectedMonth] = useState('ALL');
 
   const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: api.getProjects,
+    queryKey: ['projects', selectedMonth],
+    queryFn: () => api.getProjects(selectedMonth),
   });
+
+  const { data: availableMonthsRes } = useQuery({
+    queryKey: ['available-months'],
+    queryFn: api.getMonthlyAvailableMonths,
+  });
+  const availableMonths: Array<{month: string; label: string}> = availableMonthsRes?.data?.months || [];
 
   // Sorting state
   const [sortField, setSortField] = useState<keyof ProjectData>('overallRiskScore');
@@ -121,6 +136,7 @@ export const ProjectsPage: React.FC = () => {
     setSelectedStatus('ALL');
     setCostImpactFilter('ALL');
     setDelayImpactFilter('ALL');
+    setSelectedMonth('ALL');
     localStorage.removeItem('paimana_explorer_filters');
   };
 
@@ -156,6 +172,33 @@ export const ProjectsPage: React.FC = () => {
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
             <span>Reset Filters</span>
           </button>
+        </div>
+      </div>
+
+      {/* Month Selector Strip */}
+      <div className="light-card p-3 bg-white">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+            <Filter className="w-3.5 h-3.5" />
+            <span>Snapshot Month:</span>
+          </div>
+          <div className="flex items-center gap-1 flex-wrap">
+            <button
+              onClick={() => setSelectedMonth('ALL')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                selectedMonth === 'ALL' ? 'bg-[#0d52ce] text-white border-[#0d52ce]' : 'text-slate-500 border-slate-200 hover:border-slate-300'
+              }`}
+            >All</button>
+            {availableMonths.map(m => (
+              <button
+                key={m.month}
+                onClick={() => setSelectedMonth(m.month)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                  selectedMonth === m.month ? 'bg-[#0d52ce] text-white border-[#0d52ce]' : 'text-slate-500 border-slate-200 hover:border-slate-300'
+                }`}
+              >{m.label}</button>
+            ))}
+          </div>
         </div>
       </div>
 

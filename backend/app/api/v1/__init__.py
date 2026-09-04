@@ -9,6 +9,7 @@ from app.api.v1 import (
     risks,
     alerts,
     analytics,
+    monthly,
     scenarios,
     interventions,
     models,
@@ -24,6 +25,7 @@ api_router.include_router(predictions.router, prefix="/predictions", tags=["Pred
 api_router.include_router(risks.router, prefix="/risks", tags=["Risks"])
 api_router.include_router(alerts.router, prefix="/alerts", tags=["Alerts"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
+api_router.include_router(monthly.router, prefix="/monthly", tags=["Monthly Time-Series"])
 api_router.include_router(scenarios.router, prefix="/scenarios", tags=["Scenarios"])
 api_router.include_router(interventions.router, prefix="/interventions", tags=["Interventions"])
 api_router.include_router(models.router, prefix="/models", tags=["Models"])

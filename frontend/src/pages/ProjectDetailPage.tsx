@@ -3,44 +3,50 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
 import {
-  ArrowLeft,
-  ShieldAlert,
-  Clock,
-  IndianRupee,
-  Calendar,
-  TrendingUp,
-  Sliders,
-  Sparkles
+  ArrowLeft, ShieldAlert, Clock, IndianRupee, TrendingUp, Sliders,
+  BarChart2, AlertTriangle, CheckCircle2, Activity
 } from 'lucide-react';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer
+  LineChart, Line, AreaChart, Area, BarChart, Bar,
+  XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, Cell
 } from 'recharts';
 
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: project, isLoading } = useQuery({
+  const { data: project, isLoading: projLoading } = useQuery({
     queryKey: ['project', id],
-    queryFn: () => api.getProjectById(id || '101'),
+    queryFn: () => api.getProjectById(id || ''),
     enabled: Boolean(id),
   });
 
+  // Fetch full 1-year monthly trajectory using the external project ID
+  const extId = project?.code?.replace(/^PRJ-/, '') || '';
+  const { data: trajectoryRes, isLoading: trajLoading } = useQuery({
+    queryKey: ['project-monthly-trajectory', extId],
+    queryFn: () => api.getProjectMonthlyTrajectory(extId),
+    enabled: Boolean(extId && !extId.startsWith('PRJ-')),
+  });
+
+  const trajectoryData: any[] = trajectoryRes?.data?.trajectory || [];
+  const summary: any = trajectoryRes?.data?.summary || null;
+
+  const isLoading = projLoading || trajLoading;
+
   if (isLoading || !project) {
     return (
-      <div className="p-8 text-center text-slate-500 font-bold">
-        Loading Project Intelligence...
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
+          <p className="text-slate-500 font-medium">Loading Project Intelligence...</p>
+        </div>
       </div>
     );
   }
 
   const getRiskColor = (score: number) => {
-    if (score >= 75 || score > 0.75) return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', fill: '#ef4444', label: 'HIGH RISK' };
+    if (score >= 75) return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', fill: '#ef4444', label: 'HIGH RISK' };
     if (score >= 50) return { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', fill: '#f97316', label: 'AT RISK' };
     if (score >= 35) return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', fill: '#eab308', label: 'MODERATE' };
     return { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', fill: '#10b981', label: 'ACTIVE' };
@@ -48,200 +54,237 @@ export const ProjectDetailPage: React.FC = () => {
 
   const overallColor = getRiskColor(project.overallRiskScore);
 
+  // Build chart data from trajectory
+  const riskTrendData = trajectoryData.map(t => ({
+    label: t.label,
+    risk: Math.round(t.risk_score * 100),
+    overrun: t.cost_overrun_pct,
+  }));
+
+  const costTrendData = trajectoryData.map(t => ({
+    label: t.label,
+    original: Math.round(t.original_cost_cr),
+    revised: Math.round(t.revised_cost_cr) || Math.round(t.original_cost_cr),
+    expenditure: Math.round(t.expenditure_cr),
+  }));
+
+  const riskScores = riskTrendData.map(r => r.risk);
+  const peakRisk = riskScores.length ? Math.max(...riskScores) : project.overallRiskScore;
+  const minRisk = riskScores.length ? Math.min(...riskScores) : 0;
+  const riskTrend = riskScores.length >= 2
+    ? (riskScores[riskScores.length - 1] > riskScores[0] ? '↑ Increasing' : '↓ Decreasing')
+    : 'Insufficient data';
+
+  const hasTrajectory = trajectoryData.length > 0;
+
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto font-sans pb-6 text-slate-800">
-      {/* Header & Back Button */}
+      {/* Header */}
       <div className="light-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <button
-            onClick={() => navigate('/projects')}
-            className="flex items-center space-x-1.5 text-xs text-[#0d52ce] hover:underline font-bold mb-2 transition"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Project Explorer</span>
+          <button onClick={() => navigate('/projects')} className="flex items-center space-x-1.5 text-xs text-[#0d52ce] hover:underline font-bold mb-2">
+            <ArrowLeft className="w-3.5 h-3.5" /><span>Back to Project Explorer</span>
           </button>
-          <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-black text-slate-900">{project.name}</h1>
+          <div className="flex items-center flex-wrap gap-2">
+            <h1 className="text-xl font-black text-slate-900">{project.name}</h1>
             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${overallColor.bg} ${overallColor.text} border ${overallColor.border}`}>
-              {overallColor.label} ({project.overallRiskScore})
+              {overallColor.label} ({project.overallRiskScore}/100)
             </span>
+            {summary && (
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${summary.risk_trend === 'increasing' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'}`}>
+                Trend: {riskTrend}
+              </span>
+            )}
           </div>
           <p className="text-slate-500 text-xs mt-1 font-medium">
-            {project.code} • {project.ministry} • {project.sector} • State: {project.state}
+            {project.code} · {project.ministry} · {project.sector} · {project.state}
+            {hasTrajectory && <span className="ml-2 text-blue-600 font-bold">· {trajectoryData.length}-month trajectory loaded</span>}
           </p>
         </div>
-
-        <div className="flex items-center space-x-3 shrink-0">
-          <button
-            onClick={() => navigate(`/scenarios?project_id=${project.id}`)}
-            className="flex items-center space-x-2 px-4 py-2.5 bg-[#0d52ce] hover:bg-[#0b45ad] text-white rounded-xl text-xs font-bold shadow-md shadow-[#0d52ce]/20 transition"
-          >
-            <Sliders className="w-4 h-4" />
-            <span>Simulate Disruption</span>
-          </button>
-        </div>
+        <button onClick={() => navigate(`/scenarios?project_id=${project.id}`)}
+          className="flex items-center space-x-2 px-4 py-2.5 bg-[#0d52ce] hover:bg-[#0b45ad] text-white rounded-xl text-xs font-bold shadow-md shrink-0">
+          <Sliders className="w-4 h-4" /><span>Simulate Disruption</span>
+        </button>
       </div>
 
-      {/* Risk Metrics Cards Row */}
+      {/* Risk KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Overall Risk Score */}
-        <div className="light-card p-5 border-l-4 border-l-red-500 bg-red-50/20 flex flex-col justify-between">
+        <div className="light-card p-5 border-l-4 border-l-red-500">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Overall Risk Index</span>
-          <div className="mt-3">
-            <h2 className="text-3xl font-black text-red-600 font-sans">{project.overallRiskScore} <span className="text-xs text-slate-400 font-normal">/ 100</span></h2>
-            <p className="text-xs text-slate-700 font-semibold mt-1">Status: {project.status}</p>
-          </div>
+          <h2 className="text-3xl font-black text-red-600 mt-3">{project.overallRiskScore} <span className="text-xs text-slate-400 font-normal">/ 100</span></h2>
+          <p className="text-xs text-slate-500 mt-1">Peak 12-mo: <strong className="text-slate-800">{peakRisk}</strong> · Min: <strong>{minRisk}</strong></p>
         </div>
-
-        {/* Sub-Risk: Cost Risk */}
-        <div className="light-card p-5 flex flex-col justify-between">
+        <div className="light-card p-5">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cost Risk Score</span>
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cost Overrun</span>
             <IndianRupee className="w-4 h-4 text-orange-500" />
           </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-black text-slate-900">{project.costRiskScore} <span className="text-xs font-normal text-slate-400">/ 100</span></h3>
-            <p className="text-xs text-orange-600 font-bold mt-1">+{project.costOverrunPct}% Cost Overrun</p>
+          <h3 className="text-2xl font-black text-slate-900 mt-3">+{summary?.latest_cost_overrun_pct?.toFixed(1) || project.costOverrunPct.toFixed(1)}%</h3>
+          <p className="text-xs text-orange-600 font-bold mt-1">Peak: +{summary?.peak_cost_overrun_pct?.toFixed(1) || '—'}%</p>
+        </div>
+        <div className="light-card p-5">
+          <div className="flex justify-between items-start">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Budget</span>
+            <Activity className="w-4 h-4 text-blue-500" />
+          </div>
+          <h3 className="text-2xl font-black text-slate-900 mt-3">₹{(summary?.latest_original_cost_cr || project.budgetCr).toLocaleString()} Cr</h3>
+          <p className="text-xs text-slate-500 mt-1">Revised: ₹{(summary?.latest_revised_cost_cr || project.revisedBudgetCr).toLocaleString()} Cr</p>
+        </div>
+        <div className="light-card p-5">
+          <div className="flex justify-between items-start">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Expenditure</span>
+            <TrendingUp className="w-4 h-4 text-emerald-500" />
+          </div>
+          <h3 className="text-2xl font-black text-slate-900 mt-3">₹{(summary?.total_expenditure_cr || project.cumulativeExpenditureCr).toLocaleString()} Cr</h3>
+          <p className="text-xs text-slate-500 mt-1">Risk score method: {project.overallRiskScore >= 50 ? 'Rule-based cost-growth' : 'Low risk'}</p>
+        </div>
+      </div>
+
+      {/* 1-Year Risk Score Trajectory */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="light-card p-5 lg:col-span-8">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-[#0d52ce]" />
+                {hasTrajectory ? `${trajectoryData.length}-Month Risk Score Trajectory (Real Data)` : '12-Month Risk Score Trajectory'}
+              </h2>
+              {!hasTrajectory && <p className="text-xs text-amber-600 mt-1">⚠ Project ID not found in monthly dataset files — showing DB snapshot only</p>}
+            </div>
+            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+              riskTrend.includes('↑') ? 'bg-red-50 text-red-600 border-red-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+            }`}>{riskTrend}</span>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={hasTrajectory ? riskTrendData : project.monthlyRiskHistory.map(h => ({ label: h.month, risk: h.score, overrun: 0 }))}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradRisk" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
+                  formatter={(v: any, n: string) => [n === 'overrun' ? `${v}%` : `${v}/100`, n === 'overrun' ? 'Cost Overrun' : 'Risk Score']} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                <Area type="monotone" dataKey="risk" name="Risk Score" stroke="#ef4444" strokeWidth={2.5} fill="url(#gradRisk)" dot={{ r: 3, fill: '#ef4444' }} />
+                {hasTrajectory && <Line type="monotone" dataKey="overrun" name="overrun" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 2" />}
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Sub-Risk: Delay Risk */}
-        <div className="light-card p-5 flex flex-col justify-between">
-          <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Schedule Delay Risk</span>
-            <Clock className="w-4 h-4 text-red-500" />
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-black text-slate-900">{project.delayRiskScore} <span className="text-xs font-normal text-slate-400">/ 100</span></h3>
-            <p className="text-xs text-red-600 font-bold mt-1">+{project.scheduleDelayDays} Days Delay</p>
-          </div>
-        </div>
-
-        {/* Sub-Risk: Execution Risk */}
-        <div className="light-card p-5 flex flex-col justify-between">
-          <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Execution Risk</span>
-            <ShieldAlert className="w-4 h-4 text-[#0d52ce]" />
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-black text-slate-900">{project.executionRiskScore} <span className="text-xs font-normal text-slate-400">/ 100</span></h3>
-            <p className="text-xs text-[#0d52ce] font-bold mt-1">Physical Progress Divergence</p>
+        {/* Analysis summary */}
+        <div className="light-card p-5 lg:col-span-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4">1-Year Analysis Summary</h2>
+          <div className="space-y-3">
+            {[
+              { label: 'Months Tracked', value: summary ? `${summary.months_found} / 13` : 'DB snapshot only', icon: Clock, color: 'text-blue-500' },
+              { label: 'Latest Month', value: summary?.latest_month || 'N/A', icon: Activity, color: 'text-slate-500' },
+              { label: 'Peak Risk Score', value: summary ? `${Math.round(summary.peak_risk_score * 100)} / 100` : `${peakRisk} / 100`, icon: AlertTriangle, color: 'text-red-500' },
+              { label: 'Risk Trajectory', value: riskTrend, icon: TrendingUp, color: riskTrend.includes('↑') ? 'text-red-500' : 'text-emerald-500' },
+              { label: 'Peak Overrun', value: summary ? `+${summary.peak_cost_overrun_pct?.toFixed(1)}%` : `+${project.costOverrunPct.toFixed(1)}%`, icon: IndianRupee, color: 'text-orange-500' },
+              { label: 'Ministry', value: project.ministry, icon: ShieldAlert, color: 'text-[#0d52ce]' },
+            ].map(({ label, value, icon: Icon, color }) => (
+              <div key={label} className="flex items-center justify-between py-2 border-b border-slate-50">
+                <div className="flex items-center gap-2">
+                  <Icon className={`w-4 h-4 ${color} shrink-0`} />
+                  <span className="text-xs text-slate-500 font-medium">{label}</span>
+                </div>
+                <span className="text-xs font-bold text-slate-800 text-right max-w-[140px] truncate" title={String(value)}>{String(value)}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Main Intelligence Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Risk Trajectory Line Chart */}
-        <div className="light-card p-5 lg:col-span-7 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#0d52ce]" />
-                <span>12-Month Risk Score Trajectory</span>
-              </h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[11px] font-bold border border-red-200">
-                Accelerating Risk (+30 pts)
-              </span>
-            </div>
-
-            <div className="mt-6 h-60">
+      {/* Cost & Expenditure Trend */}
+      {hasTrajectory && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="light-card p-5">
+            <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <BarChart2 className="w-4 h-4 text-[#0d52ce]" />
+              Budget vs Expenditure (₹ Cr) · Monthly
+            </h2>
+            <div className="h-60">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={project.monthlyRiskHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="month" tickLine={false} axisLine={{ stroke: '#e2e8f0' }} tick={{ fontSize: 11, fill: '#64748b' }} />
-                  <YAxis domain={[0, 100]} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px' }} />
-                  <Line type="monotone" dataKey="score" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: '#ef4444' }} />
-                </LineChart>
+                <BarChart data={costTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${(v/1000).toFixed(1)}k`} />
+                  <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px' }}
+                    formatter={(v: any) => [`₹${Number(v).toLocaleString()} Cr`]} />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="original" name="Original Cost" fill="#0d52ce" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="revised" name="Revised Cost" fill="#f97316" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="expenditure" name="Expenditure" fill="#10b981" radius={[3, 3, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-600 flex items-center justify-between">
-            <span>Current Trajectory Status: <strong className="text-red-600">High Deterioration Rate</strong></span>
-            <span className="text-[11px] text-slate-400 font-medium">Updated April 2026</span>
-          </div>
-        </div>
-
-        {/* Forecast & Early Warning Card */}
-        <div className="light-card p-5 lg:col-span-5 flex flex-col justify-between">
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Calendar className="w-4 h-4 text-orange-500" />
-              <span>Completion Forecast & Early Warning</span>
+          {/* Cost overrun % line chart */}
+          <div className="light-card p-5">
+            <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-orange-500" />
+              Cost Overrun % — Month-wise
             </h2>
-
-            {/* Early Warning Lead Time Highlight */}
-            <div className="mt-4 p-4 rounded-2xl bg-orange-50 border border-orange-200 flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-orange-700 uppercase tracking-wider">Early Warning Lead Time</span>
-                <p className="text-sm font-bold text-slate-900 mt-0.5">
-                  Detected <strong className="text-orange-600 font-extrabold">{project.earlyWarningLeadMonths} months</strong> prior to baseline delay
-                </p>
-              </div>
-            </div>
-
-            {/* Completion Dates Side-by-Side */}
-            <div className="grid grid-cols-2 gap-3 mt-4">
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Baseline Target</span>
-                <p className="text-sm font-bold text-slate-900 mt-1">{project.plannedCompletionDate}</p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Forecast Completion</span>
-                <p className="text-sm font-bold text-red-600 mt-1">{project.forecastCompletionDate}</p>
-              </div>
-            </div>
-
-            {/* Budget Variance */}
-            <div className="grid grid-cols-2 gap-3 mt-3">
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Original Budget</span>
-                <p className="text-sm font-bold text-slate-900 mt-1">₹{project.budgetCr.toLocaleString()} Cr</p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Revised Estimated</span>
-                <p className="text-sm font-bold text-orange-600 mt-1">₹{project.revisedBudgetCr.toLocaleString()} Cr</p>
-              </div>
+            <div className="h-60">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={riskTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `${v}%`} />
+                  <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px' }}
+                    formatter={(v: any) => [`${v}%`]} />
+                  <Line type="monotone" dataKey="overrun" name="Cost Overrun %" stroke="#f97316" strokeWidth={2.5} dot={{ r: 4, fill: '#f97316' }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* WHY: Causal Drivers Analysis (Top 3 Active Risk Drivers) */}
+      {/* Risk Drivers */}
       <div className="light-card p-5">
-        <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2 mb-4">
-          <Sparkles className="w-4 h-4 text-[#0d52ce]" />
-          <span>Why Is This Project Risky? (Causal SHAP Drivers Analysis)</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {project.topRiskDrivers.length > 0 ? (
-            project.topRiskDrivers.map((driver, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold uppercase">
-                    Driver #{idx + 1}
-                  </span>
-                  <span className="text-xs font-mono font-bold text-red-600">
-                    SHAP: +{driver.shapContribution.toFixed(2)}
-                  </span>
-                </div>
-                <h3 className="font-bold text-sm text-slate-900">{driver.driver}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">{driver.description}</p>
+        <h2 className="text-sm font-bold text-slate-900 mb-4">Risk Assessment</h2>
+        {hasTrajectory ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-2xl bg-red-50 border border-red-100 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase">Cost Risk</span>
+                <span className="text-xs font-mono font-bold text-red-600">+{summary?.latest_cost_overrun_pct?.toFixed(1) || '0'}%</span>
               </div>
-            ))
-          ) : (
-            <div className="col-span-1 md:col-span-3 p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 font-medium text-sm">
-              No causal SHAP driver data is currently available for this project. ML inference may be pending.
+              <h3 className="font-bold text-sm text-slate-900">Budget Overrun</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">Revised cost exceeds original by {summary?.latest_cost_overrun_pct?.toFixed(1) || '0'}%. Peak observed at {summary?.peak_cost_overrun_pct?.toFixed(1) || '0'}% overrun.</p>
             </div>
-          )}
-        </div>
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase">Risk Trend</span>
+                <span className="text-xs font-mono font-bold text-amber-600">{riskTrend}</span>
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">Trajectory Analysis</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">Risk score changed from {riskScores[0] || 0} to {riskScores[riskScores.length - 1] || 0} over {trajectoryData.length} months of data.</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase">Expenditure</span>
+                <span className="text-xs font-mono font-bold text-blue-600">₹{summary?.total_expenditure_cr?.toLocaleString() || '0'} Cr</span>
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">Utilisation Rate</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">Total expenditure tracked across {trajectoryData.length} monthly snapshots from Jul 2025 to Jul 2026.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 text-sm">
+            <p className="font-bold text-slate-700 mb-2">Project ID "{project.code}" not found in monthly datasets</p>
+            <p className="text-xs max-w-md mx-auto">This project may have been added via the API and does not have a matching MoSPI dataset entry. Showing database-level risk score only.</p>
+          </div>
+        )}
       </div>
     </div>
   );

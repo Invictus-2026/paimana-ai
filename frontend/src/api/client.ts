@@ -34,8 +34,13 @@ export const api = {
       database: 'connected'
     }),
 
-  getProjects: async (): Promise<ProjectData[]> => {
-    const data = await fetchJson<any[]>('/projects?limit=2000', []);
+  getProjects: async (month?: string): Promise<ProjectData[]> => {
+    let url = '/projects?limit=2000';
+    if (month && month !== 'ALL') {
+      url = `/monthly/projects?month=${month}`;
+    }
+    const res = await fetchJson<any>(url, []);
+    const data = res.data?.projects || res; // Handle both GenericResponse and pure list
     if (data && Array.isArray(data) && data.length > 0) {
       return data.map((p) => {
         return {
@@ -69,7 +74,7 @@ export const api = {
     return [];
   },
 
-  getProjectById: async (id: string | number): Promise<ProjectData | undefined> => {
+  getProjectById: async (id: string | number): Promise<ProjectData | null> => {
     // Fetch project details, risk assessment, and predictions concurrently
     const [data, riskRes, trajRes, predRes] = await Promise.all([
       fetchJson<any>(`/projects/${id}`, null),
@@ -122,7 +127,42 @@ export const api = {
         monthlyRiskHistory: monthlyHistory.length > 0 ? monthlyHistory : [{ month: new Date().toLocaleString('default', { month: 'short' }), score: Math.round((data.overall_risk_score || 0) * 100) }]
       };
     }
-    return undefined;
+
+    // Fallback for real MoSPI CSV data where ID is external_project_id
+    const monthlyTraj = await fetchJson<any>(`/monthly/project/${id}`, null);
+    if (monthlyTraj && monthlyTraj.data && monthlyTraj.data.summary) {
+       const summary = monthlyTraj.data.summary;
+       return {
+          id: id.toString(),
+          code: id.toString(),
+          name: summary.project_name,
+          sector: summary.sector,
+          ministry: summary.ministry,
+          state: 'Pan-India',
+          status: summary.latest_risk_score >= 0.75 ? 'Critical' : (summary.latest_risk_score >= 0.5 ? 'At Risk' : 'Active'),
+          budgetCr: summary.latest_original_cost_cr,
+          revisedBudgetCr: summary.latest_revised_cost_cr,
+          cumulativeExpenditureCr: summary.latest_expenditure_cr,
+          overallRiskScore: Math.round(summary.latest_risk_score * 100),
+          costRiskScore: Math.round(summary.latest_risk_score * 100),
+          delayRiskScore: 0,
+          executionRiskScore: Math.round(summary.latest_risk_score * 100),
+          costOverrunPct: summary.latest_cost_overrun_pct,
+          scheduleDelayDays: 0,
+          nextMilestone: "Milestone Pending",
+          nextMilestoneDate: new Date().toISOString().split('T')[0],
+          plannedCompletionDate: new Date().toISOString().split('T')[0],
+          forecastCompletionDate: new Date().toISOString().split('T')[0],
+          earlyWarningLeadMonths: 0,
+          topRiskDrivers: [],
+          monthlyRiskHistory: monthlyTraj.data.trajectory.map((t: any) => ({
+             month: t.label.split(' ')[0],
+             score: Math.round(t.risk_score * 100)
+          }))
+       };
+    }
+
+    return null;
   },
 
   getAlerts: () => fetchJson('/alerts', MOCK_INTERVENTIONS), // Real backend returns list directly
@@ -137,6 +177,10 @@ export const api = {
     if (sector && sector !== 'ALL') params.set('sector', sector);
     return fetchJson(`/analytics/benchmarks?${params.toString()}`, { status: 'success', data: null as any });
   },
+  getMonthlyOverview: () => fetchJson('/monthly/overview', { status: 'success', data: { months: [] } as any }),
+  getMonthlyAvailableMonths: () => fetchJson('/monthly/available-months', { status: 'success', data: { months: [] } as any }),
+  getMonthlySectors: (month: string) => fetchJson(`/monthly/sectors?month=${month}`, { status: 'success', data: { sectors: [] } as any }),
+  getProjectMonthlyTrajectory: (extProjectId: string) => fetchJson(`/monthly/project/${extProjectId}`, { status: 'success', data: null as any }),
   queryCopilot: (query: string) => {
     const url = `${API_BASE_URL}/copilot/query`;
     return fetch(url, {
