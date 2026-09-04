@@ -7,6 +7,7 @@ import {
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Cell
 } from 'recharts';
+import { IndiaMap } from '../components/IndiaMap';
 
 const MONTHS_LIST = [
   "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
@@ -22,6 +23,7 @@ const MONTH_LABELS: Record<string, string> = {
 
 export const StateProgressPage: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState('2026-07');
+  const [activeState, setActiveState] = useState<any>(null);
 
   const { data: stateDataRes, isLoading: statesLoading } = useQuery({
     queryKey: ['monthly-state', selectedMonth],
@@ -78,6 +80,80 @@ export const StateProgressPage: React.FC = () => {
         </div>
       ) : (
         <>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* India Map */}
+            <div className="light-card p-5 lg:col-span-8 flex flex-col justify-center items-center relative">
+               <div className="absolute top-4 left-4 z-10 flex items-center gap-4">
+                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                   <span className="w-3 h-3 bg-[#f8fafc] border border-slate-200 block rounded-sm"></span> 0
+                 </div>
+                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                   <span className="w-3 h-3 bg-[#bfdbfe] block rounded-sm"></span> 1-20
+                 </div>
+                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                   <span className="w-3 h-3 bg-[#60a5fa] block rounded-sm"></span> 21-50
+                 </div>
+                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                   <span className="w-3 h-3 bg-[#3b82f6] block rounded-sm"></span> 51-100
+                 </div>
+                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                   <span className="w-3 h-3 bg-[#1d4ed8] block rounded-sm"></span> 101-200
+                 </div>
+                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                   <span className="w-3 h-3 bg-[#1e3a8a] block rounded-sm"></span> 200+
+                 </div>
+               </div>
+               <IndiaMap 
+                 stateData={stateData}
+                 activeState={activeState} 
+                 onStateClick={setActiveState} 
+               />
+            </div>
+            
+            {/* Click Details Card */}
+            <div className="light-card p-6 lg:col-span-4 flex flex-col space-y-4">
+              <h3 className="font-bold text-sm text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Regional Intelligence</h3>
+              
+              {activeState ? (
+                <div className="animate-in fade-in zoom-in-95 duration-200 space-y-5 mt-2">
+                  <h2 className="text-3xl font-black text-[#0d52ce] leading-none">{activeState.name}</h2>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                       <span className="block text-[10px] font-bold text-slate-500 uppercase">Active Projects</span>
+                       <span className="block text-2xl font-black text-slate-900 mt-1">{activeState.count}</span>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
+                       <span className="block text-[10px] font-bold text-emerald-600 uppercase">Total Budget</span>
+                       <span className="block text-lg font-black text-emerald-900 mt-1">₹{Math.round(activeState.orig_cost_cr).toLocaleString()}Cr</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl">
+                     <span className="block text-[10px] font-bold text-orange-600 uppercase">Cumulative Expenditure</span>
+                     <span className="block text-xl font-black text-orange-900 mt-1">₹{Math.round(activeState.expenditure_cr).toLocaleString()}Cr</span>
+                     <div className="w-full bg-orange-200 h-1.5 mt-3 rounded-full overflow-hidden">
+                       <div className="bg-orange-500 h-full" style={{ width: `${Math.min(100, (activeState.expenditure_cr / activeState.orig_cost_cr) * 100)}%` }}></div>
+                     </div>
+                     <span className="block text-[10px] text-orange-600/80 font-bold mt-1 text-right">
+                       {((activeState.expenditure_cr / activeState.orig_cost_cr) * 100).toFixed(1)}% Spent
+                     </span>
+                  </div>
+                  
+                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between">
+                     <span className="block text-xs font-bold text-slate-500">Revised Cost Estimate</span>
+                     <span className="block text-sm font-black text-slate-900">₹{Math.round(activeState.revised_cost_cr).toLocaleString()}Cr</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+                  <MapPin className="w-12 h-12 text-slate-200 mb-3" />
+                  <p className="text-sm font-medium text-slate-500">Click on any state on the map to view real-time portfolio metrics, budgets, and expenditure.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="light-card p-5">
               <div className="flex items-center justify-between mb-4">

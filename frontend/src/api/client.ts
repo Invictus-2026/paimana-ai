@@ -133,7 +133,7 @@ export const api = {
     if (monthlyTraj && monthlyTraj.data && monthlyTraj.data.summary) {
        const summary = monthlyTraj.data.summary;
        return {
-          id: id.toString(),
+          id: Number(id),
           code: id.toString(),
           name: summary.project_name,
           sector: summary.sector,
