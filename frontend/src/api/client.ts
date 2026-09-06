@@ -177,6 +177,48 @@ export const api = {
     if (sector && sector !== 'ALL') params.set('sector', sector);
     return fetchJson(`/analytics/benchmarks?${params.toString()}`, { status: 'success', data: null as any });
   },
+  getCostOverrunPredictions: (params?: {
+    month?: string;
+    sector?: string;
+    ministry?: string;
+    risk_level?: string;
+    search?: string;
+    sort_by?: string;
+    order?: string;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, val]) => {
+        if (val !== undefined && val !== null && val !== '') {
+          searchParams.set(key, String(val));
+        }
+      });
+    }
+    return fetchJson(`/predictions/cost-overrun?${searchParams.toString()}`, { status: 'success', data: null as any });
+  },
+  getTimeOverrunPredictions: (params?: {
+    month?: string;
+    sector?: string;
+    ministry?: string;
+    delay_severity?: string;
+    search?: string;
+    sort_by?: string;
+    order?: string;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, val]) => {
+        if (val !== undefined && val !== null && val !== '') {
+          searchParams.set(key, String(val));
+        }
+      });
+    }
+    return fetchJson(`/predictions/time-overrun?${searchParams.toString()}`, { status: 'success', data: null as any });
+  },
   getMonthlyOverview: () => fetchJson('/monthly/overview', { status: 'success', data: { months: [] } as any }),
   getMonthlyAvailableMonths: () => fetchJson('/monthly/available-months', { status: 'success', data: { months: [] } as any }),
   getMonthlySectors: (month: string) => fetchJson(`/monthly/sectors?month=${month}`, { status: 'success', data: { sectors: [] } as any }),

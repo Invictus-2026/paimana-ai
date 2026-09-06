@@ -59,36 +59,85 @@ export const Sidebar: React.FC = () => {
         <nav className="mt-4 px-3 space-y-1">
           {mainNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
+            const isItemActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
+            const isAnalytics = item.path === '/analytics';
 
             return (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center justify-between px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 ${
-                    isActive
-                      ? 'bg-[#0d52ce] text-white shadow-md shadow-[#0d52ce]/20'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                  }`
-                }
-              >
-                <div className="flex items-center space-x-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                  <span>{item.name}</span>
-                </div>
+              <div key={item.name} className="space-y-1">
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center justify-between px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 ${
+                      isActive
+                        ? 'bg-[#0d52ce] text-white shadow-md shadow-[#0d52ce]/20'
+                        : isItemActive && isAnalytics
+                        ? 'bg-blue-50 text-[#0d52ce] font-bold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                    }`
+                  }
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className={`w-4 h-4 ${isItemActive && !isAnalytics ? 'text-white' : isItemActive && isAnalytics ? 'text-[#0d52ce]' : 'text-slate-500'}`} />
+                    <span>{item.name}</span>
+                  </div>
 
-                <div className="flex items-center space-x-1">
-                  {item.badge && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-100 text-orange-600 border border-orange-200 uppercase tracking-wide">
-                      {item.badge}
-                    </span>
-                  )}
-                  {item.hasDropdown && (
-                    <ChevronDown className={`w-4 h-4 text-slate-400 ${isActive ? 'text-white' : ''}`} />
-                  )}
-                </div>
-              </NavLink>
+                  <div className="flex items-center space-x-1">
+                    {item.badge && (
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-100 text-orange-600 border border-orange-200 uppercase tracking-wide">
+                        {item.badge}
+                      </span>
+                    )}
+                    {item.hasDropdown && (
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isItemActive ? 'rotate-180 text-[#0d52ce]' : 'text-slate-400'}`} />
+                    )}
+                  </div>
+                </NavLink>
+
+                {/* Sub-links for Analytics */}
+                {isAnalytics && isItemActive && (
+                  <div className="ml-5 pl-4 border-l-2 border-blue-200/80 space-y-1 py-1">
+                    <NavLink
+                      to="/analytics"
+                      end
+                      className={({ isActive }) =>
+                        `block px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                          isActive
+                            ? 'bg-[#0d52ce] text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                        }`
+                      }
+                    >
+                      Benchmarks & Trends
+                    </NavLink>
+                    <NavLink
+                      to="/analytics/cost-overrun"
+                      className={({ isActive }) =>
+                        `flex items-center justify-between px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                          isActive
+                            ? 'bg-[#0d52ce] text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                        }`
+                      }
+                    >
+                      <span>Cost Overrun</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold">AI</span>
+                    </NavLink>
+                    <NavLink
+                      to="/analytics/time-overrun"
+                      className={({ isActive }) =>
+                        `flex items-center justify-between px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                          isActive
+                            ? 'bg-[#0d52ce] text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                        }`
+                      }
+                    >
+                      <span>Time Overrun</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">AI</span>
+                    </NavLink>
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>

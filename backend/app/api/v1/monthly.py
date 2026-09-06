@@ -13,6 +13,7 @@ import re
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
 from app.schemas.paimana import GenericResponse
+from app.services.risk_scoring import compute_project_risk_and_predictions
 
 router = APIRouter()
 logger = logging.getLogger("PAIMANA_Backend.Monthly")
@@ -244,9 +245,15 @@ def _find_project_across_months(ext_id: str) -> List[Dict]:
         rev_val = str(row.get("revised_cost", "0"))
         rev = float(rev_val.replace(",", "") or 0) if rev_val not in ("", "0") else 0.0
         exp = float(str(row.get("expenditure", "0")).replace(",", "") or 0)
-        overrun_pct = round(((rev - orig) / orig * 100), 2) if orig > 0 and rev > 0 else 0.0
+        risk_info = compute_project_risk_and_predictions(
+            original_cost=orig,
+            revised_cost=rev,
+            cumulative_expenditure=exp,
+            sector=row.get("sector", "")
+        )
+        overrun_pct = risk_info["predicted_cost_overrun_pct"]
         exp_rate = round((exp / orig * 100), 2) if orig > 0 else 0.0
-        risk_score = round(min(1.0, max(0.0, overrun_pct / 50.0)), 4)
+        risk_score = risk_info["overall_risk_score"]
 
         trajectory.append({
             "month": month,
@@ -260,6 +267,10 @@ def _find_project_across_months(ext_id: str) -> List[Dict]:
             "cost_overrun_pct": overrun_pct,
             "expenditure_rate_pct": exp_rate,
             "risk_score": risk_score,
+            "predicted_delay_days": risk_info["predicted_delay_days"],
+            "cost_risk_score": risk_info["cost_risk_score"],
+            "delay_risk_score": risk_info["delay_risk_score"],
+            "risk_level": risk_info["risk_level"],
         })
 
     _PROJECT_CACHE[ext_id] = trajectory
@@ -389,7 +400,8 @@ def get_monthly_projects(month: str = Query("2026-07", description="Month in YYY
 
     projects = []
     if ministry_data and "project_id" not in ministry_data[0]:
-        return GenericResponse(status="success", message="Layout A has no project level data", data={"projects": []})
+        # 2025-07 MoSPI dataset has only macro-sector summaries; fall back to earliest project-level snapshot (2025-08)
+        ministry_data = _load_ministry_month("2025-08") or []
 
     for row in ministry_data:
         def _safe(v: str) -> float:
@@ -399,8 +411,13 @@ def get_monthly_projects(month: str = Query("2026-07", description="Month in YYY
         orig = _safe(row.get("orig_cost", "0"))
         rev = _safe(row.get("revised_cost", "0"))
         exp = _safe(row.get("expenditure", "0"))
-        overrun_pct = round(((rev - orig) / orig * 100), 2) if orig > 0 and rev > 0 else 0.0
-        risk_score = min(1.0, max(0.0, overrun_pct / 50.0))
+
+        risk_info = compute_project_risk_and_predictions(
+            original_cost=orig,
+            revised_cost=rev,
+            cumulative_expenditure=exp,
+            sector=row.get("sector", "")
+        )
 
         projects.append({
             "id": row.get("project_id", ""),
@@ -411,13 +428,18 @@ def get_monthly_projects(month: str = Query("2026-07", description="Month in YYY
             "state": "Pan-India",
             "status": "active",
             "budget": orig,
-            "revised_cost": rev,
-            "cost_overrun_pct": overrun_pct,
+            "revised_cost": rev if rev > 0 else orig,
+            "cost_overrun_pct": risk_info["predicted_cost_overrun_pct"],
             "cumulative_expenditure": exp,
-            "overall_risk_score": risk_score,
-            "predicted_delay_days": 0,
-            "cost_risk_score": risk_score,
-            "delay_risk_score": 0.0,
+            "overall_risk_score": risk_info["overall_risk_score"],
+            "predicted_delay_days": risk_info["predicted_delay_days"],
+            "predicted_delay_months": risk_info["predicted_delay_months"],
+            "cost_risk_score": risk_info["cost_risk_score"],
+            "delay_risk_score": risk_info["delay_risk_score"],
+            "cost_overrun_exposure_cr": risk_info["cost_overrun_exposure_cr"],
+            "risk_level": risk_info["risk_level"],
+            "delay_severity": risk_info["delay_severity"],
+            "risk_score_method": risk_info["risk_method"],
         })
         
     return GenericResponse(status="success", message="OK", data={"projects": projects})

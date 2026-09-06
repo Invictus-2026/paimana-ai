@@ -32,7 +32,8 @@ def test_load_creates_projects(db_session):
     assert projects[0].cumulative_expenditure == 512.55
     assert round(projects[0].cost_overrun_pct, 2) == 33.33
     assert projects[0].is_synthetic is False
-    assert projects[0].risk_score_method == "rule_based_cost_growth_v1"
+    assert projects[0].risk_score_method == "composite_multidimensional_v2"
+    assert projects[0].overall_risk_score > 0.0
 
 
 def test_load_is_idempotent_on_rerun(db_session):

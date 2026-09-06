@@ -26,11 +26,14 @@ class Settings(BaseSettings):
     )
 
     def get_database_url(self) -> str:
-        """Retrieve database URL from environment or fallback."""
+        """Retrieve database URL from environment or fallback to absolute backend/paimana.db."""
         env_url = os.getenv("DATABASE_URL")
         if env_url:
             return env_url
-        return self.DATABASE_URL
+        from pathlib import Path
+        backend_dir = Path(__file__).resolve().parent.parent
+        db_path = backend_dir / "paimana.db"
+        return f"sqlite:///{db_path}"
 
 
 settings = Settings()

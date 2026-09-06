@@ -12,6 +12,7 @@ import { InterventionsPage } from './pages/InterventionsPage';
 import { CopilotPage } from './pages/CopilotPage';
 import { BenchmarksPage } from './pages/BenchmarksPage';
 import { StateProgressPage } from './pages/StateProgressPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
 
 export const App: React.FC = () => {
   return (
@@ -25,6 +26,9 @@ export const App: React.FC = () => {
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="projects/:id" element={<ProjectDetailPage />} />
             <Route path="progress" element={<StateProgressPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="analytics/cost-overrun" element={<AnalyticsPage defaultSubTab="cost-overrun" />} />
+            <Route path="analytics/time-overrun" element={<AnalyticsPage defaultSubTab="time-overrun" />} />
             <Route path="scenarios" element={<ScenariosPage />} />
             <Route path="interventions" element={<InterventionsPage />} />
             <Route path="alerts" element={<Navigate to="/interventions" replace />} />
