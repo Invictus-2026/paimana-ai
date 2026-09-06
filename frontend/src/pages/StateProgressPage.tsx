@@ -8,6 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Cell
 } from 'recharts';
 import { IndiaMap } from '../components/IndiaMap';
+import { ExpandableChartCard } from '../components/common/ExpandableChartCard';
 
 const MONTHS_LIST = [
   "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
@@ -158,45 +159,47 @@ export const StateProgressPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="light-card p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-sm text-slate-900">Top 10 States by Project Count</h3>
-                <MapPin className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topStates} layout="vertical" margin={{ left: 30, right: 10 }}>
+            <ExpandableChartCard
+              className="light-card p-5"
+              chartHeight="h-72"
+              title="Top 10 States by Project Count"
+              headerRight={<MapPin className="w-4 h-4 text-slate-400" />}
+            >
+              {(isFull) => (
+                <ResponsiveContainer width="100%" height={isFull ? 550 : "100%"}>
+                  <BarChart data={topStates} layout="vertical" margin={{ left: isFull ? 10 : 30, right: isFull ? 40 : 10 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e2e8f0" />
                     <XAxis type="number" hide />
-                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={90} />
+                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} width={isFull ? 150 : 90} />
                     <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
-                    <Bar dataKey="count" name="Projects" radius={[0, 4, 4, 0]}>
+                    <Bar dataKey="count" name="Projects" radius={[0, 4, 4, 0]} barSize={isFull ? 24 : undefined}>
                       {topStates.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={index === 0 ? '#0d52ce' : '#3b82f6'} />
                       ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
-              </div>
-            </div>
+              )}
+            </ExpandableChartCard>
 
-            <div className="light-card p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-sm text-slate-900">Physical Progress Distribution</h3>
-                <Activity className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={progressData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <ExpandableChartCard
+              className="light-card p-5"
+              chartHeight="h-72"
+              title="Physical Progress Distribution"
+              headerRight={<Activity className="w-4 h-4 text-slate-400" />}
+            >
+              {(isFull) => (
+                <ResponsiveContainer width="100%" height={isFull ? 550 : "100%"}>
+                  <BarChart data={progressData} margin={{ top: 10, right: isFull ? 30 : 10, left: isFull ? 10 : -20, bottom: isFull ? 20 : 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: isFull ? 12 : 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: isFull ? 12 : 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
                     <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
-                    <Bar dataKey="count" name="Projects" fill="#f97316" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="count" name="Projects" fill="#f97316" radius={[4, 4, 0, 0]} barSize={isFull ? 45 : undefined} />
                   </BarChart>
                 </ResponsiveContainer>
-              </div>
-            </div>
+              )}
+            </ExpandableChartCard>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

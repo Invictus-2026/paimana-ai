@@ -12,6 +12,7 @@ import {
   Calendar, ChevronDown, ArrowUpRight, ChevronRight, AlertTriangle,
   CheckCircle2, Zap, Activity, Sparkles
 } from 'lucide-react';
+import ExpandableChartCard from '../components/common/ExpandableChartCard';
 
 const MONTHS_LIST = [
   "2025-07","2025-08","2025-09","2025-10","2025-11","2025-12",
@@ -188,17 +189,16 @@ export const DashboardPage: React.FC = () => {
       {/* Row 2: Month-wise trend charts */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Project count growth trend */}
-        <div className="light-card p-5 lg:col-span-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-bold text-sm text-slate-900">Month-wise Project & Expenditure Trend</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Jul 2025 → Jul 2026 · Real MoSPI data</p>
-            </div>
-            <Activity className="w-4 h-4 text-[#0d52ce]" />
-          </div>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={projectsTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <ExpandableChartCard
+          className="light-card p-5 lg:col-span-8"
+          title="Month-wise Project & Expenditure Trend"
+          subtitle="Jul 2025 → Jul 2026 · Real MoSPI data"
+          headerRight={<Activity className="w-4 h-4 text-[#0d52ce]" />}
+          chartHeight="h-56"
+        >
+          {(isFull) => (
+            <ResponsiveContainer width="100%" height={isFull ? 500 : "100%"}>
+              <AreaChart data={projectsTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gradProjects" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#0d52ce" stopOpacity={0.25} />
@@ -210,98 +210,105 @@ export const DashboardPage: React.FC = () => {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
-                <YAxis yAxisId="left" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} />
-                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${v}k Cr`} />
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${v}k Cr`} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
                   formatter={(v: any, n: string) => n === 'expenditure' ? [`₹${v}k Cr`, 'Expenditure'] : [v, 'Projects']} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <Area yAxisId="left" type="monotone" dataKey="projects" name="Projects" stroke="#0d52ce" strokeWidth={2.5} fill="url(#gradProjects)" dot={{ r: 3, fill: '#0d52ce' }} />
-                <Area yAxisId="right" type="monotone" dataKey="expenditure" name="expenditure" stroke="#f97316" strokeWidth={2.5} fill="url(#gradExp)" dot={{ r: 3, fill: '#f97316' }} />
+                <Area yAxisId="right" type="monotone" dataKey="expenditure" name="Expenditure" stroke="#f97316" strokeWidth={2.5} fill="url(#gradExp)" dot={{ r: 3, fill: '#f97316' }} />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-        </div>
+          )}
+        </ExpandableChartCard>
 
         {/* Sector donut for selected month */}
-        <div className="light-card p-5 lg:col-span-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-sm text-slate-900">Sectors – {MONTH_LABELS[selectedMonth]}</h3>
+        <ExpandableChartCard
+          className="light-card p-5 lg:col-span-4"
+          title={`Sectors – ${MONTH_LABELS[selectedMonth]}`}
+          subtitle="Portfolio distribution"
+          headerRight={
             <button onClick={() => navigate('/projects')} className="text-xs font-bold text-[#0d52ce] hover:underline flex items-center gap-1">
               All <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
-          </div>
-          <div className="flex items-center gap-4 mt-3">
-            <div className="relative w-32 h-32 shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={sectorChartData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={3} dataKey="count">
-                    {sectorChartData.map((_: any, i: number) => <Cell key={i} fill={SECTOR_DISTRIBUTION[i % SECTOR_DISTRIBUTION.length].color} />)}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-sm font-black text-slate-900">{currentMonthData?.total_projects || '—'}</span>
-                <span className="text-[9px] text-slate-400 font-semibold">Total</span>
+          }
+          chartHeight="h-56"
+        >
+          {(isFull) => (
+            <div className={`flex items-center gap-4 ${isFull ? 'h-[500px] justify-center' : 'mt-3 h-full'}`}>
+              <div className={`relative ${isFull ? 'w-64 h-64' : 'w-32 h-32'} shrink-0`}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={sectorChartData} cx="50%" cy="50%" innerRadius={isFull ? 75 : 40} outerRadius={isFull ? 120 : 60} paddingAngle={3} dataKey="count">
+                      {sectorChartData.map((_: any, i: number) => <Cell key={i} fill={SECTOR_DISTRIBUTION[i % SECTOR_DISTRIBUTION.length].color} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className={`${isFull ? 'text-2xl' : 'text-sm'} font-black text-slate-900`}>{currentMonthData?.total_projects || '—'}</span>
+                  <span className={`${isFull ? 'text-xs' : 'text-[9px]'} text-slate-400 font-semibold`}>Total</span>
+                </div>
+              </div>
+              <div className={`space-y-1.5 flex-1 ${isFull ? 'text-sm max-w-md' : 'text-[11px]'}`}>
+                {sectorChartData.slice(0, isFull ? 12 : 7).map((s: any, i: number) => (
+                  <div key={s.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: SECTOR_DISTRIBUTION[i % SECTOR_DISTRIBUTION.length].color }} />
+                      <span className="text-slate-600 truncate">{s.name}</span>
+                    </div>
+                    <span className="font-bold text-slate-800 ml-1">{s.count}</span>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="space-y-1 flex-1 text-[11px]">
-              {sectorChartData.slice(0, 7).map((s: any, i: number) => (
-                <div key={s.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: SECTOR_DISTRIBUTION[i % SECTOR_DISTRIBUTION.length].color }} />
-                    <span className="text-slate-600 truncate">{s.name}</span>
-                  </div>
-                  <span className="font-bold text-slate-800 ml-1">{s.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          )}
+        </ExpandableChartCard>
       </div>
 
       {/* Row 3: Cost overrun trend + Sector bar */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Cost overrun & expenditure rate trend */}
-        <div className="light-card p-5 lg:col-span-7">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="font-bold text-sm text-slate-900">Cost Overrun & Expenditure Rate Trend</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Month-wise overrun % vs budget utilisation % · Real data</p>
-            </div>
-          </div>
-          <div className="h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={overrunTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <ExpandableChartCard
+          className="light-card p-5 lg:col-span-7"
+          title="Cost Overrun & Expenditure Rate Trend"
+          subtitle="Month-wise overrun % vs budget utilisation % · Real data"
+          chartHeight="h-52"
+        >
+          {(isFull) => (
+            <ResponsiveContainer width="100%" height={isFull ? 500 : "100%"}>
+              <LineChart data={overrunTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
-                <YAxis tickFormatter={v => `${v}%`} tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                <YAxis tickFormatter={v => `${v}%`} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(v: any) => `${v}%`} contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <Line type="monotone" dataKey="costOverrun" name="Cost Overrun %" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="expRate" name="Expenditure Rate %" stroke="#0d52ce" strokeWidth={2.5} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
-        </div>
+          )}
+        </ExpandableChartCard>
 
         {/* Top sectors bar for selected month */}
-        <div className="light-card p-5 lg:col-span-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-sm text-slate-900">Top Sectors – {MONTH_LABELS[selectedMonth]}</h3>
-          </div>
-          <div className="h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topSectors} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
-                <XAxis type="number" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} width={90} />
+        <ExpandableChartCard
+          className="light-card p-5 lg:col-span-5"
+          title={`Top Sectors – ${MONTH_LABELS[selectedMonth]}`}
+          subtitle="Projects by sector volume"
+          chartHeight="h-52"
+        >
+          {(isFull) => (
+            <ResponsiveContainer width="100%" height={isFull ? 500 : "100%"}>
+              <BarChart data={topSectors} layout="vertical" margin={{ top: 5, right: 25, left: 0, bottom: 5 }}>
+                <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }} tickLine={false} axisLine={false} width={130} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
                   formatter={(v: any, n: string) => [n === 'exp' ? `₹${v}k Cr` : v, n === 'exp' ? 'Expenditure' : 'Projects']} />
-                <Bar dataKey="count" name="Projects" fill="#0d52ce" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" name="Projects" fill="#0d52ce" radius={[0, 4, 4, 0]} barSize={isFull ? 24 : 16} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
+          )}
+        </ExpandableChartCard>
       </div>
 
       {/* Row 4: Insights + Actions */}

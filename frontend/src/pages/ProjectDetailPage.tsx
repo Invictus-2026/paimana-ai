@@ -10,6 +10,7 @@ import {
   LineChart, Line, AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, Cell
 } from 'recharts';
+import { ExpandableChartCard } from '../components/common/ExpandableChartCard';
 
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -142,23 +143,26 @@ export const ProjectDetailPage: React.FC = () => {
 
       {/* 1-Year Risk Score Trajectory */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="light-card p-5 lg:col-span-8">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#0d52ce]" />
-                {hasTrajectory ? `${trajectoryData.length}-Month Risk Score Trajectory (Real Data)` : '12-Month Risk Score Trajectory'}
-              </h2>
-              {!hasTrajectory && <p className="text-xs text-amber-600 mt-1">⚠ Project ID not found in monthly dataset files — showing DB snapshot only</p>}
-            </div>
+        <ExpandableChartCard
+          className="light-card p-5 lg:col-span-8"
+          chartHeight="h-64"
+          title={
+            <span className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#0d52ce]" />
+              {hasTrajectory ? `${trajectoryData.length}-Month Risk Score Trajectory (Real Data)` : '12-Month Risk Score Trajectory'}
+            </span>
+          }
+          subtitle={!hasTrajectory ? '⚠ Project ID not found in monthly dataset files — showing DB snapshot only' : undefined}
+          headerRight={
             <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
               riskTrend.includes('↑') ? 'bg-red-50 text-red-600 border-red-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
             }`}>{riskTrend}</span>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
+          }
+        >
+          {(isFull) => (
+            <ResponsiveContainer width="100%" height={isFull ? 550 : "100%"}>
               <AreaChart data={hasTrajectory ? riskTrendData : project.monthlyRiskHistory.map(h => ({ label: h.month, risk: h.score, overrun: 0 }))}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                margin={{ top: 10, right: isFull ? 30 : 10, left: isFull ? 10 : -20, bottom: isFull ? 20 : 0 }}>
                 <defs>
                   <linearGradient id="gradRisk" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
@@ -166,17 +170,17 @@ export const ProjectDetailPage: React.FC = () => {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                <XAxis dataKey="label" tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
                   formatter={(v: any, n: string) => [n === 'overrun' ? `${v}%` : `${v}/100`, n === 'overrun' ? 'Cost Overrun' : 'Risk Score']} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: isFull ? 12 : 11 }} />
                 <Area type="monotone" dataKey="risk" name="Risk Score" stroke="#ef4444" strokeWidth={2.5} fill="url(#gradRisk)" dot={{ r: 3, fill: '#ef4444' }} />
                 {hasTrajectory && <Line type="monotone" dataKey="overrun" name="overrun" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 2" />}
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-        </div>
+          )}
+        </ExpandableChartCard>
 
         {/* Analysis summary */}
         <div className="light-card p-5 lg:col-span-4">
@@ -205,47 +209,57 @@ export const ProjectDetailPage: React.FC = () => {
       {/* Cost & Expenditure Trend */}
       {hasTrajectory && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="light-card p-5">
-            <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <BarChart2 className="w-4 h-4 text-[#0d52ce]" />
-              Budget vs Expenditure (₹ Cr) · Monthly
-            </h2>
-            <div className="h-60">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={costTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <ExpandableChartCard
+            className="light-card p-5"
+            chartHeight="h-60"
+            title={
+              <span className="flex items-center gap-2">
+                <BarChart2 className="w-4 h-4 text-[#0d52ce]" />
+                Budget vs Expenditure (₹ Cr) · Monthly
+              </span>
+            }
+          >
+            {(isFull) => (
+              <ResponsiveContainer width="100%" height={isFull ? 550 : "100%"}>
+                <BarChart data={costTrendData} margin={{ top: 10, right: isFull ? 30 : 10, left: isFull ? 10 : -20, bottom: isFull ? 20 : 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${(v/1000).toFixed(1)}k`} />
+                  <XAxis dataKey="label" tick={{ fontSize: isFull ? 12 : 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                  <YAxis tick={{ fontSize: isFull ? 12 : 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${(v/1000).toFixed(1)}k`} />
                   <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px' }}
                     formatter={(v: any) => [`₹${Number(v).toLocaleString()} Cr`]} />
-                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: isFull ? 12 : 11 }} />
                   <Bar dataKey="original" name="Original Cost" fill="#0d52ce" radius={[3, 3, 0, 0]} />
                   <Bar dataKey="revised" name="Revised Cost" fill="#f97316" radius={[3, 3, 0, 0]} />
                   <Bar dataKey="expenditure" name="Expenditure" fill="#10b981" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
-          </div>
+            )}
+          </ExpandableChartCard>
 
           {/* Cost overrun % line chart */}
-          <div className="light-card p-5">
-            <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-orange-500" />
-              Cost Overrun % — Month-wise
-            </h2>
-            <div className="h-60">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={riskTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <ExpandableChartCard
+            className="light-card p-5"
+            chartHeight="h-60"
+            title={
+              <span className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-orange-500" />
+                Cost Overrun % — Month-wise
+              </span>
+            }
+          >
+            {(isFull) => (
+              <ResponsiveContainer width="100%" height={isFull ? 550 : "100%"}>
+                <LineChart data={riskTrendData} margin={{ top: 10, right: isFull ? 30 : 10, left: isFull ? 10 : -20, bottom: isFull ? 20 : 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `${v}%`} />
+                  <XAxis dataKey="label" tick={{ fontSize: isFull ? 12 : 10, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
+                  <YAxis tick={{ fontSize: isFull ? 12 : 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `${v}%`} />
                   <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px' }}
                     formatter={(v: any) => [`${v}%`]} />
                   <Line type="monotone" dataKey="overrun" name="Cost Overrun %" stroke="#f97316" strokeWidth={2.5} dot={{ r: 4, fill: '#f97316' }} />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
-          </div>
+            )}
+          </ExpandableChartCard>
         </div>
       )}
 

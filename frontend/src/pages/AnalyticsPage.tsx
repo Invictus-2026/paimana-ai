@@ -543,6 +543,112 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
           </ResponsiveContainer>
         </div>
       );
+    } else if (fullscreenChart === 'cost_severity') {
+      title = "Cost Overrun Severity Distribution";
+      subtitle = `Portfolio distribution by cost escalation tier in ${selectedMonth}`;
+      const totalCount = costData?.projects?.length || 0;
+      chartContent = (
+        <div className="h-full w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div className="h-[450px] w-full relative flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={costDistribution}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={90}
+                  outerRadius={160}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {costDistribution.map((entry, index) => (
+                    <Cell key={`full-cost-cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <RechartsTooltip content={<CustomChartTooltip unit="Projects" />} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-3xl font-black text-slate-900">{totalCount}</span>
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Total Projects</span>
+            </div>
+          </div>
+          <div className="space-y-3 pr-4">
+            <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2">Cost Escalation Breakdown</h4>
+            {costDistribution.map((item, idx) => {
+              const pct = totalCount ? ((item.value / totalCount) * 100).toFixed(1) : '0';
+              return (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-3.5 h-3.5 rounded-md shrink-0" style={{ backgroundColor: item.color }} />
+                    <span className="text-sm font-semibold text-slate-800">{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-black text-slate-900">{item.value.toLocaleString()} Projects</span>
+                    <span className="text-xs font-bold text-slate-400">({pct}%)</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    } else if (fullscreenChart === 'time_severity') {
+      title = "Schedule Slippage & Delay Severity Distribution";
+      subtitle = `Projects categorized by delay severity in ${selectedMonth}`;
+      const slippageData = [
+        { name: 'Severe (>12 Mo)', value: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
+        { name: 'Significant (6-12 Mo)', value: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
+        { name: 'Minor (2-6 Mo)', value: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
+        { name: 'On-Track (<2 Mo)', value: timeData?.summary?.on_track_count || 0, color: '#10b981' }
+      ];
+      const totalCount = slippageData.reduce((acc, curr) => acc + curr.value, 0);
+      chartContent = (
+        <div className="h-full w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div className="h-[450px] w-full relative flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={slippageData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={90}
+                  outerRadius={160}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {slippageData.map((entry, index) => (
+                    <Cell key={`full-time-cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <RechartsTooltip content={<CustomChartTooltip unit="Projects" />} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-3xl font-black text-slate-900">{totalCount}</span>
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Total Monitored</span>
+            </div>
+          </div>
+          <div className="space-y-3 pr-4">
+            <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2">Schedule Slippage Breakdown</h4>
+            {slippageData.map((item, idx) => {
+              const pct = totalCount ? ((item.value / totalCount) * 100).toFixed(1) : '0';
+              return (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-3.5 h-3.5 rounded-md shrink-0" style={{ backgroundColor: item.color }} />
+                    <span className="text-sm font-semibold text-slate-800">{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-black text-slate-900">{item.value.toLocaleString()} Projects</span>
+                    <span className="text-xs font-bold text-slate-400">({pct}%)</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
     }
 
     return (
@@ -822,7 +928,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                         <h3 className="text-sm font-bold text-slate-900 font-outfit">Overrun Severity Spread</h3>
                         <p className="text-xs text-slate-500 font-medium">Portfolio distribution by cost escalation tier</p>
                       </div>
-                      <PieIcon className="w-4 h-4 text-slate-400" />
+                      <div className="flex items-center gap-2">
+                        <PieIcon className="w-4 h-4 text-slate-400" />
+                        <button
+                          onClick={() => setFullscreenChart('cost_severity')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="h-[200px] w-full relative flex items-center justify-center">
@@ -1258,7 +1373,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                         <h3 className="text-sm font-bold text-slate-900 font-outfit">Slippage Distribution</h3>
                         <p className="text-xs text-slate-500 font-medium">Projects categorized by delay severity</p>
                       </div>
-                      <Clock className="w-4 h-4 text-slate-400" />
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-slate-400" />
+                        <button
+                          onClick={() => setFullscreenChart('time_severity')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="h-[200px] w-full relative flex items-center justify-center">

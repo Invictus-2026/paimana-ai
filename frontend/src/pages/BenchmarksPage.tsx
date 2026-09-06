@@ -12,6 +12,7 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
+import { ExpandableChartCard } from '../components/common/ExpandableChartCard';
 import {
   BarChart,
   Bar,
@@ -209,32 +210,36 @@ export const BenchmarksPage: React.FC = () => {
       {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Chart 1: Average Delay Days vs Cost Growth (%) Bar Chart (7 Cols) */}
-        <div className="light-card p-5 lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+        <ExpandableChartCard
+          className="light-card p-5 lg:col-span-7 space-y-4"
+          chartHeight="h-72"
+          title={
+            <span className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-[#0d52ce]" />
-              <span>Comparative Delay Days & Cost Growth (%) by {selectedDimension}</span>
-            </h2>
-            <span className="text-[11px] text-slate-400 font-medium">Aggregated Summary</span>
-          </div>
-
-          <div className="h-72 pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={benchmarkData?.benchmark_groups || []}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="category" tickLine={false} axisLine={{ stroke: '#e2e8f0' }} tick={{ fontSize: 11, fill: '#64748b' }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px' }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="avg_delay_days" name="Avg Schedule Delay (Days)" fill="#0d52ce" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="avg_cost_growth_pct" name="Avg Cost Growth (%)" fill="#f97316" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+              Comparative Delay Days & Cost Growth (%) by {selectedDimension}
+            </span>
+          }
+          subtitle="Aggregated Summary"
+        >
+          {(isFull) => (
+            <div className="h-full pt-2">
+              <ResponsiveContainer width="100%" height={isFull ? 550 : "100%"}>
+                <BarChart
+                  data={benchmarkData?.benchmark_groups || []}
+                  margin={{ top: 10, right: isFull ? 30 : 10, left: isFull ? 10 : -20, bottom: isFull ? 40 : 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="category" tickLine={false} axisLine={{ stroke: '#e2e8f0' }} tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} angle={isFull ? -15 : 0} textAnchor={isFull ? 'end' : 'middle'} height={isFull ? 60 : 30} />
+                  <YAxis tickLine={false} axisLine={false} tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px' }} />
+                  <Legend wrapperStyle={{ fontSize: isFull ? 12 : 11 }} />
+                  <Bar dataKey="avg_delay_days" name="Avg Schedule Delay (Days)" fill="#0d52ce" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="avg_cost_growth_pct" name="Avg Cost Growth (%)" fill="#f97316" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </ExpandableChartCard>
 
         {/* Chart 2: Milestone Completion Rate (%) Gauge / Breakdown (5 Cols) */}
         <div className="light-card p-5 lg:col-span-5 flex flex-col justify-between space-y-4">
