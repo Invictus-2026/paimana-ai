@@ -116,7 +116,7 @@ def get_benchmark_analytics(
     if ministry and ministry != "ALL":
         query = query.filter(Project.ministry == ministry)
 
-    results = query.group_by(col).all()
+    results = query.group_by(col).order_by(func.count(Project.id).desc()).all()
 
     items = []
     total_samples = 0
@@ -182,7 +182,7 @@ def get_sector_analytics(db: Session = Depends(get_db)):
         func.sum(Project.budget).label("total_budget"),
         func.avg(Project.overall_risk_score).label("avg_risk"),
         func.sum(case((Project.overall_risk_score >= 0.50, 1), else_=0)).label("at_risk_count")
-    ).group_by(Project.sector).all()
+    ).group_by(Project.sector).order_by(func.count(Project.id).desc()).all()
 
     sector_items = [
         AnalyticsGroupItem(
@@ -215,7 +215,7 @@ def get_ministry_analytics(db: Session = Depends(get_db)):
         func.sum(Project.budget).label("total_budget"),
         func.avg(Project.overall_risk_score).label("avg_risk"),
         func.sum(case((Project.overall_risk_score >= 0.50, 1), else_=0)).label("at_risk_count")
-    ).group_by(Project.ministry).all()
+    ).group_by(Project.ministry).order_by(func.count(Project.id).desc()).all()
 
     ministry_items = [
         AnalyticsGroupItem(
@@ -248,7 +248,7 @@ def get_geography_analytics(db: Session = Depends(get_db)):
         func.sum(Project.budget).label("total_budget"),
         func.avg(Project.overall_risk_score).label("avg_risk"),
         func.sum(case((Project.overall_risk_score >= 0.50, 1), else_=0)).label("at_risk_count")
-    ).group_by(Project.state).all()
+    ).group_by(Project.state).order_by(func.count(Project.id).desc()).all()
 
     geography_items = [
         AnalyticsGroupItem(

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import {
   BarChart3,
@@ -8,20 +8,25 @@ import {
   Activity,
   Clock,
   Search,
-  Filter,
   ArrowUpDown,
   Calendar,
   Layers,
   ChevronRight,
-  ExternalLink,
   ShieldAlert,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Info,
+  Building2,
+  MapPin,
+  PieChart as PieIcon,
+  Maximize2,
+  Minimize2,
+  X
 } from 'lucide-react';
 import { api } from '../api/client';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
-  Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip
 } from 'recharts';
 
 interface AnalyticsPageProps {
@@ -43,11 +48,85 @@ const MONTH_OPTIONS = [
   { value: '2025-08', label: "Aug '25 (800 projects)" },
 ];
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
+const PALETTE = {
+  blue: '#3b82f6',
+  indigo: '#6366f1',
+  violet: '#8b5cf6',
+  emerald: '#10b981',
+  teal: '#14b8a6',
+  amber: '#f59e0b',
+  orange: '#f97316',
+  rose: '#f43f5e',
+  red: '#ef4444',
+  slate: '#64748b',
+};
+
+const GEO_COLORS = [
+  '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899',
+  '#06b6d4', '#f97316', '#14b8a6', '#6366f1', '#84cc16'
+];
+
+// Helper: Smart category label formatter for X and Y axes
+const truncateLabel = (val: string, maxLen = 16): string => {
+  if (!val) return '';
+  const str = String(val);
+  return str.length > maxLen ? `${str.slice(0, maxLen - 1)}…` : str;
+};
+
+// Helper: Currency formatter
+const formatCurrencyCr = (val: number): string => {
+  if (val == null || isNaN(val)) return '₹0 Cr';
+  const abs = Math.abs(val);
+  if (abs >= 100000) return `₹${(val / 100000).toFixed(1)}L Cr`;
+  if (abs >= 1000) return `₹${(val / 1000).toFixed(1)}k Cr`;
+  return `₹${Math.round(val).toLocaleString()} Cr`;
+};
+
+// Custom Tooltip Component for Recharts
+const CustomChartTooltip: React.FC<any> = ({ active, payload, label, unit = '' }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className="bg-slate-900/95 text-white backdrop-blur-md px-3.5 py-2.5 rounded-xl shadow-2xl border border-slate-700/60 text-xs min-w-[200px] z-50">
+      <div className="font-bold text-slate-100 border-b border-slate-700/60 pb-1.5 mb-2 leading-tight">
+        {label}
+      </div>
+      <div className="space-y-1.5">
+        {payload.map((entry: any, index: number) => {
+          let formattedValue = entry.value;
+          if (typeof entry.value === 'number') {
+            if (entry.name?.toLowerCase().includes('cr') || entry.name?.toLowerCase().includes('budget') || entry.name?.toLowerCase().includes('exposure')) {
+              formattedValue = formatCurrencyCr(entry.value);
+            } else if (entry.name?.toLowerCase().includes('%') || entry.name?.toLowerCase().includes('growth') || entry.name?.toLowerCase().includes('rate')) {
+              formattedValue = `${entry.value.toFixed(1)}%`;
+            } else if (entry.name?.toLowerCase().includes('month') || entry.name?.toLowerCase().includes('delay')) {
+              formattedValue = `${entry.value} Months`;
+            } else if (entry.name?.toLowerCase().includes('risk')) {
+              formattedValue = `${Number(entry.value).toFixed(1)} / 100`;
+            } else {
+              formattedValue = entry.value.toLocaleString();
+            }
+          }
+          return (
+            <div key={`tip-${index}`} className="flex items-center justify-between gap-3">
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.color || entry.fill }} />
+                <span className="truncate max-w-[150px]">{entry.name}:</span>
+              </span>
+              <span className="font-bold text-white text-right shrink-0">
+                {formattedValue} {unit}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Determine active sub-tab from path or prop
   const currentSubTab: 'benchmarks' | 'cost-overrun' | 'time-overrun' = useMemo(() => {
@@ -58,6 +137,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
 
   const [selectedMonth, setSelectedMonth] = useState<string>('2026-07');
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Fullscreen Modal State
+  const [fullscreenChart, setFullscreenChart] = useState<string | null>(null);
 
   // Benchmarks State
   const [overview, setOverview] = useState<any>(null);
@@ -82,6 +164,17 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 25;
+
+  // Close fullscreen on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && fullscreenChart) {
+        setFullscreenChart(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [fullscreenChart]);
 
   // Fetch data on tab or month change
   useEffect(() => {
@@ -173,8 +266,335 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
     }
   };
 
+  // Cost Overrun Severity Distribution for Sub-View 2
+  const costDistribution = useMemo(() => {
+    if (!costData?.projects) return [];
+    let noOverrun = 0;
+    let minor = 0;
+    let moderate = 0;
+    let high = 0;
+    let severe = 0;
+    for (const p of costData.projects) {
+      const pct = p.cost_overrun_pct || 0;
+      if (pct <= 0) noOverrun++;
+      else if (pct < 10) minor++;
+      else if (pct <= 25) moderate++;
+      else if (pct <= 50) high++;
+      else severe++;
+    }
+    return [
+      { name: 'On-Budget (0%)', value: noOverrun, color: PALETTE.emerald },
+      { name: 'Minor (<10%)', value: minor, color: PALETTE.teal },
+      { name: 'Moderate (10-25%)', value: moderate, color: PALETTE.amber },
+      { name: 'High (25-50%)', value: high, color: PALETTE.orange },
+      { name: 'Severe (>50%)', value: severe, color: PALETTE.rose },
+    ];
+  }, [costData]);
+
+  // Toggle browser fullscreen
+  const toggleBrowserFullscreen = () => {
+    if (!document.fullscreenElement) {
+      modalRef.current?.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
+  // Render Fullscreen Chart Modal Content
+  const renderFullscreenModal = () => {
+    if (!fullscreenChart) return null;
+
+    let title = "";
+    let subtitle = "";
+    let chartContent = null;
+
+    if (fullscreenChart === 'benchmarks') {
+      title = "Performance Benchmarks: Cost Growth vs Risk Score";
+      subtitle = `Descriptive comparative benchmarking by ${benchmarkDimension.replace('_', ' ')}`;
+      chartContent = (
+        <div className="h-full w-full flex flex-col">
+          <div className="flex items-center justify-end gap-6 text-xs font-bold mb-3">
+            <div className="flex items-center gap-2">
+              <span className="w-3.5 h-3.5 rounded-sm bg-[#3b82f6]" />
+              <span className="text-slate-800">Avg Cost Growth (%)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3.5 h-3.5 rounded-sm bg-[#f43f5e]" />
+              <span className="text-slate-800">Avg Risk Score (0-100)</span>
+            </div>
+          </div>
+          <div className="flex-1 w-full min-h-[420px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={benchmarks?.benchmark_groups || []}
+                margin={{ top: 20, right: 40, left: 10, bottom: 65 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="category"
+                  tick={{ fontSize: 12, fill: '#334155', fontWeight: 600 }}
+                  interval={0}
+                  angle={-25}
+                  textAnchor="end"
+                  height={65}
+                />
+                <YAxis yAxisId="left" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v}%`} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v}`} />
+                <RechartsTooltip content={<CustomChartTooltip />} />
+                <Bar yAxisId="left" dataKey="avg_cost_growth_pct" name="Avg Cost Growth (%)" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                <Bar yAxisId="right" dataKey="avg_risk_score" name="Avg Risk Score" fill="#f43f5e" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    } else if (fullscreenChart === 'regional') {
+      title = "Regional & State Infrastructure Concentration";
+      subtitle = "Comprehensive breakdown of monitored projects across Indian states and jurisdictions";
+      chartContent = (
+        <div className="h-full w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div className="h-[420px] w-full relative flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={geography?.geography || []}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={90}
+                  outerRadius={150}
+                  paddingAngle={3}
+                  dataKey="project_count"
+                  nameKey="category_name"
+                >
+                  {(geography?.geography || []).map((_: any, index: number) => (
+                    <Cell key={`geo-full-${index}`} fill={GEO_COLORS[index % GEO_COLORS.length]} />
+                  ))}
+                </Pie>
+                <RechartsTooltip content={<CustomChartTooltip unit="Projects" />} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-3xl font-black text-slate-900">{overview?.total_projects || 0}</span>
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Total Projects</span>
+            </div>
+          </div>
+          <div className="overflow-y-auto max-h-[440px] pr-2 space-y-2">
+            {(geography?.geography || []).map((geo: any, idx: number) => {
+              const total = overview?.total_projects || 1776;
+              const pct = ((geo.project_count / total) * 100).toFixed(1);
+              return (
+                <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: GEO_COLORS[idx % GEO_COLORS.length] }} />
+                    <span className="text-slate-800 font-bold">{geo.category_name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-500 font-medium">Budget: {formatCurrencyCr(geo.total_budget_cr)}</span>
+                    <span className="font-extrabold text-slate-900 px-2 py-0.5 rounded-md bg-white border border-slate-200">
+                      {geo.project_count} ({pct}%)
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    } else if (fullscreenChart === 'ministry') {
+      title = "Ministry Risk Profiles & Portfolio Health";
+      subtitle = "Multi-dimensional composite risk index across line ministries";
+      chartContent = (
+        <div className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              layout="vertical"
+              data={ministries?.ministries?.map((m: any) => ({
+                name: m.category_name,
+                shortName: m.category_name,
+                risk_score: Number((m.average_risk_score * 100).toFixed(1)),
+                projects: m.project_count,
+                budget: m.total_budget_cr
+              })) || []}
+              margin={{ top: 10, right: 40, left: 0, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v}`} />
+              <YAxis dataKey="shortName" type="category" tick={{ fontSize: 12, fill: '#1e293b', fontWeight: 600 }} width={240} />
+              <RechartsTooltip content={<CustomChartTooltip unit="/ 100" />} />
+              <Bar barSize={24} name="Avg Risk Score" dataKey="risk_score" fill="#f59e0b" radius={[0, 6, 6, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    } else if (fullscreenChart === 'capital') {
+      title = "Capital Outlay Allocation by Sector";
+      subtitle = "Total sanctioned expenditure allocation (₹ Cr) across infrastructure domains";
+      chartContent = (
+        <div className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              layout="vertical"
+              data={benchmarks?.benchmark_groups?.map((b: any) => ({
+                name: b.category,
+                shortName: b.category,
+                total_budget_cr: b.total_budget_cr,
+                sample_size: b.sample_size
+              })) || []}
+              margin={{ top: 10, right: 40, left: 0, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+              <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => formatCurrencyCr(v)} />
+              <YAxis dataKey="shortName" type="category" tick={{ fontSize: 12, fill: '#1e293b', fontWeight: 600 }} width={220} />
+              <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
+              <Bar barSize={24} name="Total Budget" dataKey="total_budget_cr" fill="#10b981" radius={[0, 6, 6, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    } else if (fullscreenChart === 'cost_sector') {
+      title = "Sector-Wise Cost Escalation Exposure";
+      subtitle = `Aggregate rupee cost overrun exposure across sectors in ${selectedMonth}`;
+      chartContent = (
+        <div className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={costData?.sector_exposure_breakdown || []}
+              margin={{ top: 20, right: 30, left: 10, bottom: 65 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="sector" tick={{ fontSize: 12, fill: '#334155', fontWeight: 600 }} interval={0} angle={-25} textAnchor="end" height={65} />
+              <YAxis tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => formatCurrencyCr(v)} />
+              <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
+              <Bar barSize={36} name="Cost Escalation Exposure" dataKey="total_exposure_cr" fill="#ef4444" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    } else if (fullscreenChart === 'cost_projects') {
+      title = "Top Capital Escalation Mega Projects";
+      subtitle = "Individual projects with the highest absolute cost overrun exposure (₹ Cr)";
+      chartContent = (
+        <div className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              layout="vertical"
+              data={costData?.projects?.slice(0, 10).map((p: any) => ({
+                name: p.name,
+                shortName: p.name,
+                exposure: p.cost_overrun_exposure_cr,
+                budget: p.budget_cr,
+                revised: p.revised_cost_cr,
+                overrun_pct: p.cost_overrun_pct
+              })) || []}
+              margin={{ top: 10, right: 40, left: 0, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+              <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `₹${Number(v).toLocaleString()} Cr`} />
+              <YAxis dataKey="shortName" type="category" tick={{ fontSize: 11, fill: '#1e293b', fontWeight: 600 }} width={260} />
+              <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
+              <Bar barSize={24} name="Cost Overrun Exposure" dataKey="exposure" fill="#3b82f6" radius={[0, 6, 6, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    } else if (fullscreenChart === 'time_sector') {
+      title = "Sector-Wise Average Schedule Slippage";
+      subtitle = `Empirical commissioning delay across infrastructure domains in ${selectedMonth}`;
+      chartContent = (
+        <div className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={timeData?.sector_delay_breakdown || []}
+              margin={{ top: 20, right: 30, left: 10, bottom: 65 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="sector" tick={{ fontSize: 12, fill: '#334155', fontWeight: 600 }} interval={0} angle={-25} textAnchor="end" height={65} />
+              <YAxis tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v} Mo`} />
+              <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
+              <Bar barSize={36} name="Average Delay" dataKey="avg_delay_months" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    } else if (fullscreenChart === 'time_projects') {
+      title = "Top Schedule Delay Mega Projects";
+      subtitle = "Critical initiatives experiencing highest duration slippage past sanctioned commissioning";
+      chartContent = (
+        <div className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              layout="vertical"
+              data={timeData?.projects?.slice(0, 10).map((p: any) => ({
+                name: p.name,
+                shortName: p.name,
+                delay_months: p.predicted_delay_months,
+                delay_days: p.predicted_delay_days,
+                budget: p.budget_cr,
+                severity: p.delay_severity
+              })) || []}
+              margin={{ top: 10, right: 40, left: 0, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+              <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v} Mo`} />
+              <YAxis dataKey="shortName" type="category" tick={{ fontSize: 11, fill: '#1e293b', fontWeight: 600 }} width={260} />
+              <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
+              <Bar barSize={24} name="Predicted Delay" dataKey="delay_months" fill="#f97316" radius={[0, 6, 6, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    }
+
+    return (
+      <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 lg:p-8 animate-in fade-in">
+        <div
+          ref={modalRef}
+          className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-[1550px] h-[92vh] flex flex-col p-6 sm:p-8 overflow-hidden"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between pb-4 border-b border-slate-200 shrink-0">
+            <div>
+              <h2 className="text-xl font-black text-slate-900 font-outfit">{title}</h2>
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">{subtitle}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleBrowserFullscreen}
+                className="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
+                title="Toggle Screen Fullscreen"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setFullscreenChart(null)}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 transition-colors"
+                title="Close Fullscreen View (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Chart Canvas */}
+          <div className="flex-1 w-full pt-6 pb-2 min-h-0">
+            {chartContent}
+          </div>
+
+          {/* Footer note */}
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 shrink-0">
+            <span>PAIMANA PredictIQ Enterprise Visualizer • High-Resolution View</span>
+            <span>Press Esc or click Close to return to dashboard</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-14 font-sans">
+    <div className="space-y-6 w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pb-14 font-sans">
+      {/* Fullscreen Overlay */}
+      {renderFullscreenModal()}
+
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
@@ -287,7 +707,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     {costData?.summary?.total_projects?.toLocaleString() || 0}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">In selected month ({selectedMonth})</p>
+                  <p className="text-xs text-slate-500 mt-1">Snapshot month: {selectedMonth}</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-rose-500">
@@ -312,7 +732,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     {costData?.summary?.projects_with_overrun?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-amber-600 font-semibold mt-1">
-                    {costData?.summary?.overrun_percentage_of_portfolio || 0}% of portfolio
+                    {costData?.summary?.overrun_percentage_of_portfolio || 0}% of portfolio experiencing cost growth
                   </p>
                 </div>
 
@@ -324,63 +744,194 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <p className="text-2xl font-black text-red-600 mt-2">
                     {costData?.summary?.critical_risk_count?.toLocaleString() || 0}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">Requiring proactive intervention</p>
+                  <p className="text-xs text-slate-500 mt-1">Projects requiring proactive cabinet intervention</p>
                 </div>
               </div>
 
-              {/* Sector Cost Overrun Exposure Visual Chart */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900">Sector Cost Overrun Exposure (₹ Cr)</h3>
-                    <span className="text-xs font-medium text-slate-500">Top sectors by capital growth</span>
+              {/* Visual Charts Grid: 3 Rich Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Chart 1: Sector Cost Overrun Exposure */}
+                <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 font-outfit">
+                          Sector-Wise Cost Escalation Exposure (₹ Cr)
+                        </h3>
+                        <p className="text-xs text-slate-500 font-medium">
+                          Aggregate rupee overrun exposure across top infrastructure sectors in {selectedMonth}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-100">
+                          Top Impact Sectors
+                        </span>
+                        <button
+                          onClick={() => setFullscreenChart('cost_sector')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="h-[290px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={costData?.sector_exposure_breakdown?.slice(0, 8) || []}
+                          margin={{ top: 15, right: 20, left: 10, bottom: 55 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis
+                            dataKey="sector"
+                            tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }}
+                            interval={0}
+                            angle={-30}
+                            textAnchor="end"
+                            height={55}
+                            tickFormatter={(val) => truncateLabel(val, 16)}
+                          />
+                          <YAxis
+                            tick={{ fontSize: 11, fill: '#64748b' }}
+                            tickFormatter={(v) => (v >= 1000 ? `₹${(v / 1000).toFixed(0)}k Cr` : `₹${v} Cr`)}
+                          />
+                          <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
+                          <Bar
+                            barSize={32}
+                            name="Cost Escalation Exposure"
+                            dataKey="total_exposure_cr"
+                            fill="#ef4444"
+                            radius={[6, 6, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
-                  <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={costData?.sector_exposure_breakdown || []} margin={{ top: 10, right: 20, left: 10, bottom: 45 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="sector" tick={{ fontSize: 10 }} interval={0} angle={-30} textAnchor="end" height={50} />
-                        <YAxis tick={{ fontSize: 11 }} />
-                        <RechartsTooltip
-                          formatter={(value: any) => [`₹${Number(value).toLocaleString()} Cr`, 'Exposure']}
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        />
-                        <Bar dataKey="total_exposure_cr" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>X-Axis: Major Sectors</span>
+                    <span>Y-Axis: Total Capital Overrun Exposure (₹ Cr)</span>
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900">Top Overrun Impact Projects</h3>
-                    <span className="text-xs font-medium text-slate-500">Highest individual escalations</span>
+                {/* Chart 2: Cost Overrun Severity Distribution (Donut) */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 font-outfit">Overrun Severity Spread</h3>
+                        <p className="text-xs text-slate-500 font-medium">Portfolio distribution by cost escalation tier</p>
+                      </div>
+                      <PieIcon className="w-4 h-4 text-slate-400" />
+                    </div>
+
+                    <div className="h-[200px] w-full relative flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={costDistribution}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={80}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            {costDistribution.map((entry, index) => (
+                              <Cell key={`cost-slice-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip content={<CustomChartTooltip unit="Projects" />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-xl font-extrabold text-slate-900">
+                          {costData?.summary?.total_projects || 0}
+                        </span>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                          Total Projects
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 space-y-1.5">
+                      {costDistribution.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                            <span className="text-slate-600 font-medium">{item.name}</span>
+                          </div>
+                          <span className="font-bold text-slate-900">
+                            {item.value} ({((item.value / (costData?.summary?.total_projects || 1)) * 100).toFixed(0)}%)
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        layout="vertical"
-                        data={costData?.projects?.slice(0, 6).map((p: any) => ({
-                          name: p.name.length > 25 ? p.name.slice(0, 25) + '...' : p.name,
-                          exposure: p.cost_overrun_exposure_cr,
-                          overrun_pct: p.cost_overrun_pct
-                        })) || []}
-                        margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                        <XAxis type="number" tick={{ fontSize: 10 }} />
-                        <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={120} />
-                        <RechartsTooltip
-                          formatter={(value: any, name: string) => [
-                            name === 'exposure' ? `₹${Number(value).toLocaleString()} Cr` : `${value}%`,
-                            name === 'exposure' ? 'Cost Exposure' : 'Overrun %'
-                          ]}
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        />
-                        <Bar dataKey="exposure" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Chart 3: Top Overrun Impact Projects (Horizontal Bar Chart) */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 font-outfit">
+                      Top Capital Escalation Mega Projects (₹ Cr)
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Individual projects with the largest monetary increase between original budget and revised sanction
+                    </p>
                   </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold text-slate-500">
+                      Sorted by Absolute Overrun Exposure
+                    </span>
+                    <button
+                      onClick={() => setFullscreenChart('cost_projects')}
+                      className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                      title="View Chart in Full Screen"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="h-[290px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={costData?.projects?.slice(0, 7).map((p: any) => ({
+                        name: p.name,
+                        shortName: truncateLabel(p.name, 24),
+                        exposure: p.cost_overrun_exposure_cr,
+                        budget: p.budget_cr,
+                        revised: p.revised_cost_cr,
+                        overrun_pct: p.cost_overrun_pct
+                      })) || []}
+                      margin={{ top: 10, right: 35, left: 0, bottom: 10 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tickFormatter={(v) => `₹${Number(v).toLocaleString()} Cr`}
+                      />
+                      <YAxis
+                        dataKey="shortName"
+                        type="category"
+                        tick={{ fontSize: 11, fill: '#334155', fontWeight: 500 }}
+                        width={160}
+                      />
+                      <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
+                      <Bar
+                        barSize={20}
+                        name="Cost Overrun Exposure"
+                        dataKey="exposure"
+                        fill="#3b82f6"
+                        radius={[0, 6, 6, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
@@ -437,7 +988,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <h3 className="font-bold text-sm text-slate-900">
-                    Project-by-Project Cost Overrun Predictions ({costData?.projects?.length || 0} Total)
+                    Project-by-Project Cost Overrun Predictions ({costData?.projects?.length || 0} Monitored Projects)
                   </h3>
                   <span className="text-xs text-slate-500 font-medium">
                     Showing {Math.min((currentPage - 1) * pageSize + 1, costData?.projects?.length || 0)} - {Math.min(currentPage * pageSize, costData?.projects?.length || 0)} of {costData?.projects?.length || 0}
@@ -589,7 +1140,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     {timeData?.summary?.average_delay_months || 0} Mo
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
-                    ~{timeData?.summary?.average_delay_days || 0} days per project
+                    ~{timeData?.summary?.average_delay_days || 0} days estimated slippage
                   </p>
                 </div>
 
@@ -602,7 +1153,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     {timeData?.summary?.severe_delay_count?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-rose-600 font-semibold mt-1">
-                    Critical commissioning hazard
+                    Projects slipping beyond 12 calendar months
                   </p>
                 </div>
 
@@ -614,85 +1165,224 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <p className="text-2xl font-black text-amber-600 mt-2">
                     {timeData?.summary?.significant_delay_count?.toLocaleString() || 0}
                   </p>
-                  <p className="text-xs text-amber-600 font-semibold mt-1">Moderate slippage threshold</p>
+                  <p className="text-xs text-amber-600 font-semibold mt-1">
+                    Moderate slippage requiring milestone recovery
+                  </p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-emerald-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">On-Track Ratio</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">On-Track Adherence</p>
                     <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                   </div>
                   <p className="text-2xl font-black text-emerald-600 mt-2">
                     {timeData?.summary?.on_track_count?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
-                    {timeData?.summary?.total_projects ? ((timeData.summary.on_track_count / timeData.summary.total_projects) * 100).toFixed(1) : 0}% adhering to schedule
+                    {timeData?.summary?.total_projects ? ((timeData.summary.on_track_count / timeData.summary.total_projects) * 100).toFixed(1) : 0}% adhering to target commissioning
                   </p>
                 </div>
               </div>
 
-              {/* Sector Delay Visual Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900">Average Delay by Sector (Months)</h3>
-                    <span className="text-xs font-medium text-slate-500">Structural sector delay rankings</span>
+              {/* Visual Charts Grid: 3 Rich Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Chart 1: Average Delay by Sector (Months) */}
+                <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 font-outfit">
+                          Sector-Wise Average Schedule Slippage (Months)
+                        </h3>
+                        <p className="text-xs text-slate-500 font-medium">
+                          Empirical commissioning delay across infrastructure domains for {selectedMonth}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-100">
+                          Schedule Variance
+                        </span>
+                        <button
+                          onClick={() => setFullscreenChart('time_sector')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="h-[290px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={timeData?.sector_delay_breakdown?.slice(0, 8) || []}
+                          margin={{ top: 15, right: 20, left: 10, bottom: 55 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis
+                            dataKey="sector"
+                            tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }}
+                            interval={0}
+                            angle={-30}
+                            textAnchor="end"
+                            height={55}
+                            tickFormatter={(val) => truncateLabel(val, 16)}
+                          />
+                          <YAxis
+                            tick={{ fontSize: 11, fill: '#64748b' }}
+                            tickFormatter={(v) => `${v} Mo`}
+                          />
+                          <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
+                          <Bar
+                            barSize={32}
+                            name="Average Delay"
+                            dataKey="avg_delay_months"
+                            fill="#f59e0b"
+                            radius={[6, 6, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
-                  <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={timeData?.sector_delay_breakdown || []} margin={{ top: 10, right: 20, left: 10, bottom: 45 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="sector" tick={{ fontSize: 10 }} interval={0} angle={-30} textAnchor="end" height={50} />
-                        <YAxis tick={{ fontSize: 11 }} />
-                        <RechartsTooltip
-                          formatter={(value: any) => [`${value} Months`, 'Avg Delay']}
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        />
-                        <Bar dataKey="avg_delay_months" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>X-Axis: Infrastructure Sectors</span>
+                    <span>Y-Axis: Average Delay (Months)</span>
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900">Schedule Slippage Breakdown</h3>
-                    <span className="text-xs font-medium text-slate-500">Distribution across portfolio</span>
+                {/* Chart 2: Schedule Slippage Breakdown (Donut) */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 font-outfit">Slippage Distribution</h3>
+                        <p className="text-xs text-slate-500 font-medium">Projects categorized by delay severity</p>
+                      </div>
+                      <Clock className="w-4 h-4 text-slate-400" />
+                    </div>
+
+                    <div className="h-[200px] w-full relative flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Severe (>12 Mo)', value: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
+                              { name: 'Significant (6-12 Mo)', value: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
+                              { name: 'Minor (2-6 Mo)', value: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
+                              { name: 'On-Track (<2 Mo)', value: timeData?.summary?.on_track_count || 0, color: '#10b981' }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={80}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            {[
+                              { color: '#ef4444' },
+                              { color: '#f97316' },
+                              { color: '#3b82f6' },
+                              { color: '#10b981' }
+                            ].map((entry, index) => (
+                              <Cell key={`time-cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip content={<CustomChartTooltip unit="Projects" />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-xl font-extrabold text-slate-900">
+                          {timeData?.summary?.total_projects || 0}
+                        </span>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                          Monitored
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 space-y-1.5">
+                      {[
+                        { label: 'Severe (>12 Mo)', count: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
+                        { label: 'Significant (6-12 Mo)', count: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
+                        { label: 'Minor (2-6 Mo)', count: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
+                        { label: 'On-Track (<2 Mo)', count: timeData?.summary?.on_track_count || 0, color: '#10b981' },
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                            <span className="text-slate-600 font-medium">{item.label}</span>
+                          </div>
+                          <span className="font-bold text-slate-900">
+                            {item.count} ({((item.count / (timeData?.summary?.total_projects || 1)) * 100).toFixed(0)}%)
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="h-[280px] w-full flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={[
-                            { name: 'Severe (>12 Mo)', value: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
-                            { name: 'Significant (6-12 Mo)', value: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
-                            { name: 'Minor (2-6 Mo)', value: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
-                            { name: 'On-Track (<2 Mo)', value: timeData?.summary?.on_track_count || 0, color: '#10b981' }
-                          ]}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={65}
-                          outerRadius={95}
-                          paddingAngle={4}
-                          dataKey="value"
-                        >
-                          {[
-                            { color: '#ef4444' },
-                            { color: '#f97316' },
-                            { color: '#3b82f6' },
-                            { color: '#10b981' }
-                          ].map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip
-                          formatter={(value: any) => [value, 'Projects']}
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        />
-                        <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                      </PieChart>
-                    </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Chart 3: Top Delayed Mega Projects (Horizontal Bar Chart) */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 font-outfit">
+                      Top Schedule Delay Mega Projects (Months)
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Critical infrastructure initiatives experiencing the highest duration slippage past sanctioned commissioning
+                    </p>
                   </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold text-slate-500">
+                      Ranked by Calendar Months Delayed
+                    </span>
+                    <button
+                      onClick={() => setFullscreenChart('time_projects')}
+                      className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                      title="View Chart in Full Screen"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="h-[290px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={timeData?.projects?.slice(0, 7).map((p: any) => ({
+                        name: p.name,
+                        shortName: truncateLabel(p.name, 24),
+                        delay_months: p.predicted_delay_months,
+                        delay_days: p.predicted_delay_days,
+                        budget: p.budget_cr,
+                        severity: p.delay_severity
+                      })) || []}
+                      margin={{ top: 10, right: 35, left: 0, bottom: 10 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tickFormatter={(v) => `${v} Mo`}
+                      />
+                      <YAxis
+                        dataKey="shortName"
+                        type="category"
+                        tick={{ fontSize: 11, fill: '#334155', fontWeight: 500 }}
+                        width={160}
+                      />
+                      <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
+                      <Bar
+                        barSize={20}
+                        name="Predicted Delay"
+                        dataKey="delay_months"
+                        fill="#f97316"
+                        radius={[0, 6, 6, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
@@ -749,7 +1439,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <h3 className="font-bold text-sm text-slate-900">
-                    Project-by-Project Schedule & Delay Predictions ({timeData?.projects?.length || 0} Total)
+                    Project-by-Project Schedule & Delay Predictions ({timeData?.projects?.length || 0} Monitored Projects)
                   </h3>
                   <span className="text-xs text-slate-500 font-medium">
                     Showing {Math.min((currentPage - 1) * pageSize + 1, timeData?.projects?.length || 0)} - {Math.min(currentPage * pageSize, timeData?.projects?.length || 0)} of {timeData?.projects?.length || 0}
@@ -880,7 +1570,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <Activity className="h-5 w-5 text-blue-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">{overview?.total_projects || 0}</p>
+                  <p className="text-xs text-slate-500 mt-1">Monitored infrastructure portfolio</p>
                 </div>
+
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-indigo-500">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Capital Outlay</p>
@@ -889,7 +1581,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     ₹{((overview?.total_budget_cr || 0) / 1000).toFixed(1)}k Cr
                   </p>
+                  <p className="text-xs text-slate-500 mt-1">Sanctioned public expenditure</p>
                 </div>
+
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-amber-500">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Risk Score</p>
@@ -898,7 +1592,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     {((overview?.average_risk_score || 0) * 100).toFixed(1)}
                   </p>
+                  <p className="text-xs text-amber-600 font-semibold mt-1">Multi-dimensional composite benchmark</p>
                 </div>
+
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-rose-500">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Cost Overrun Exposure</p>
@@ -907,141 +1603,328 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     ₹{((overview?.total_cost_overrun_exposure_cr || 0) / 1000).toFixed(1)}k Cr
                   </p>
+                  <p className="text-xs text-rose-600 font-semibold mt-1">Total portfolio cost escalation</p>
                 </div>
               </div>
 
               {/* Main Growth / Risk Benchmark Chart */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-base font-bold text-slate-900 font-outfit">Performance Benchmarks</h2>
-                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-                      {(['sector', 'ministry', 'geographic_region'] as const).map(tab => (
+                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                      <div>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">Performance Benchmarks</h2>
+                        <p className="text-xs text-slate-500">
+                          Cross-category comparison of Cost Growth (%) vs. Risk Score
+                        </p>
+                      </div>
+
+                      {/* Dimension Selector Tabs & Fullscreen */}
+                      <div className="flex items-center gap-2 self-start sm:self-auto">
+                        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl shrink-0">
+                          {(['sector', 'ministry', 'geographic_region'] as const).map(tab => (
+                            <button
+                              key={tab}
+                              onClick={() => setBenchmarkDimension(tab)}
+                              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
+                                benchmarkDimension === tab 
+                                  ? 'bg-white text-slate-900 shadow-sm' 
+                                  : 'text-slate-500 hover:text-slate-700'
+                              }`}
+                            >
+                              By {tab === 'geographic_region' ? 'Region' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            </button>
+                          ))}
+                        </div>
                         <button
-                          key={tab}
-                          onClick={() => setBenchmarkDimension(tab)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
-                            benchmarkDimension === tab 
-                              ? 'bg-white text-slate-900 shadow-sm' 
-                              : 'text-slate-500 hover:text-slate-700'
-                          }`}
+                          onClick={() => setFullscreenChart('benchmarks')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
                         >
-                          By {tab.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                          <Maximize2 className="w-3.5 h-3.5" />
                         </button>
-                      ))}
+                      </div>
+                    </div>
+
+                    {benchmarks?.explanatory_annotations && (
+                      <div className="mb-4 text-xs p-3 rounded-xl bg-blue-50/70 border border-blue-100 text-blue-800 flex items-start gap-2">
+                        <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold">Statistical Context: </span>
+                          {benchmarks.explanatory_annotations.what_should_not_be_concluded}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Legend header for clarity */}
+                    <div className="flex items-center justify-end gap-5 text-xs font-semibold mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-sm bg-[#3b82f6]" />
+                        <span className="text-slate-700">Avg Cost Growth (%)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-sm bg-[#f43f5e]" />
+                        <span className="text-slate-700">Avg Risk Score (0-100)</span>
+                      </div>
+                    </div>
+
+                    <div className="h-[320px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={benchmarks?.benchmark_groups?.slice(0, 10) || []}
+                          margin={{ top: 15, right: 35, left: 10, bottom: 55 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis
+                            dataKey="category"
+                            tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }}
+                            interval={0}
+                            angle={-30}
+                            textAnchor="end"
+                            height={55}
+                            tickFormatter={(val) => truncateLabel(val, 16)}
+                          />
+                          <YAxis
+                            yAxisId="left"
+                            tick={{ fontSize: 11, fill: '#64748b' }}
+                            tickFormatter={(v) => `${v}%`}
+                          />
+                          <YAxis
+                            yAxisId="right"
+                            orientation="right"
+                            tick={{ fontSize: 11, fill: '#64748b' }}
+                            tickFormatter={(v) => `${v}`}
+                          />
+                          <RechartsTooltip content={<CustomChartTooltip />} />
+                          <Bar
+                            barSize={16}
+                            yAxisId="left"
+                            dataKey="avg_cost_growth_pct"
+                            name="Avg Cost Growth (%)"
+                            fill="#3b82f6"
+                            radius={[6, 6, 0, 0]}
+                          />
+                          <Bar
+                            barSize={16}
+                            yAxisId="right"
+                            dataKey="avg_risk_score"
+                            name="Avg Risk Score"
+                            fill="#f43f5e"
+                            radius={[6, 6, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
-                  
-                  {benchmarks?.explanatory_annotations && (
-                    <div className="mb-4 text-xs p-3 rounded-xl bg-blue-50/60 border border-blue-100 text-blue-800">
-                      <span className="font-bold block mb-0.5">Statistical Transparency:</span>
-                      {benchmarks.explanatory_annotations.what_should_not_be_concluded}
-                    </div>
-                  )}
 
-                  <div className="h-[340px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={benchmarks?.benchmark_groups?.slice(0, 10) || []} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="category" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={60} />
-                        <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
-                        <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
-                        <RechartsTooltip 
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                          formatter={(value: any, name: string) => [
-                            name === 'avg_cost_growth_pct' ? `${value.toFixed(1)}%` : value, 
-                            name === 'avg_cost_growth_pct' ? 'Avg Cost Growth' : 'Avg Risk Score'
-                          ]}
-                        />
-                        <Legend />
-                        <Bar yAxisId="left" dataKey="avg_cost_growth_pct" name="Avg Cost Growth (%)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                        <Bar yAxisId="right" dataKey="avg_risk_score" name="Avg Risk Score" fill="#f43f5e" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>Left Axis: Cost Growth (%)</span>
+                    <span>Right Axis: Risk Score (0-100)</span>
                   </div>
                 </div>
 
-                {/* State/Geography Distribution Chart */}
-                <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col">
-                  <h2 className="text-base font-bold text-slate-900 font-outfit mb-4">State/Region Concentration</h2>
-                  <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={geography?.geography?.slice(0, 7) || []}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={95}
-                          paddingAngle={4}
-                          dataKey="project_count"
-                          nameKey="category_name"
-                        >
-                          {geography?.geography?.slice(0, 7).map((_: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip 
-                          formatter={(value: number) => [value, 'Projects']}
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="mt-3 flex flex-col gap-2">
-                    {geography?.geography?.slice(0, 5).map((geo: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
-                          <span className="text-slate-600 font-medium truncate max-w-[140px]" title={geo.category_name}>{geo.category_name}</span>
-                        </div>
-                        <span className="font-bold text-slate-900">{geo.project_count}</span>
+                {/* State/Geography Distribution Chart (Donut + Ranked List) */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">Regional Distribution</h2>
+                        <p className="text-xs text-slate-500">Project concentration by state & jurisdiction</p>
                       </div>
-                    ))}
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-blue-600" />
+                        <button
+                          onClick={() => setFullscreenChart('regional')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="h-[210px] w-full relative flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={geography?.geography?.slice(0, 8) || []}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={80}
+                            paddingAngle={3}
+                            dataKey="project_count"
+                            nameKey="category_name"
+                          >
+                            {(geography?.geography?.slice(0, 8) || []).map((_: any, index: number) => (
+                              <Cell key={`geo-cell-${index}`} fill={GEO_COLORS[index % GEO_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip content={<CustomChartTooltip unit="Projects" />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-xl font-extrabold text-slate-900">
+                          {overview?.total_projects || 0}
+                        </span>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                          Total Projects
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Clean Top States List with counts & % */}
+                    <div className="mt-2 space-y-1.5">
+                      {(geography?.geography?.slice(0, 5) || []).map((geo: any, idx: number) => {
+                        const total = overview?.total_projects || 1776;
+                        const pct = ((geo.project_count / total) * 100).toFixed(1);
+                        return (
+                          <div key={idx} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="w-2.5 h-2.5 rounded-full shrink-0"
+                                style={{ backgroundColor: GEO_COLORS[idx % GEO_COLORS.length] }}
+                              />
+                              <span className="text-slate-700 font-medium truncate max-w-[140px]" title={geo.category_name}>
+                                {geo.category_name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-900">{geo.project_count}</span>
+                              <span className="text-[10px] text-slate-400 font-semibold">({pct}%)</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
 
+              {/* Bottom 2 Charts: Ministry Risk Profiles (Horizontal) and Capital Outlay by Sector (Horizontal) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-                  <h2 className="text-base font-bold text-slate-900 font-outfit mb-6">Ministry Risk Profiles</h2>
-                  <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={ministries?.ministries?.slice(0, 8) || []} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
-                        <defs>
-                          <linearGradient id="colorRisk" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <XAxis dataKey="category_name" tick={{ fontSize: 10 }} interval={0} angle={-25} textAnchor="end" height={60} />
-                        <YAxis tick={{ fontSize: 11 }} />
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <RechartsTooltip 
-                          formatter={(value: any) => [(Number(value) * 100).toFixed(1), 'Avg Risk Score']}
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        />
-                        <Area type="monotone" dataKey="average_risk_score" stroke="#f59e0b" fillOpacity={1} fill="url(#colorRisk)" />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                {/* Ministry Risk Profiles (Horizontal Bar Chart) */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">Ministry Risk Profiles</h2>
+                        <p className="text-xs text-slate-500">Average risk score across key line ministries</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-slate-400" />
+                        <button
+                          onClick={() => setFullscreenChart('ministry')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="h-[290px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          layout="vertical"
+                          data={ministries?.ministries?.slice(0, 7).map((m: any) => ({
+                            name: m.category_name,
+                            shortName: truncateLabel(m.category_name, 22),
+                            risk_score: Number((m.average_risk_score * 100).toFixed(1)),
+                            projects: m.project_count,
+                            budget: m.total_budget_cr
+                          })) || []}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                          <XAxis
+                            type="number"
+                            tick={{ fontSize: 11, fill: '#64748b' }}
+                            tickFormatter={(v) => `${v}`}
+                          />
+                          <YAxis
+                            dataKey="shortName"
+                            type="category"
+                            tick={{ fontSize: 11, fill: '#334155', fontWeight: 500 }}
+                            width={140}
+                          />
+                          <RechartsTooltip content={<CustomChartTooltip unit="/ 100" />} />
+                          <Bar
+                            barSize={20}
+                            name="Avg Risk Score"
+                            dataKey="risk_score"
+                            fill="#f59e0b"
+                            radius={[0, 6, 6, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>Y-Axis: Line Ministries</span>
+                    <span>X-Axis: Composite Risk Index (0-100 Scale)</span>
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-                  <h2 className="text-base font-bold text-slate-900 font-outfit mb-6">Capital Outlay by Sector</h2>
-                  <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart layout="vertical" data={benchmarks?.benchmark_groups?.slice(0, 8) || []} margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                        <XAxis type="number" tick={{ fontSize: 11 }} />
-                        <YAxis dataKey="category" type="category" tick={{ fontSize: 10 }} width={110} />
-                        <RechartsTooltip 
-                          formatter={(value: any) => [`₹${(Number(value) / 1000).toFixed(1)}k Cr`, 'Total Budget']}
-                          contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        />
-                        <Bar dataKey="total_budget_cr" fill="#10b981" radius={[0, 4, 4, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                {/* Capital Outlay by Sector (Horizontal Bar Chart) */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">Capital Outlay by Sector</h2>
+                        <p className="text-xs text-slate-500">Total sanctioned expenditure allocation (₹ Cr)</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <IndianRupee className="w-4 h-4 text-emerald-600" />
+                        <button
+                          onClick={() => setFullscreenChart('capital')}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                          title="View Chart in Full Screen"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="h-[290px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          layout="vertical"
+                          data={benchmarks?.benchmark_groups?.slice(0, 7).map((b: any) => ({
+                            name: b.category,
+                            shortName: truncateLabel(b.category, 22),
+                            total_budget_cr: b.total_budget_cr,
+                            sample_size: b.sample_size
+                          })) || []}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                          <XAxis
+                            type="number"
+                            tick={{ fontSize: 11, fill: '#64748b' }}
+                            tickFormatter={(v) => (v >= 1000 ? `₹${(v / 1000).toFixed(0)}k Cr` : `₹${v} Cr`)}
+                          />
+                          <YAxis
+                            dataKey="shortName"
+                            type="category"
+                            tick={{ fontSize: 11, fill: '#334155', fontWeight: 500 }}
+                            width={140}
+                          />
+                          <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
+                          <Bar
+                            barSize={20}
+                            name="Total Budget"
+                            dataKey="total_budget_cr"
+                            fill="#10b981"
+                            radius={[0, 6, 6, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>Y-Axis: Major Sectors</span>
+                    <span>X-Axis: Capital Outlay (₹ Cr)</span>
                   </div>
                 </div>
               </div>
@@ -1052,4 +1935,5 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
     </div>
   );
 };
+
 export default AnalyticsPage;
