@@ -20,7 +20,6 @@ import {
   MapPin,
   PieChart as PieIcon,
   Maximize2,
-  Minimize2,
   X
 } from 'lucide-react';
 import { api } from '../api/client';
@@ -154,7 +153,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedSector, setSelectedSector] = useState<string>('ALL');
+  const [selectedSector] = useState<string>('ALL');
   const [selectedRiskTier, setSelectedRiskTier] = useState<string>('ALL');
   const [selectedDelaySeverity, setSelectedDelaySeverity] = useState<string>('ALL');
   const [costSortBy, setCostSortBy] = useState<string>('cost_overrun_pct');

@@ -1,4 +1,6 @@
 import React from 'react';
+import { ScenariosPage } from './pages/ScenariosPage';
+import { IntelligencePage } from './pages/IntelligencePage';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './api/queryClient';
@@ -7,9 +9,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { RiskMapPage } from './pages/RiskMapPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
-import { ScenariosPage } from './pages/ScenariosPage';
 import { InterventionsPage } from './pages/InterventionsPage';
-import { CopilotPage } from './pages/CopilotPage';
 import { BenchmarksPage } from './pages/BenchmarksPage';
 import { StateProgressPage } from './pages/StateProgressPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
@@ -33,7 +33,10 @@ export const App: React.FC = () => {
             <Route path="interventions" element={<InterventionsPage />} />
             <Route path="alerts" element={<Navigate to="/interventions" replace />} />
             <Route path="benchmarks" element={<BenchmarksPage />} />
-            <Route path="copilot" element={<CopilotPage />} />
+            <Route path="copilot" element={<Navigate to="/intelligence?tab=documents" replace />} />
+            <Route path="intelligence" element={<IntelligencePage />} />
+            <Route path="reports" element={<Navigate to="/intelligence?tab=reports" replace />} />
+            <Route path="settings" element={<Navigate to="/intelligence?tab=settings" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>

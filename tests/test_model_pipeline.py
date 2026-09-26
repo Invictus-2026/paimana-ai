@@ -58,7 +58,8 @@ def test_predictor_schema_and_inference():
     assert 0.0 <= output.delay_probability <= 1.0
     assert 0.0 <= output.implementation_risk <= 1.0
     assert output.model_version == "PAIMANA-ML-v1.0.0"
-    assert "cost_overrun_pct_95_ci" in output.confidence_bounds
+    assert output.confidence_bounds["cost_overrun_pct_95_ci"] is None
+    assert output.confidence_bounds["status"] == "uncalibrated"
 
 
 def test_predictor_feature_missingness_rejection():

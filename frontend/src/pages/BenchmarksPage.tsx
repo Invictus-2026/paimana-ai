@@ -109,6 +109,7 @@ export const BenchmarksPage: React.FC = () => {
         </div>
       </div>
 
+      <button className="rounded-xl border bg-white px-4 py-2 text-sm text-blue-700" onClick={()=>navigate('/intelligence?tab=contractors')}>Open InfraScore contractor records</button>
       {/* Prominent Data Transparency Indicators Header Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Total Projects Analyzed */}
@@ -116,11 +117,11 @@ export const BenchmarksPage: React.FC = () => {
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sample Size (N)</span>
             <p className="text-2xl font-black text-slate-900 mt-0.5 font-sans">
-              {benchmarkData?.transparency_metadata.total_projects_analyzed || 18} <span className="text-xs font-normal text-slate-400">Projects</span>
+              {benchmarkData?.transparency_metadata.total_projects_analyzed ?? 0} <span className="text-xs font-normal text-slate-400">Projects</span>
             </p>
           </div>
           <span className="px-2.5 py-1 rounded-full bg-blue-50 text-[#0d52ce] text-[10px] font-bold border border-blue-200">
-            {benchmarkData?.transparency_metadata.valid_groups_count || 5} Valid Groups
+            {benchmarkData?.transparency_metadata.valid_groups_count ?? 0} Valid Groups
           </span>
         </div>
 
@@ -129,7 +130,7 @@ export const BenchmarksPage: React.FC = () => {
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Time Window Covered</span>
             <p className="text-base font-extrabold text-slate-900 mt-0.5">
-              {benchmarkData?.transparency_metadata.time_period_covered || 'Apr 2025 - Apr 2026'}
+              {benchmarkData?.transparency_metadata.time_period_covered || 'Unavailable'}
             </p>
           </div>
           <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-200">
@@ -142,7 +143,7 @@ export const BenchmarksPage: React.FC = () => {
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Data Completeness Score</span>
             <p className="text-2xl font-black text-emerald-600 mt-0.5 font-sans">
-              {benchmarkData?.transparency_metadata.data_completeness_pct || 96.4}%
+              {benchmarkData?.transparency_metadata.data_completeness_pct ?? 'Unavailable'}%
             </p>
           </div>
           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -354,7 +355,7 @@ export const BenchmarksPage: React.FC = () => {
 
                   <td className="p-3.5 text-right">
                     <button
-                      onClick={() => navigate(`/projects?sector=${encodeURIComponent(grp.category)}`)}
+                      onClick={() => navigate(`/projects?${selectedDimension==='ministry'?'ministry':selectedDimension==='geographic_region'?'state':selectedDimension==='sector'?'sector':'status'}=${encodeURIComponent(grp.category)}`)}
                       className="px-3 py-1.5 rounded-xl bg-[#0d52ce] hover:bg-[#0b45ad] text-white text-xs font-bold shadow-sm transition flex items-center space-x-1 ml-auto"
                     >
                       <span>Filter Projects</span>

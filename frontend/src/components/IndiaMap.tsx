@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import * as d3Geo from 'd3-geo';
 
 interface IndiaMapProps {

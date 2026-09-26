@@ -1,4 +1,4 @@
-"""Test placeholder and contract compliance API endpoints."""
+"""Contract checks: missing projects cannot receive fabricated forecasts."""
 
 
 def test_predictions_endpoint(client):
@@ -10,9 +10,8 @@ def test_predictions_endpoint(client):
 
 def test_risks_endpoint(client):
     response = client.get("/api/v1/risks?project_id=1")
-    assert response.status_code == 200
-    data = response.json()
-    assert "status" in data or "id" in data or isinstance(data, list)
+    assert response.status_code == 404
+    assert response.json()["detail"] .startswith("Project not found")
 
 
 def test_alerts_endpoint(client):
@@ -37,10 +36,8 @@ def test_scenarios_endpoint(client):
         "supply_chain_delay_weeks": 2
     }
     response = client.post("/api/v1/scenarios/simulate", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] in ["success", "placeholder"]
-    assert str(data.get("data", {}).get("project_id", 1)) == "1"
+    assert response.status_code == 404
+    assert response.json()["detail"] .startswith("Project not found")
 
 
 def test_interventions_endpoint(client):

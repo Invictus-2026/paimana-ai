@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import {
   LayoutGrid, IndianRupee, TrendingUp, Clock, Shield, Download,
-  Calendar, ChevronDown, ArrowUpRight, ChevronRight, AlertTriangle,
+  ChevronDown, ArrowUpRight, AlertTriangle,
   CheckCircle2, Zap, Activity, Sparkles
 } from 'lucide-react';
 import ExpandableChartCard from '../components/common/ExpandableChartCard';
@@ -45,7 +45,7 @@ export const DashboardPage: React.FC = () => {
     queryKey: ['monthly-sectors', selectedMonth],
     queryFn: () => api.getMonthlySectors(selectedMonth),
   });
-  const sectorData: any[] = sectorsResponse?.data?.sectors || [];
+  const sectorData: any[] = useMemo(() => sectorsResponse?.data?.sectors || [], [sectorsResponse]);
 
   const { data: sectorAnalyticsResponse } = useQuery({
     queryKey: ['sector-analytics'],
@@ -214,7 +214,7 @@ export const DashboardPage: React.FC = () => {
                 <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${v}k Cr`} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
-                  formatter={(v: any, n: string) => n === 'expenditure' ? [`₹${v}k Cr`, 'Expenditure'] : [v, 'Projects']} />
+                  formatter={(v: any, n: any) => n === 'expenditure' ? [`₹${v}k Cr`, 'Expenditure'] : [v, 'Projects']} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <Area yAxisId="left" type="monotone" dataKey="projects" name="Projects" stroke="#0d52ce" strokeWidth={2.5} fill="url(#gradProjects)" dot={{ r: 3, fill: '#0d52ce' }} />
                 <Area yAxisId="right" type="monotone" dataKey="expenditure" name="Expenditure" stroke="#f97316" strokeWidth={2.5} fill="url(#gradExp)" dot={{ r: 3, fill: '#f97316' }} />
@@ -303,7 +303,7 @@ export const DashboardPage: React.FC = () => {
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }} tickLine={false} axisLine={false} width={130} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
-                  formatter={(v: any, n: string) => [n === 'exp' ? `₹${v}k Cr` : v, n === 'exp' ? 'Expenditure' : 'Projects']} />
+                  formatter={(v: any, n: any) => [n === 'exp' ? `₹${v}k Cr` : v, n === 'exp' ? 'Expenditure' : 'Projects']} />
                 <Bar dataKey="count" name="Projects" fill="#0d52ce" radius={[0, 4, 4, 0]} barSize={isFull ? 24 : 16} />
               </BarChart>
             </ResponsiveContainer>

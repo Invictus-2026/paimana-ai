@@ -23,6 +23,7 @@ interface NavItem {
 }
 
 const mainNavItems: NavItem[] = [
+  { name: 'Intelligence', path: '/intelligence', icon: Bot },
   { name: 'Dashboard', path: '/dashboard', icon: LayoutGrid },
   { name: 'Projects', path: '/projects', icon: FolderKanban },
   { name: 'State & Progress', path: '/progress', icon: LayoutGrid, badge: 'New' },
@@ -40,14 +41,14 @@ export const Sidebar: React.FC = () => {
   // Removed analyticsOpen state
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between h-screen sticky top-0 z-20 shrink-0 text-slate-700 font-sans">
+    <aside className="w-64 max-md:w-48 max-sm:w-16 max-sm:overflow-hidden bg-white border-r border-slate-200 flex flex-col justify-between h-screen overflow-y-auto sticky top-0 z-20 shrink-0 text-slate-700 font-sans">
       <div>
         {/* Brand Header */}
-        <div className="p-5 flex items-center space-x-3 border-b border-slate-100">
+        <div className="p-5 max-sm:p-3 flex items-center space-x-3 border-b border-slate-100">
           <div className="w-9 h-9 rounded-xl bg-[#0d52ce] flex items-center justify-center text-white shadow-md shadow-[#0d52ce]/20 shrink-0">
             <LayoutGrid className="w-5 h-5" />
           </div>
-          <div>
+          <div className="max-sm:hidden">
             <h1 className="font-extrabold text-base text-slate-900 tracking-tight leading-tight">
               PAIMANA <span className="text-[#0d52ce]">PredictIQ</span>
             </h1>
@@ -66,8 +67,9 @@ export const Sidebar: React.FC = () => {
               <div key={item.name} className="space-y-1">
                 <NavLink
                   to={item.path}
+                  title={item.name}
                   className={({ isActive }) =>
-                    `flex items-center justify-between px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 ${
+                    `flex items-center justify-between px-4 max-sm:px-2 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 ${
                       isActive
                         ? 'bg-[#0d52ce] text-white shadow-md shadow-[#0d52ce]/20'
                         : isItemActive && isAnalytics
@@ -78,10 +80,10 @@ export const Sidebar: React.FC = () => {
                 >
                   <div className="flex items-center space-x-3">
                     <Icon className={`w-4 h-4 ${isItemActive && !isAnalytics ? 'text-white' : isItemActive && isAnalytics ? 'text-[#0d52ce]' : 'text-slate-500'}`} />
-                    <span>{item.name}</span>
+                    <span className="max-sm:hidden">{item.name}</span>
                   </div>
 
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1 max-sm:hidden">
                     {item.badge && (
                       <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-100 text-orange-600 border border-orange-200 uppercase tracking-wide">
                         {item.badge}
@@ -144,7 +146,7 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Bottom Footer Widgets */}
-      <div className="p-4 border-t border-slate-100 space-y-2.5">
+      <div className="p-4 max-sm:hidden border-t border-slate-100 space-y-2.5">
         <div className="flex items-center space-x-2 text-xs font-semibold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
           <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
           <span>Data as of <strong>April 2026</strong></span>

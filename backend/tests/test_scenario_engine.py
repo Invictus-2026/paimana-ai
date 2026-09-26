@@ -50,18 +50,16 @@ def test_schedule_recovery_reduces_risk(engine):
     assert result.delta.is_risk_escalated is False
 
 
-def test_scenario_simulate_api_endpoint(client):
-    """Test 4: Verifies POST /api/v1/scenarios/simulate endpoint."""
-    payload = {
-        "project_id": "P104",
-        "scenario_type": "SCHEDULE_DELAY_6M",
-        "simulated_by": "TestUser"
-    }
-    response = client.post("/api/v1/scenarios/simulate", json=payload)
+def test_scenario_simulate_api_endpoint(client, db_session):
+    """The API uses a stored budget and explicit scenario assumptions."""
+    from app.models.entities import Project
+    db_session.add(Project(id=104, name="Measured project", budget=1000))
+    db_session.commit()
+    response = client.post("/api/v1/scenarios/simulate", json={
+        "project_id": 104, "duration_delta_days": 180, "budget_delta_percent": 10
+    })
     assert response.status_code == 200
-    json_data = response.json()
-    assert json_data["status"] == "success"
-    assert json_data["data"]["project_id"] == "P104"
-    assert json_data["data"]["scenario_type"] == "SCHEDULE_DELAY_6M"
-    assert "delta" in json_data["data"]
-    assert "audit_trail" in json_data["data"]
+    result = response.json()["data"]
+    assert result["projects"][0]["project_id"] == 104
+    assert result["projects"][0]["schedule_buffer_days"] == 180
+    assert result["total_cost_increase_cr"] == 100

@@ -31,3 +31,9 @@ api_router.include_router(interventions.router, prefix="/interventions", tags=["
 api_router.include_router(models.router, prefix="/models", tags=["Models"])
 api_router.include_router(copilot.router, prefix="/copilot", tags=["Copilot"])
 
+
+from app.api.v1 import intelligence
+api_router.include_router(intelligence.router, prefix="/intelligence", tags=["Intelligence"])
+
+from app.api.v1 import live
+api_router.include_router(live.router, prefix='/intelligence', tags=['Live Voice'])

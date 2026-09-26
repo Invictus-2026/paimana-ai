@@ -8,6 +8,7 @@ export const Header: React.FC = () => {
 
   const getTitle = () => {
     const path = location.pathname;
+    if (path.startsWith('/intelligence')) return 'Intelligence';
     if (path.startsWith('/projects/')) return 'Project Intelligence';
     if (path.startsWith('/projects')) return 'Projects';
     if (path.startsWith('/map')) return 'Benchmarks & Risk Map';
@@ -18,7 +19,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10 text-slate-800 font-sans">
+    <header className="h-16 bg-white border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-10 text-slate-800 font-sans">
       {/* Left: Menu toggle + Title */}
       <div className="flex items-center space-x-4">
         <button className="text-slate-500 hover:text-slate-800 p-1.5 rounded-lg hover:bg-slate-100 transition">

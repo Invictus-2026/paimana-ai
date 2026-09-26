@@ -225,13 +225,13 @@ def test_scenario_simulate_endpoint(client):
     """Test POST /api/v1/scenarios/simulate endpoint."""
     payload = {
         "project_id": "1",
-        "scenario_type": "SCHEDULE_DELAY_3M"
+        "duration_delta_days": 90
     }
     response = client.post("/api/v1/scenarios/simulate", json=payload)
     assert response.status_code == 200
     json_data = response.json()
     assert json_data["status"] == "success"
-    assert "delta" in json_data["data"]
+    assert json_data["data"]["projects"][0]["schedule_buffer_days"] == 90
 
 
 def test_get_models_list(client):

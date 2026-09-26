@@ -68,29 +68,34 @@ def test_human_approval_status_transition(engine):
     assert updated.reviewed_at is not None
 
 
-def test_get_project_interventions_api(client):
-    """Test 4: Verifies GET /api/v1/interventions/{project_id} endpoint."""
-    response = client.get("/api/v1/interventions/P101")
+@pytest.fixture
+def stored_project(db_session, monkeypatch):
+    from app.models.entities import Project
+    monkeypatch.delenv("OPERATOR_API_KEY", raising=False)
+    monkeypatch.setenv("ENVIRONMENT", "development")
+    db_session.add(Project(id=101, name="Evidence review", budget=1000, overall_risk_score=.8))
+    db_session.commit()
+    return 101
+
+
+def test_get_project_interventions_api(client, stored_project):
+    path = f"/api/v1/interventions/{stored_project}"
+    assert client.get(path).json()["data"]["interventions"] == []
+    assert client.post("/api/v1/interventions/generate").json()["created"] == 1
+    assert client.post("/api/v1/interventions/generate").json()["created"] == 0
+    rows = client.get(path).json()["data"]["interventions"]
+    assert len(rows) == 1
+    assert rows[0]["estimatedRiskImpact"] == "Not estimated"
+
+
+def test_approve_intervention_api(client, stored_project):
+    client.post("/api/v1/interventions/generate")
+    rec_id = client.get(f"/api/v1/interventions/{stored_project}").json()["data"]["interventions"][0]["recommendation_id"]
+    payload = {"new_status": "APPROVED", "reviewer_name": "Dr. R. Mehta",
+               "reviewer_notes": "Approval granted following technical board review."}
+    path = f"/api/v1/interventions/{rec_id}/approve"
+    response = client.post(path, json=payload)
     assert response.status_code == 200
-    json_data = response.json()
-    assert json_data["status"] == "success"
-    assert "interventions" in json_data["data"]
-    assert len(json_data["data"]["interventions"]) > 0
-
-
-def test_approve_intervention_api(client):
-    """Test 5: Verifies POST /api/v1/interventions/{id}/approve endpoint."""
-    # First get a recommendation ID
-    res_get = client.get("/api/v1/interventions/P101")
-    rec_id = res_get.json()["data"]["interventions"][0]["recommendation_id"]
-
-    payload = {
-        "new_status": "APPROVED",
-        "reviewer_name": "Dr. R. Mehta",
-        "reviewer_notes": "Approval granted following technical board review."
-    }
-    res_post = client.post(f"/api/v1/interventions/{rec_id}/approve", json=payload)
-    assert res_post.status_code == 200
-    json_data = res_post.json()
-    assert json_data["status"] == "success"
-    assert json_data["data"]["status"] == "APPROVED"
+    assert response.json()["data"]["status"] == "Approved"
+    assert client.post(path, json=payload).status_code == 409
+    assert client.get(f"/api/v1/interventions/{stored_project}").json()["data"]["interventions"][0]["status"] == "Approved"

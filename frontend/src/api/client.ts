@@ -1,6 +1,6 @@
-import { MOCK_INTERVENTIONS, STATE_RISK_SUMMARY, ProjectData } from '../data/mockData';
+import { STATE_RISK_SUMMARY, ProjectData } from '../data/mockData';
 
-const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || '/api/v1';
 
 async function fetchJson<T>(endpoint: string, fallback: T): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -18,7 +18,7 @@ async function fetchJson<T>(endpoint: string, fallback: T): Promise<T> {
     }
     const data = await response.json();
     return data ?? fallback;
-  } catch (error) {
+  } catch {
     // Return fallback on network error or offline mode
     return fallback;
   }
@@ -27,11 +27,11 @@ async function fetchJson<T>(endpoint: string, fallback: T): Promise<T> {
 export const api = {
   getHealth: () =>
     fetchJson('/health', {
-      status: 'ok',
+      status: 'unavailable',
       service: 'PAIMANA PredictIQ API',
       version: '1.0.0',
       timestamp: new Date().toISOString(),
-      database: 'connected'
+      database: 'unknown'
     }),
 
   getProjects: async (month?: string): Promise<ProjectData[]> => {
@@ -62,9 +62,9 @@ export const api = {
           scheduleDelayDays: p.predicted_delay_days || 0,
           // Remove synthetic fields and use real values if available
           nextMilestone: p.status_text || "Milestone Pending",
-          nextMilestoneDate: p.end_date || new Date().toISOString().split('T')[0],
-          plannedCompletionDate: p.start_date || new Date().toISOString().split('T')[0],
-          forecastCompletionDate: p.end_date || new Date().toISOString().split('T')[0],
+          nextMilestoneDate: p.end_date || 'Unavailable',
+          plannedCompletionDate: p.end_date || 'Unavailable',
+          forecastCompletionDate: p.end_date || 'Unavailable',
           earlyWarningLeadMonths: 0,
           topRiskDrivers: [],
           monthlyRiskHistory: []
@@ -119,9 +119,9 @@ export const api = {
         costOverrunPct: risk.predicted_cost_overrun_pct || data.cost_overrun_pct || 0,
         scheduleDelayDays: risk.predicted_delay_days || 0,
         nextMilestone: data.status_text || "Milestone Pending",
-        nextMilestoneDate: data.end_date || new Date().toISOString().split('T')[0],
-        plannedCompletionDate: data.start_date || new Date().toISOString().split('T')[0],
-        forecastCompletionDate: data.end_date || new Date().toISOString().split('T')[0],
+        nextMilestoneDate: data.end_date || 'Unavailable',
+        plannedCompletionDate: data.end_date || 'Unavailable',
+        forecastCompletionDate: data.end_date || 'Unavailable',
         earlyWarningLeadMonths: trajRes?.data?.metrics?.time_to_critical_months || 0,
         topRiskDrivers: topRiskDrivers,
         monthlyRiskHistory: monthlyHistory.length > 0 ? monthlyHistory : [{ month: new Date().toLocaleString('default', { month: 'short' }), score: Math.round((data.overall_risk_score || 0) * 100) }]
@@ -150,9 +150,9 @@ export const api = {
           costOverrunPct: summary.latest_cost_overrun_pct,
           scheduleDelayDays: 0,
           nextMilestone: "Milestone Pending",
-          nextMilestoneDate: new Date().toISOString().split('T')[0],
-          plannedCompletionDate: new Date().toISOString().split('T')[0],
-          forecastCompletionDate: new Date().toISOString().split('T')[0],
+          nextMilestoneDate: 'Unavailable',
+          plannedCompletionDate: 'Unavailable',
+          forecastCompletionDate: 'Unavailable',
           earlyWarningLeadMonths: 0,
           topRiskDrivers: [],
           monthlyRiskHistory: monthlyTraj.data.trajectory.map((t: any) => ({
@@ -165,8 +165,8 @@ export const api = {
     return null;
   },
 
-  getAlerts: () => fetchJson('/alerts', MOCK_INTERVENTIONS), // Real backend returns list directly
-  getInterventions: () => fetchJson('/interventions', { status: 'success', data: { interventions: MOCK_INTERVENTIONS } }),
+  getAlerts: () => fetchJson<any[]>('/alerts', []), // Real backend returns list directly
+  getInterventions: () => fetchJson('/interventions', { status: 'success', data: { interventions: [] } }),
   getStateSummaries: () => Promise.resolve(STATE_RISK_SUMMARY),
   getAnalyticsOverview: () => fetchJson('/analytics/overview', { status: 'success', data: null as any }),
   getSectorAnalytics: () => fetchJson('/analytics/sectors', { status: 'success', data: { sectors: [] } as any }),

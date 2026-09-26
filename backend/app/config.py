@@ -1,6 +1,11 @@
 """Application Configuration Module."""
 
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Share the repository .env with provider adapters as well as typed settings.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

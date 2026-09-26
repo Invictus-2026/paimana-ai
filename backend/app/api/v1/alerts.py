@@ -47,3 +47,19 @@ def get_alert_by_id(alert_id: int, db: Session = Depends(get_db)):
             detail=f"Alert with ID {alert_id} not found"
         )
     return alert
+
+from pydantic import BaseModel, Field
+from app.api.v1.intelligence import operator, save
+class AlertReview(BaseModel):
+    reviewer_name:str=Field(min_length=1,max_length=200)
+    note:str=Field(min_length=1,max_length=4000)
+
+@router.post('/{alert_id}/resolve',dependencies=[Depends(operator)])
+def resolve_alert(alert_id:int,body:AlertReview,db:Session=Depends(get_db)):
+    row=db.get(Alert,alert_id)
+    if not row:raise HTTPException(404,'Alert not found')
+    if row.is_resolved:raise HTTPException(409,'Alert already reviewed')
+    changed=db.query(Alert).filter_by(id=alert_id,is_resolved=False).update({'is_resolved':True},synchronize_session=False)
+    if changed!=1:db.rollback();raise HTTPException(409,'Alert changed; refresh and retry')
+    save(db,'alert_review',row.project_id,{'alert_id':alert_id,**body.model_dump()})
+    return {'status':'success','alert_id':alert_id,'is_resolved':True}

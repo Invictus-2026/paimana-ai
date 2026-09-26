@@ -32,9 +32,10 @@ services:
       - DATABASE_URL=postgresql://paimana_user:paimana_password@postgres:5432/paimana_db
       - LOG_LEVEL=INFO
     volumes:
-      - ./backend:/app
+      - ./backend:/app/backend
       - ./data:/app/data
       - ./models:/app/models
+      - ./ml:/app/ml
     depends_on:
       postgres:
         condition: service_healthy

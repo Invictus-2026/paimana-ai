@@ -137,6 +137,10 @@ class ProductionPredictor:
         input_dict = input_data.model_dump()
         self.validate_feature_missingness(input_dict)
 
+        missing_models = {"cost_reg", "cost_clf", "delay_reg", "risk_reg"} - self.models.keys()
+        if missing_models:
+            raise RuntimeError("Model artifacts unavailable: " + ", ".join(sorted(missing_models)))
+
         # Prepare feature vector
         feat_vector = np.array([
             input_dict.get(col, 0.0) if input_dict.get(col) is not None else 0.0
@@ -172,20 +176,15 @@ class ProductionPredictor:
         else:
             risk_score = float(np.clip(0.4 * cost_prob + 0.6 * delay_prob, 0.0, 1.0))
 
-        # Prediction Confidence Intervals (95% CI bounds)
-        std_err_cost = abs(cost_overrun_pct) * 0.15 + 1.0
-        std_err_delay = delay_duration_days * 0.15 + 5.0
-
+        # A fixed percentage around a point estimate is not a calibrated interval.
+        # Keep legacy keys nullable; the evidence API supplies held-out conformal bounds.
         confidence_info = {
-            "cost_overrun_pct_95_ci": [
-                round(cost_overrun_pct - 1.96 * std_err_cost, 2),
-                round(cost_overrun_pct + 1.96 * std_err_cost, 2),
-            ],
-            "delay_days_95_ci": [
-                max(0.0, round(delay_duration_days - 1.96 * std_err_delay, 1)),
-                round(delay_duration_days + 1.96 * std_err_delay, 1),
-            ],
-            "probability_calibration_score": 0.94,
+            "status": "uncalibrated",
+            "cost_overrun_pct_95_ci": None,
+            "delay_days_95_ci": None,
+            "probability_calibration_score": None,
+            "reason": "No held-out calibration artifact supplied. Use the calibration workflow.",
+            "delay_probability_interpretation": "Normalized delay severity, not calibrated completion probability",
         }
 
         return PredictionOutput(

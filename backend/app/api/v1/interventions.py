@@ -1,119 +1,68 @@
-"""Recommended interventions API endpoints."""
-
-from typing import Optional
-from fastapi import APIRouter, HTTPException, status, Body, Depends
+"""Persistent, auditable intervention workflow."""
+import json
+from datetime import datetime, timezone
+from typing import Literal
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from app.schemas.paimana import GenericResponse
-from app.services.intervention_engine import InterventionEngine, ApprovalStatus
 from app.database import get_db
-from app.models.entities import Project, RiskPrediction
+from app.models.entities import Project, Intervention, RiskPrediction
+from app.models.intelligence import Evidence
+from app.api.v1.intelligence import operator
+from app.services.intelligence import escalation_tier
 
-router = APIRouter()
-engine = InterventionEngine()
+router=APIRouter()
 
+def serialize(row, db):
+    p=db.get(Project,row.project_id)
+    return {'id':str(row.id),'recommendation_id':str(row.id),'projectId':p.id,'project_id':str(p.id),'projectName':p.name,
+        'ministry':p.ministry or 'Unknown','state':p.state or 'Unknown','currentRiskScore':round(p.overall_risk_score*100),
+        'status':row.status.replace('_',' ').title(),'recommendedAction':row.description or row.intervention_type,
+        'evidence':f'Recorded risk {p.overall_risk_score:.3f}; cost overrun {p.cost_overrun_pct:.2f}%. Scoring method: {p.risk_score_method}.',
+        'estimatedRiskImpact':'Not estimated','estimatedTimelineImpact':'Requires engineering assessment','assignedOfficer':'Not assigned',
+        'lastUpdated':row.created_at.isoformat(),'priority':row.priority}
+
+@router.get('')
+def list_interventions(project_id:int|None=None,db:Session=Depends(get_db)):
+    q=db.query(Intervention)
+    if project_id is not None:q=q.filter_by(project_id=project_id)
+    rows=q.order_by(Intervention.created_at.desc()).all()
+    return {'status':'success','data':{'interventions':[serialize(r,db) for r in rows],'total_recommendations':len(rows)}}
+
+@router.post('/generate',dependencies=[Depends(operator)])
+def generate(db:Session=Depends(get_db)):
+    count=0
+    for p in db.query(Project).all():
+        if db.query(Intervention).filter_by(project_id=p.id,intervention_type='evidence_review').first():continue
+        tier_number,tier_reason=escalation_tier(p,db.query(RiskPrediction).filter_by(project_id=p.id).all())
+        if tier_number==1 and p.overall_risk_score<.4:continue
+        exposure=p.budget*max(0,p.cost_overrun_pct)/100
+        tier={1:'medium',2:'high',3:'critical'}[tier_number]
+        db.add(Intervention(project_id=p.id,intervention_type='evidence_review',priority=tier,status='proposed',
+            description=f'Review project evidence and coordinate mitigation. Recorded cost overrun exposure INR {exposure:,.2f} crore; risk {p.overall_risk_score:.3f}. {tier_reason}. Verify causes before authorizing expenditure.'))
+        count+=1
+    db.commit()
+    return {'status':'success','created':count}
+
+@router.get('/{project_id}')
+def get_project_interventions(project_id:int,db:Session=Depends(get_db)):
+    if not db.get(Project,project_id):raise HTTPException(404,'Project not found')
+    return list_interventions(project_id,db)
 
 class ApprovalRequest(BaseModel):
-    new_status: ApprovalStatus
-    reviewer_name: str
-    reviewer_notes: str
+    new_status:Literal['APPROVED','REJECTED','UNDER_REVIEW']
+    reviewer_name:str=Field(min_length=1,max_length=200)
+    reviewer_notes:str=Field(default='',max_length=4000)
 
-
-@router.get("", response_model=GenericResponse, summary="List recommended interventions across projects")
-def list_interventions(project_id: Optional[str] = None, db: Session = Depends(get_db)):
-    """Retrieve grounded intervention recommendations for projects."""
-    if project_id:
-        projects = db.query(Project).filter(Project.id == int(project_id)).all()
-    else:
-        # Get top 3 highest risk projects to generate alerts for the dashboard
-        projects = db.query(Project).filter(Project.overall_risk_score >= 0.6).order_by(Project.overall_risk_score.desc()).limit(3).all()
-        
-    all_recs = []
-    for project in projects:
-        pred = db.query(RiskPrediction).filter(RiskPrediction.project_id == project.id).order_by(RiskPrediction.timestamp.desc()).first()
-        
-        if pred:
-            prediction = {
-                "implementation_risk": pred.overall_risk_score,
-                "predicted_cost_overrun_percentage": pred.predicted_cost_overrun_pct,
-                "predicted_delay_duration": pred.predicted_delay_days,
-                "feature_values": {
-                    "milestone_slippage_rate": 0.45,
-                    "progress_gap_pct": 18.5,
-                    "cost_acceleration_mom": 4.2
-                }
-            }
-        else:
-            prediction = {
-                "implementation_risk": project.overall_risk_score,
-                "predicted_cost_overrun_percentage": project.cost_overrun_pct,
-                "predicted_delay_duration": 150.0,
-                "feature_values": {
-                    "milestone_slippage_rate": 0.45,
-                    "progress_gap_pct": 18.5,
-                    "cost_acceleration_mom": 4.2
-                }
-            }
-            
-        trajectory = {"current_state": "CRITICAL" if project.overall_risk_score >= 0.75 else "HIGH_RISK"}
-        
-        recs = engine.generate_interventions_for_project(
-            str(project.id), 
-            prediction, 
-            trajectory, 
-            budget_cr=project.budget
-        )
-        all_recs.extend(recs)
-
-    # If no real projects found, fallback to mock to prevent breaking UI
-    if not all_recs:
-        mock_prediction = {
-            "implementation_risk": 0.78,
-            "predicted_cost_overrun_percentage": 14.5,
-            "predicted_delay_duration": 150.0,
-            "feature_values": {
-                "milestone_slippage_rate": 0.45,
-                "progress_gap_pct": 18.5,
-                "cost_acceleration_mom": 4.2
-            }
-        }
-        recs = engine.generate_interventions_for_project("1", mock_prediction, {"current_state": "CRITICAL"})
-        all_recs.extend(recs)
-
-    return GenericResponse(
-        status="success",
-        message="Recommended interventions retrieved successfully",
-        data={
-            "project_id": project_id or "ALL",
-            "total_recommendations": len(all_recs),
-            "interventions": [r.model_dump() for r in all_recs]
-        }
-    )
-
-
-@router.get("/{project_id}", response_model=GenericResponse, summary="Get recommendations for a specific project")
-def get_project_interventions(project_id: str, db: Session = Depends(get_db)):
-    """Retrieve grounded, priority-ranked intervention recommendations for a specific project."""
-    return list_interventions(project_id, db)
-
-
-@router.post("/{recommendation_id}/approve", response_model=GenericResponse, summary="Record human approval decision")
-def approve_intervention(recommendation_id: str, request: ApprovalRequest):
-    """Record human approval decision (APPROVED, REJECTED, UNDER_REVIEW) for a recommendation."""
-    try:
-        updated_rec = engine.update_human_approval_status(
-            recommendation_id=recommendation_id,
-            new_status=request.new_status,
-            reviewer_notes=request.reviewer_notes,
-            reviewer_name=request.reviewer_name
-        )
-        return GenericResponse(
-            status="success",
-            message=f"Human approval status updated to {request.new_status.value}",
-            data=updated_rec.model_dump()
-        )
-    except KeyError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+@router.post('/{recommendation_id}/approve',dependencies=[Depends(operator)])
+def approve_intervention(recommendation_id:int,body:ApprovalRequest,db:Session=Depends(get_db)):
+    row=db.get(Intervention,recommendation_id)
+    if not row:raise HTTPException(404,'Intervention not found')
+    target=body.new_status.lower()
+    if row.status in ('approved','rejected'):raise HTTPException(409,'Final decision already recorded')
+    changed=db.query(Intervention).filter(Intervention.id==row.id,Intervention.status==row.status).update({'status':target},synchronize_session=False)
+    if changed!=1:db.rollback();raise HTTPException(409,'Intervention changed; refresh and retry')
+    db.add(Evidence(kind='decision',project_id=row.project_id,identity=__import__('secrets').token_hex(24),payload=json.dumps({
+        'intervention_id':row.id,'decision':target,'reviewer':body.reviewer_name,'notes':body.reviewer_notes,'at':datetime.now(timezone.utc).isoformat()})))
+    db.commit();db.refresh(row)
+    return {'status':'success','data':serialize(row,db)}

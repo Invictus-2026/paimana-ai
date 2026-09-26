@@ -68,3 +68,8 @@ data/processed/*
 *.swp
 *.swo
 .worktrees/
+
+# Frontend application sources are not Python libraries
+!frontend/src/lib/
+!frontend/src/lib/**
+tmp/

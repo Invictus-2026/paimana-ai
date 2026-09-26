@@ -23,3 +23,5 @@ __all__ = [
     "ModelVersion",
     "Intervention",
 ]
+
+from app.models.intelligence import Evidence, ActionGrant

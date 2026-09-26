@@ -16,13 +16,6 @@ import {
   Filter
 } from 'lucide-react';
 
-const MONTH_LABELS: Record<string, string> = {
-  "2025-07":"Jul '25","2025-08":"Aug '25","2025-09":"Sep '25","2025-10":"Oct '25",
-  "2025-11":"Nov '25","2025-12":"Dec '25","2026-01":"Jan '26","2026-02":"Feb '26",
-  "2026-03":"Mar '26","2026-04":"Apr '26","2026-05":"May '26","2026-06":"Jun '26",
-  "2026-07":"Jul '26",
-};
-
 export const ProjectsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -77,7 +70,7 @@ export const ProjectsPage: React.FC = () => {
 
     setSearchParams(params, { replace: true });
     localStorage.setItem('paimana_explorer_filters', JSON.stringify(params));
-  }, [searchTerm, selectedMinistry, selectedSector, selectedState, selectedStatus, costImpactFilter, delayImpactFilter]);
+  }, [searchTerm, selectedMinistry, selectedSector, selectedState, selectedStatus, costImpactFilter, delayImpactFilter, setSearchParams]);
 
   // Unique dropdown option sets
   const ministries = useMemo(() => Array.from(new Set(projects.map(p => p.ministry))), [projects]);

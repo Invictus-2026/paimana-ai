@@ -4,11 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
 import {
   ArrowLeft, ShieldAlert, Clock, IndianRupee, TrendingUp, Sliders,
-  BarChart2, AlertTriangle, CheckCircle2, Activity
+  BarChart2, AlertTriangle, Activity
 } from 'lucide-react';
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, Cell
+  XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend
 } from 'recharts';
 import { ExpandableChartCard } from '../components/common/ExpandableChartCard';
 
@@ -35,7 +35,7 @@ export const ProjectDetailPage: React.FC = () => {
 
   const isLoading = projLoading || trajLoading;
 
-  if (isLoading || !project) {
+  if (isLoading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -46,6 +46,7 @@ export const ProjectDetailPage: React.FC = () => {
     );
   }
 
+  if (!project) return <p role="alert">Project unavailable. Check the project ID and API connection.</p>;
   const getRiskColor = (score: number) => {
     if (score >= 75) return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', fill: '#ef4444', label: 'HIGH RISK' };
     if (score >= 50) return { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', fill: '#f97316', label: 'AT RISK' };
@@ -80,6 +81,7 @@ export const ProjectDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto font-sans pb-6 text-slate-800">
+      <div className="flex flex-wrap gap-2">{[['satellite','Satellite review'],['uncertainty','Prediction bounds'],['documents','Document evidence'],['field','Field inspection'],['reports','Export dossier']].map(([tab,label])=><button key={tab} className="rounded-xl border bg-white px-3 py-2 text-sm text-blue-700" onClick={()=>navigate('/intelligence?tab='+tab+'&project_id='+project.id)}>{label}</button>)}</div>
       {/* Header */}
       <div className="light-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -173,7 +175,7 @@ export const ProjectDetailPage: React.FC = () => {
                 <XAxis dataKey="label" tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
-                  formatter={(v: any, n: string) => [n === 'overrun' ? `${v}%` : `${v}/100`, n === 'overrun' ? 'Cost Overrun' : 'Risk Score']} />
+                  formatter={(v: any, n: any) => [n === 'overrun' ? `${v}%` : `${v}/100`, n === 'overrun' ? 'Cost Overrun' : 'Risk Score']} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: isFull ? 12 : 11 }} />
                 <Area type="monotone" dataKey="risk" name="Risk Score" stroke="#ef4444" strokeWidth={2.5} fill="url(#gradRisk)" dot={{ r: 3, fill: '#ef4444' }} />
                 {hasTrajectory && <Line type="monotone" dataKey="overrun" name="overrun" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 2" />}

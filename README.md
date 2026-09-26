@@ -161,3 +161,10 @@ npm run build
 2. **Reproducibility**: Every model prediction records `model_version` and `prediction_timestamp`.
 3. **Immutable Raw Data**: `data/raw/` is never modified post-ingestion.
 4. **Data Authenticity**: All synthetic or mock data is explicitly flagged with `is_synthetic=True`.
+
+## Roadmap intelligence workspace
+
+Open `/intelligence` for document intelligence, the commodity/climate twin, satellite evidence,
+calibrated prediction bounds, contractor delivery records, offline field capture, escalation dispatch,
+bilingual voice and PDF dossiers. Setup, evidence requirements, provider configuration and verified
+limitations are documented in [the implementation guide](docs/roadmap-implementation.md).

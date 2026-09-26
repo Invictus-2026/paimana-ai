@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InterventionData } from '../data/mockData';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/client';
+import { intelligenceBase } from '../api/intelligence';
 import { CheckCircle2, XCircle, Clock, ShieldAlert } from 'lucide-react';
 
 export const InterventionsPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [reviewer,setReviewer]=useState('');
+  const [reviewNote,setReviewNote]=useState('');
+  const {data:alerts=[]}=useQuery({queryKey:['alerts'],queryFn:api.getAlerts});
+  const reviewAlert=useMutation({
+    mutationFn:async(id:number)=>{
+      const r=await fetch(intelligenceBase.replace('/intelligence','')+'/alerts/'+id+'/resolve',{method:'POST',headers:{'Content-Type':'application/json','X-Operator-Key':sessionStorage.getItem('operator-key')||''},body:JSON.stringify({reviewer_name:reviewer,note:reviewNote})});
+      if(!r.ok)throw new Error((await r.json()).detail||'Review failed');return r.json();
+    },onSuccess:()=>{queryClient.invalidateQueries({queryKey:['alerts']});},
+  });
   const { data: interventionsResponse } = useQuery({
     queryKey: ['interventions'],
     queryFn: api.getInterventions,
@@ -16,11 +26,12 @@ export const InterventionsPage: React.FC = () => {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, newStatus }: { id: string; newStatus: 'Approved' | 'Under Review' | 'Rejected' }) => {
-      const response = await fetch(`${(import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/interventions/${id}/approve`, {
+      const response = await fetch(`${(import.meta as any).env.VITE_API_BASE_URL || '/api/v1'}/interventions/${id}/approve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ new_status: newStatus.toUpperCase().replace(' ', '_'), reviewer_name: 'Admin', reviewer_notes: '' }),
+        headers: { 'Content-Type': 'application/json', 'X-Operator-Key': sessionStorage.getItem('operator-key') || '' },
+        body: JSON.stringify({ new_status: newStatus.toUpperCase().replace(' ', '_'), reviewer_name: reviewer, reviewer_notes: reviewNote }),
       });
+      if (!response.ok) throw new Error((await response.json()).detail || 'Decision failed');
       return response.json();
     },
     onSuccess: () => {
@@ -28,6 +39,14 @@ export const InterventionsPage: React.FC = () => {
     },
   });
 
+  const generateMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(intelligenceBase.replace('/intelligence','')+'/interventions/generate', {method:'POST', headers:{'X-Operator-Key':sessionStorage.getItem('operator-key')||''}});
+      if(!response.ok) throw new Error((await response.json()).detail || 'Generation failed');
+      return response.json();
+    },
+    onSuccess:()=>{queryClient.invalidateQueries({queryKey:['interventions']});},
+  });
   const handleUpdateStatus = (id: string, newStatus: 'Approved' | 'Under Review' | 'Rejected') => {
     updateStatusMutation.mutate({ id, newStatus });
   };
@@ -60,6 +79,10 @@ export const InterventionsPage: React.FC = () => {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-3"><button className="rounded-xl bg-blue-700 px-4 py-2 text-sm text-white" disabled={generateMutation.isPending} onClick={()=>generateMutation.mutate()}>Generate evidence review actions</button><button className="rounded-xl border px-4 py-2 text-sm" onClick={()=>navigate('/intelligence?tab=dispatch')}>Executive dispatch</button></div>
+      {(updateStatusMutation.error||generateMutation.error)&&<p role="alert" className="text-red-700">{(updateStatusMutation.error||generateMutation.error)?.message}</p>}
+      {!interventions.length&&<p className="text-sm text-slate-500">No interventions recorded. Generate review actions from current project risk records.</p>}
+      <section className="light-card space-y-4 p-5"><h2 className="font-bold">Recorded early-warning alerts</h2><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">Reviewer name<input className="mt-1 w-full rounded-xl border p-3" value={reviewer} onChange={e=>setReviewer(e.target.value)}/></label><label className="text-sm">Review notes<input className="mt-1 w-full rounded-xl border p-3" value={reviewNote} onChange={e=>setReviewNote(e.target.value)}/></label></div>{reviewAlert.error&&<p role="alert" className="text-red-700">{reviewAlert.error.message}</p>}{alerts.filter(a=>!a.is_resolved).map(a=><article key={a.id} className="rounded-xl border p-4 text-sm"><strong>{a.severity.toUpperCase()} · Project #{a.project_id}</strong><p className="my-2">{a.message}</p><button className="rounded-lg border px-3 py-2 text-blue-700 disabled:opacity-50" disabled={reviewAlert.isPending||!reviewer.trim()||!reviewNote.trim()} onClick={()=>reviewAlert.mutate(a.id)}>Record review & resolve</button></article>)}{!alerts.some(a=>!a.is_resolved)&&<p className="text-sm text-slate-500">No unresolved alerts in the latest records.</p>}</section>
       {/* Recommended Interventions Feed */}
       <div className="space-y-4">
         {interventions.map((item) => (
@@ -116,6 +139,7 @@ export const InterventionsPage: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <button
+                  disabled={!reviewer.trim() || updateStatusMutation.isPending || item.status === 'Approved' || item.status === 'Rejected'}
                   onClick={() => handleUpdateStatus(item.id, 'Approved')}
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition"
                 >
@@ -124,6 +148,7 @@ export const InterventionsPage: React.FC = () => {
                 </button>
 
                 <button
+                  disabled={!reviewer.trim() || updateStatusMutation.isPending || item.status === 'Approved' || item.status === 'Rejected'}
                   onClick={() => handleUpdateStatus(item.id, 'Under Review')}
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition"
                 >
@@ -132,6 +157,7 @@ export const InterventionsPage: React.FC = () => {
                 </button>
 
                 <button
+                  disabled={!reviewer.trim() || updateStatusMutation.isPending || item.status === 'Approved' || item.status === 'Rejected'}
                   onClick={() => handleUpdateStatus(item.id, 'Rejected')}
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded-xl text-xs font-bold transition"
                 >
