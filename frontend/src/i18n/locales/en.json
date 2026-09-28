@@ -1,0 +1,720 @@
+{
+  "common": {
+    "all": "All",
+    "riskTier": { "highRisk": "High Risk", "atRisk": "At Risk", "moderate": "Moderate", "active": "Active" }
+  },
+  "sidebar": {
+    "nav": {
+      "intelligence": "Intelligence",
+      "dashboard": "Dashboard",
+      "projects": "Projects",
+      "stateProgress": "State & Progress",
+      "analytics": "Analytics",
+      "riskAlerts": "Risk & Alerts",
+      "forecasting": "Forecasting",
+      "benchmarks": "Benchmarks",
+      "reports": "Reports",
+      "aiAssistant": "AI Assistant",
+      "settings": "Settings"
+    },
+    "badge": { "new": "New" },
+    "brand": { "tagline": "AI for Infrastructure Monitoring" },
+    "sub": {
+      "benchmarksTrends": "Benchmarks & Trends",
+      "costOverrun": "Cost Overrun",
+      "timeOverrun": "Time Overrun",
+      "aiBadge": "AI"
+    },
+    "footer": {
+      "dataAsOf": "Data as of",
+      "dataDate": "April 2026",
+      "portal": "PAIMANA Portal",
+      "ministryShort": "MoSPI, GoI"
+    }
+  },
+  "header": {
+    "title": {
+      "intelligence": "Intelligence",
+      "projectIntelligence": "Project Intelligence",
+      "projects": "Projects",
+      "benchmarksRiskMap": "Benchmarks & Risk Map",
+      "forecasting": "Forecasting & Simulation",
+      "riskAlerts": "Risk & Alerts",
+      "aiAssistant": "AI Assistant",
+      "dashboard": "Dashboard"
+    },
+    "searchPlaceholder": "Search projects, ministries, sectors...",
+    "adminUser": "Admin User",
+    "ministry": "MoSPI"
+  },
+  "layout": {
+    "footer": {
+      "copyright": "© 2026 PAIMANA PredictIQ | Ministry of Statistics & Programme Implementation (MoSPI), Government of India",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfUse": "Terms of Use"
+    }
+  },
+  "dashboard": {
+    "title": "National Infrastructure Monitor",
+    "subtitle": "Real-time MoSPI data · Jul 2025 – Jul 2026 · {{count}} monthly snapshots loaded",
+    "export": "Export",
+    "viewAll": "All",
+    "total": "Total",
+    "kpi": {
+      "totalProjects": "Total Projects",
+      "fromPrevMonth": "from prev month",
+      "originalBudget": "Original Budget",
+      "forMonth": "For {{month}}",
+      "revisedCost": "Revised Cost",
+      "overrun": "overrun",
+      "cumulativeExpenditure": "Cumulative Expenditure",
+      "utilisation": "Utilisation: {{pct}}%",
+      "highRiskProjects": "High Risk Projects",
+      "riskScoreThreshold": "Risk score ≥ 50/100"
+    },
+    "charts": {
+      "projectTrendTitle": "Month-wise Project & Expenditure Trend",
+      "projectTrendSubtitle": "Jul 2025 → Jul 2026 · Real MoSPI data",
+      "sectorsTitle": "Sectors – {{month}}",
+      "sectorsSubtitle": "Portfolio distribution",
+      "overrunTrendTitle": "Cost Overrun & Expenditure Rate Trend",
+      "overrunTrendSubtitle": "Month-wise overrun % vs budget utilisation % · Real data",
+      "topSectorsTitle": "Top Sectors – {{month}}",
+      "topSectorsSubtitle": "Projects by sector volume"
+    },
+    "legend": {
+      "projects": "Projects",
+      "expenditure": "Expenditure",
+      "costOverrunPct": "Cost Overrun %",
+      "expenditureRatePct": "Expenditure Rate %"
+    },
+    "insights": {
+      "title": "AI-Driven Insights from MoSPI Data",
+      "costOverrunAlert": { "title": "Cost Overrun Alert", "body": "{{count}} projects have ≥50% risk score. Avg overrun: {{pct}}%" },
+      "expenditureRate": { "title": "Expenditure Rate", "body": "Budget utilisation at {{pct}}% in {{month}}. Rail & Highways lead disbursement." },
+      "portfolioGrowth": { "title": "Portfolio Growth", "body": "{{count}} projects tracked in {{month}}, up {{growth}}% month-on-month across all sectors." }
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "projectExplorer": "Project Explorer",
+      "riskAlerts": "Risk Alerts",
+      "analytics": "Analytics",
+      "aiCopilot": "AI Copilot"
+    }
+  },
+  "projects": {
+    "title": "Project Explorer & Search Matrix",
+    "subtitle": "Searchable, multi-column filtered directory of national infrastructure projects. Click any row for Deep Intelligence.",
+    "showingCount": "Showing {{shown}} of {{total}} Projects",
+    "resetFilters": "Reset Filters",
+    "snapshotMonth": "Snapshot Month:",
+    "searchPlaceholder": "Search by project name or code...",
+    "filters": {
+      "allMinistries": "All Ministries",
+      "allSectors": "All Sectors",
+      "allStates": "All States",
+      "allRiskTiers": "All Risk Tiers",
+      "allCostVariances": "All Cost Variances",
+      "costOverrunOver10": "Cost Overrun > 10%",
+      "allScheduleVariances": "All Schedule Variances",
+      "scheduleDelayOver90": "Schedule Delay > 90 Days"
+    },
+    "table": {
+      "nameCode": "Project Name & Code",
+      "riskScore": "Risk Score",
+      "ministrySector": "Ministry & Sector",
+      "state": "State",
+      "budget": "Budget (Cr)",
+      "nextMilestone": "Next Milestone",
+      "costOverrun": "Cost Overrun",
+      "scheduleDelay": "Schedule Delay",
+      "action": "Action",
+      "exp": "Exp: ₹{{amount}}",
+      "due": "Due: {{date}}",
+      "daysSuffix": "+{{count}} Days",
+      "intelligence": "Intelligence →",
+      "noResults": "No projects match the active filter criteria. Click \"Reset Filters\" to clear."
+    },
+    "pagination": {
+      "showingRange": "Showing {{from}} to {{to}} of {{total}} entries"
+    }
+  },
+  "projectDetail": {
+    "loading": "Loading Project Intelligence...",
+    "unavailable": "Project unavailable. Check the project ID and API connection.",
+    "trend": { "increasing": "Increasing", "decreasing": "Decreasing", "insufficientData": "Insufficient data" },
+    "tabs": {
+      "satellite": "Satellite review",
+      "uncertainty": "Prediction bounds",
+      "documents": "Document evidence",
+      "field": "Field inspection",
+      "reports": "Export dossier"
+    },
+    "backToExplorer": "Back to Project Explorer",
+    "trendLabel": "Trend: {{trend}}",
+    "monthTrajectoryLoaded": "{{count}}-month trajectory loaded",
+    "simulateDisruption": "Simulate Disruption",
+    "kpi": {
+      "overallRiskIndex": "Overall Risk Index",
+      "peak12mo": "Peak 12-mo:",
+      "min": "Min:",
+      "costOverrun": "Cost Overrun",
+      "peak": "Peak:",
+      "budget": "Budget",
+      "revised": "Revised:",
+      "expenditure": "Expenditure",
+      "riskScoreMethod": "Risk score method:",
+      "ruleBasedCostGrowth": "Rule-based cost-growth",
+      "lowRisk": "Low risk"
+    },
+    "charts": {
+      "riskTrajectoryTitleReal": "{{count}}-Month Risk Score Trajectory (Real Data)",
+      "riskTrajectoryTitle12mo": "12-Month Risk Score Trajectory",
+      "riskTrajectoryFallbackSubtitle": "⚠ Project ID not found in monthly dataset files — showing DB snapshot only",
+      "budgetVsExpenditure": "Budget vs Expenditure (₹ Cr) · Monthly",
+      "costOverrunMonthwise": "Cost Overrun % — Month-wise"
+    },
+    "legend": {
+      "costOverrun": "Cost Overrun",
+      "riskScore": "Risk Score",
+      "originalCost": "Original Cost",
+      "revisedCost": "Revised Cost"
+    },
+    "analysisSummary": {
+      "title": "1-Year Analysis Summary",
+      "monthsTracked": "Months Tracked",
+      "dbSnapshotOnly": "DB snapshot only",
+      "latestMonth": "Latest Month",
+      "notAvailable": "N/A",
+      "peakRiskScore": "Peak Risk Score",
+      "riskTrajectory": "Risk Trajectory",
+      "peakOverrun": "Peak Overrun",
+      "ministry": "Ministry"
+    },
+    "riskAssessment": {
+      "title": "Risk Assessment",
+      "costRisk": "Cost Risk",
+      "budgetOverrun": "Budget Overrun",
+      "budgetOverrunBody": "Revised cost exceeds original by {{pct}}%. Peak observed at {{peak}}% overrun.",
+      "riskTrend": "Risk Trend",
+      "trajectoryAnalysis": "Trajectory Analysis",
+      "trajectoryAnalysisBody": "Risk score changed from {{from}} to {{to}} over {{months}} months of data.",
+      "utilisationRate": "Utilisation Rate",
+      "utilisationRateBody": "Total expenditure tracked across {{months}} monthly snapshots from Jul 2025 to Jul 2026.",
+      "notFound": "Project ID \"{{code}}\" not found in monthly datasets",
+      "notFoundBody": "This project may have been added via the API and does not have a matching MoSPI dataset entry. Showing database-level risk score only."
+    }
+  },
+  "analytics": {
+    "loading": "Computing predictive risk vectors for {{month}}...",
+    "searchPlaceholder": "Search project name, ID, or sector...",
+    "totalProjects": "Total Projects",
+    "totalMonitored": "Total Monitored",
+    "header": {
+      "title": "Portfolio Analytics & Predictive Intelligence",
+      "badge": "v2.0 Model",
+      "subtitle": "Multi-dimensional risk scoring, cost overrun predictions & schedule delay forecasting across all monitored MoSPI datasets",
+      "datasetMonth": "Dataset Month:",
+      "hybridEngine": "Scored with Hybrid Multi-Dimensional Engine"
+    },
+    "tabs": {
+      "benchmarks": "Macro Trends & Benchmarks",
+      "costOverrun": "Cost Overrun Prediction",
+      "allProjects": "All Projects",
+      "timeOverrun": "Time Overrun Prediction",
+      "scheduleRisk": "Schedule Risk"
+    },
+    "badges": {
+      "critical": "Critical",
+      "high": "High",
+      "low": "Low",
+      "severeDelay": "Severe Delay (>1 yr)",
+      "significantDelay": "Significant (6-12 mo)",
+      "minorDelay": "Minor (2-6 mo)",
+      "onTrack": "On-Track"
+    },
+    "delaySeverity": {
+      "severe": "Severe (>12 Mo)",
+      "significant": "Significant (6-12 Mo)",
+      "minor": "Minor (2-6 Mo)",
+      "onTrack": "On-Track (<2 Mo)"
+    },
+    "costDistribution": {
+      "onBudget": "On-Budget (0%)",
+      "minor": "Minor (<10%)",
+      "moderate": "Moderate (10-25%)",
+      "high": "High (25-50%)",
+      "severe": "Severe (>50%)"
+    },
+    "legend": {
+      "avgCostGrowth": "Avg Cost Growth (%)",
+      "avgRiskScore": "Avg Risk Score (0-100)",
+      "avgRiskScoreShort": "Avg Risk Score",
+      "totalBudget": "Total Budget",
+      "costEscalationExposure": "Cost Escalation Exposure",
+      "costOverrunExposure": "Cost Overrun Exposure",
+      "averageDelay": "Average Delay",
+      "predictedDelay": "Predicted Delay"
+    },
+    "axis": {
+      "xMajorSectors": "X-Axis: Major Sectors",
+      "yCapitalOverrunExposure": "Y-Axis: Total Capital Overrun Exposure (₹ Cr)",
+      "xInfraSectors": "X-Axis: Infrastructure Sectors",
+      "yAvgDelayMonths": "Y-Axis: Average Delay (Months)",
+      "leftCostGrowth": "Left Axis: Cost Growth (%)",
+      "rightRiskScore": "Right Axis: Risk Score (0-100)",
+      "yLineMinistries": "Y-Axis: Line Ministries",
+      "xCompositeRiskIndex": "X-Axis: Composite Risk Index (0-100 Scale)",
+      "yMajorSectors": "Y-Axis: Major Sectors",
+      "xCapitalOutlay": "X-Axis: Capital Outlay (₹ Cr)"
+    },
+    "filters": {
+      "allRiskTiers": "All Risk Tiers",
+      "criticalRisk": "Critical Risk (≥75)",
+      "highRisk": "High Risk (50-74)",
+      "moderateRisk": "Moderate Risk (25-49)",
+      "lowRisk": "Low Risk (<25)",
+      "sortCostOverrunPct": "Sort by: Cost Overrun %",
+      "sortExposure": "Sort by: Exposure (₹ Cr)",
+      "sortOriginalBudget": "Sort by: Original Budget",
+      "sortRiskScore": "Sort by: Risk Score",
+      "allDelaySeverities": "All Delay Severities",
+      "onTrackShort": "On-Track",
+      "sortDelayDuration": "Sort by: Delay Duration",
+      "sortDelayRiskScore": "Sort by: Delay Risk Score",
+      "sortOverallRiskScore": "Sort by: Overall Risk Score"
+    },
+    "table": {
+      "projectDetails": "Project Details",
+      "sectorMinistry": "Sector & Ministry",
+      "original": "Original (₹ Cr)",
+      "revised": "Revised (₹ Cr)",
+      "expenditureCr": "Expenditure (₹ Cr)",
+      "predictedOverrun": "Predicted Overrun",
+      "exposureCr": "Exposure (₹ Cr)",
+      "riskTier": "Risk Tier",
+      "riskScore": "Risk Score",
+      "pctSpent": "{{pct}}% spent",
+      "view": "View",
+      "pageOf": "Page {{page}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next",
+      "showingRange": "Showing {{from}} - {{to}} of {{total}}",
+      "sanctionedBudget": "Sanctioned Budget",
+      "predictedDelayDays": "Predicted Delay (Days)",
+      "delayMonths": "Delay (Months)",
+      "delayClassification": "Delay Classification",
+      "delayRisk": "Delay Risk",
+      "overallRisk": "Overall Risk",
+      "daysSuffix": "{{count}} days",
+      "moSuffix": "{{count}} mo"
+    },
+    "units": { "months": "{{count}} Months" },
+    "titles": {
+      "toggleScreenFullscreen": "Toggle Screen Fullscreen",
+      "closeFullscreenView": "Close Fullscreen View (Esc)",
+      "viewFullScreen": "View Chart in Full Screen",
+      "toggleSortOrder": "Toggle Sort Order"
+    },
+    "modal": {
+      "benchmarksTitle": "Performance Benchmarks: Cost Growth vs Risk Score",
+      "benchmarksSubtitle": "Descriptive comparative benchmarking by {{dimension}}",
+      "regionalTitle": "Regional & State Infrastructure Concentration",
+      "regionalSubtitle": "Comprehensive breakdown of monitored projects across Indian states and jurisdictions",
+      "budgetLabel": "Budget: {{amount}}",
+      "ministryTitle": "Ministry Risk Profiles & Portfolio Health",
+      "ministrySubtitle": "Multi-dimensional composite risk index across line ministries",
+      "capitalTitle": "Capital Outlay Allocation by Sector",
+      "capitalSubtitle": "Total sanctioned expenditure allocation (₹ Cr) across infrastructure domains",
+      "costSectorTitle": "Sector-Wise Cost Escalation Exposure",
+      "costSectorSubtitle": "Aggregate rupee cost overrun exposure across sectors in {{month}}",
+      "costProjectsTitle": "Top Capital Escalation Mega Projects",
+      "costProjectsSubtitle": "Individual projects with the highest absolute cost overrun exposure (₹ Cr)",
+      "timeSectorTitle": "Sector-Wise Average Schedule Slippage",
+      "timeSectorSubtitle": "Empirical commissioning delay across infrastructure domains in {{month}}",
+      "timeProjectsTitle": "Top Schedule Delay Mega Projects",
+      "timeProjectsSubtitle": "Critical initiatives experiencing highest duration slippage past sanctioned commissioning",
+      "costSeverityTitle": "Cost Overrun Severity Distribution",
+      "costSeveritySubtitle": "Portfolio distribution by cost escalation tier in {{month}}",
+      "costEscalationBreakdown": "Cost Escalation Breakdown",
+      "projectsCount": "{{count}} Projects",
+      "timeSeverityTitle": "Schedule Slippage & Delay Severity Distribution",
+      "timeSeveritySubtitle": "Projects categorized by delay severity in {{month}}",
+      "scheduleSlippageBreakdown": "Schedule Slippage Breakdown",
+      "footerBrand": "PAIMANA PredictIQ Enterprise Visualizer • High-Resolution View",
+      "footerHint": "Press Esc or click Close to return to dashboard"
+    },
+    "cost": {
+      "kpi": {
+        "totalMonitored": "Total Monitored Projects",
+        "snapshotMonth": "Snapshot month: {{month}}",
+        "totalExposure": "Total Cost Overrun Exposure",
+        "exchequerEscalation": "Exchequer capital escalation",
+        "projectsWithOverrun": "Projects With Overrun",
+        "overrunPortfolioPct": "{{pct}}% of portfolio experiencing cost growth",
+        "criticalTier": "Critical Cost Risk Tier",
+        "criticalTierBody": "Projects requiring proactive cabinet intervention"
+      },
+      "charts": {
+        "sectorExposureTitle": "Sector-Wise Cost Escalation Exposure (₹ Cr)",
+        "sectorExposureSubtitle": "Aggregate rupee overrun exposure across top infrastructure sectors in {{month}}",
+        "topImpactSectors": "Top Impact Sectors",
+        "severitySpreadTitle": "Overrun Severity Spread",
+        "severitySpreadSubtitle": "Portfolio distribution by cost escalation tier",
+        "topProjectsTitle": "Top Capital Escalation Mega Projects (₹ Cr)",
+        "topProjectsSubtitle": "Individual projects with the largest monetary increase between original budget and revised sanction",
+        "sortedByExposure": "Sorted by Absolute Overrun Exposure"
+      },
+      "table": { "title": "Project-by-Project Cost Overrun Predictions ({{count}} Monitored Projects)" }
+    },
+    "time": {
+      "kpi": {
+        "avgDelay": "Average Schedule Delay",
+        "avgDelayDays": "~{{days}} days estimated slippage",
+        "severeDelay": "Severe Delay (>1 Year)",
+        "severeDelayBody": "Projects slipping beyond 12 calendar months",
+        "significantDelay": "Significant Delay (6-12 Mo)",
+        "significantDelayBody": "Moderate slippage requiring milestone recovery",
+        "onTrackAdherence": "On-Track Adherence",
+        "onTrackBody": "{{pct}}% adhering to target commissioning"
+      },
+      "charts": {
+        "sectorSlippageTitle": "Sector-Wise Average Schedule Slippage (Months)",
+        "sectorSlippageSubtitle": "Empirical commissioning delay across infrastructure domains for {{month}}",
+        "scheduleVariance": "Schedule Variance",
+        "slippageDistTitle": "Slippage Distribution",
+        "slippageDistSubtitle": "Projects categorized by delay severity",
+        "monitored": "Monitored",
+        "topProjectsTitle": "Top Schedule Delay Mega Projects (Months)",
+        "topProjectsSubtitle": "Critical infrastructure initiatives experiencing the highest duration slippage past sanctioned commissioning",
+        "rankedByMonths": "Ranked by Calendar Months Delayed"
+      },
+      "table": { "title": "Project-by-Project Schedule & Delay Predictions ({{count}} Monitored Projects)" }
+    },
+    "benchmarks": {
+      "kpi": {
+        "monitoredPortfolio": "Monitored infrastructure portfolio",
+        "totalCapitalOutlay": "Total Capital Outlay",
+        "sanctionedExpenditure": "Sanctioned public expenditure",
+        "avgRiskScore": "Average Risk Score",
+        "compositeBenchmark": "Multi-dimensional composite benchmark",
+        "costOverrunExposure": "Cost Overrun Exposure",
+        "totalEscalation": "Total portfolio cost escalation"
+      },
+      "performanceBenchmarks": "Performance Benchmarks",
+      "crossCategoryComparison": "Cross-category comparison of Cost Growth (%) vs. Risk Score",
+      "byDimension": "By {{dimension}}",
+      "dimension": { "sector": "Sector", "ministry": "Ministry", "region": "Region" },
+      "statisticalContext": "Statistical Context:",
+      "regionalDistribution": "Regional Distribution",
+      "regionalDistributionSubtitle": "Project concentration by state & jurisdiction",
+      "ministryRiskProfiles": "Ministry Risk Profiles",
+      "ministryRiskProfilesSubtitle": "Average risk score across key line ministries",
+      "capitalOutlayBySector": "Capital Outlay by Sector",
+      "capitalOutlayBySectorSubtitle": "Total sanctioned expenditure allocation (₹ Cr)"
+    }
+  },
+  "benchmarks": {
+    "title": "Benchmarking & Comparative Analytics Matrix",
+    "subtitle": "Descriptive, non-evaluative performance distributions across sectors, line ministries, and geographic zones.",
+    "openInfraScore": "Open InfraScore contractor records",
+    "dimensions": {
+      "sector": "Sector",
+      "lineMinistry": "Line Ministry",
+      "geographicRegion": "Geographic Region",
+      "implementationStage": "Implementation Stage"
+    },
+    "metrics": {
+      "sampleSize": "Sample Size (N)",
+      "validGroups": "{{count}} Valid Groups",
+      "timeWindow": "Time Window Covered",
+      "unavailable": "Unavailable",
+      "twelveMonths": "12 Months",
+      "dataCompleteness": "Data Completeness Score",
+      "safeguardThreshold": "Safeguard Threshold",
+      "minProjects": "N ≥ {{n}} Projects Min.",
+      "activeGuardrail": "Active Guardrail"
+    },
+    "annotation": {
+      "heading": "Mandatory Analytical Context & Non-Evaluative Interpretation Framework",
+      "q1": "1. What am I looking at?",
+      "q1Fallback": "Descriptive comparison of cost growth, schedule delays, and risk distribution across infrastructure sectors.",
+      "q2": "2. Why might this pattern exist?",
+      "q2Fallback": "Sectors differ fundamentally in land acquisition requirements, environmental clearance protocols, and supply chain complexity.",
+      "q3": "3. What should I NOT conclude?",
+      "q3Fallback": "Higher average delays in Transport or Water do NOT indicate poor project management quality; they reflect baseline structural complexity."
+    },
+    "charts": {
+      "comparativeTitle": "Comparative Delay Days & Cost Growth (%) by {{dimension}}",
+      "aggregatedSummary": "Aggregated Summary",
+      "avgScheduleDelay": "Avg Schedule Delay (Days)"
+    },
+    "milestoneRate": {
+      "title": "On-Time Milestone Rate (%)",
+      "onTimePct": "{{pct}}% On-Time",
+      "insufficientData": "N={{n}} (Insufficient Data)",
+      "note": "Note: On-time milestone rate reflects statutory progress reporting windows across active packages."
+    },
+    "table": {
+      "title": "Benchmark Group Data Matrix & Threshold Status",
+      "minThresholdGuardrail": "Minimum Threshold Guardrail:",
+      "categoryGroup": "Category Group",
+      "thresholdStatus": "Threshold Status",
+      "totalCapital": "Total Capital (Cr)",
+      "avgRiskIndex": "Avg Risk Index",
+      "costVariance": "Cost Variance (%)",
+      "avgDelayDays": "Avg Delay Days",
+      "nEquals": "N = {{n}}",
+      "validAggregation": "VALID AGGREGATION",
+      "insufficientDataShort": "INSUFFICIENT DATA (N < 3)",
+      "plusDays": "+{{count}} Days",
+      "filterProjects": "Filter Projects"
+    }
+  },
+  "stateProgress": {
+    "title": "State & Physical Progress Intelligence",
+    "subtitle": "Analyze geographical distribution and execution stage of infrastructure projects.",
+    "regionalIntelligence": "Regional Intelligence",
+    "activeProjects": "Active Projects",
+    "pctSpent": "{{pct}}% Spent",
+    "revisedCostEstimate": "Revised Cost Estimate",
+    "clickStateHint": "Click on any state on the map to view real-time portfolio metrics, budgets, and expenditure.",
+    "charts": {
+      "topStatesTitle": "Top 10 States by Project Count",
+      "physicalProgressTitle": "Physical Progress Distribution"
+    },
+    "insights": {
+      "aiInsight": "AI Insight",
+      "geoConcentrationTitle": "Geographic Concentration",
+      "geoConcentrationBody": "{{name}} leads with {{count}} projects, making up {{pct}}% of the national portfolio. Resource allocation algorithms suggest optimizing supply chains in this region.",
+      "executionBottleneck": "Execution Bottleneck",
+      "stagnantPhaseTitle": "Stagnant Completion Phase",
+      "stagnantPhaseBody": "{{count}} projects are in the 90-100% completion bracket. Predictive models highlight a historically high stall rate in this final phase due to delayed clearances.",
+      "earlyStageMonitor": "Early Stage Monitor",
+      "initialMobilizationTitle": "Initial Mobilization",
+      "initialMobilizationBody": "{{count}} projects are just starting (0-10%). Now is the critical window to enforce proactive cost-control measures to prevent long-term overruns."
+    }
+  },
+  "intelligence": {
+    "cannotLoadProjects": "Cannot load projects: {{error}}",
+    "workspaceLabel": "PAIMANA / Intelligence workspace",
+    "heroTitle": "Evidence to action",
+    "heroSubtitle": "Inspect the source, explore cost and climate exposure, and record decisions. Every forecast and verification shows its evidence and limitations.",
+    "offlineMode": "Offline mode · cached project directory · inspections stay on this device until synced.",
+    "projectContext": "Project context",
+    "selectProject": "Select a project",
+    "unknownState": "Unknown state",
+    "speechUnavailable": "Speech recognition is unavailable in this browser. You can type instead.",
+    "microphoneError": "Microphone: {{error}}",
+    "speechPlaybackUnavailable": "Speech playback is unavailable.",
+    "sections": {
+      "documents": "Document intelligence",
+      "twin": "Climate & cost twin",
+      "satellite": "Satellite evidence",
+      "uncertainty": "Prediction bounds",
+      "contractors": "InfraScore",
+      "field": "Field inspection",
+      "dispatch": "Escalations",
+      "reports": "Executive dossier",
+      "settings": "Connections"
+    },
+    "evidenceImport": {
+      "hint": "Import your sourced observations. Values below are input examples, not project evidence. Replace them before saving.",
+      "saved": "Validated and saved.",
+      "validateSave": "Validate & save evidence"
+    },
+    "documents": {
+      "title": "Project documents & bilingual copilot",
+      "providerGemini": "Gemini with retrieved document evidence",
+      "providerOllama": "Local model ({{model}}) with retrieved document evidence",
+      "providerNone": "Local evidence retrieval; configure Gemini or Ollama for generative answers",
+      "providerNote": "Document contents are sent to the configured provider only when you ask a question.",
+      "uploadLabel": "DPR, contract or audit (text PDF / UTF-8, up to 8 MB)",
+      "uploadButton": "Upload document",
+      "pagesCount": "{{count}} pages",
+      "scannedNeedsOcr": "· scanned: Gemini or OCR needed",
+      "noneYet": "No documents for this project yet.",
+      "searchPortfolio": "Search the full portfolio instead of the selected project",
+      "askPlaceholder": "What evidence explains this project's delay?",
+      "readingEvidence": "Reading evidence…",
+      "askCopilot": "Ask copilot",
+      "dictate": "Dictate",
+      "readAloud": "Read briefing aloud",
+      "pageLabel": "page {{page}}",
+      "matchedRiskTitle": "Matched project risk",
+      "matchedRiskSubtitle": "{{count}} matches; showing up to 30 recorded risk scores",
+      "appliedFilters": "Applied filters: {{filters}}"
+    },
+    "twin": {
+      "title": "Commodity & climate stress twin",
+      "subtitle": "Transparent sector BOM assumptions. This estimates exposure; it does not establish exact contractual liability.",
+      "changePct": "change (%)",
+      "applyPortfolio": "Apply assumptions across the full portfolio",
+      "calculateExposure": "Calculate exposure",
+      "estimatedIncrementalCost": "Estimated incremental cost",
+      "costIncrease": "₹{{amount}} Cr · {{days}} rainfall buffer days",
+      "importObservation": "Import dated commodity / rainfall observation",
+      "viewMarketObservations": "View market observations and IDs",
+      "refreshMarketFeed": "Refresh configured market feed",
+      "compareIndexObservations": "Compare sourced index observations",
+      "baselineObservationId": "Baseline observation ID",
+      "currentObservationId": "Current observation ID",
+      "runIndexScenario": "Run index-coupled scenario"
+    },
+    "satellite": {
+      "title": "Satellite ground-truth review",
+      "subtitle": "Compare sourced, co-registered surface reflectance observations. Optical indices cannot prove completion or fraud. Cloudy observations are inconclusive.",
+      "importBeforeAfter": "Import before / after observations",
+      "computeIndices": "Compute indices from real satellite scenes",
+      "compareRadar": "Compare Sentinel-1 radar observations (account required)",
+      "noneImported": "No satellite evidence imported.",
+      "ndviLabel": "NDVI: {{values}}",
+      "notOptical": "not optical",
+      "ndbiDelta": "NDBI delta: {{value}}",
+      "unavailable": "unavailable",
+      "sarDelta": "SAR delta: {{value}}",
+      "notSupplied": "not supplied",
+      "beforeAfterComparison": "Before / after comparison",
+      "sourceLabel": "Source: {{source}}.",
+      "searchCatalog": "Search open Sentinel / Landsat catalog",
+      "findScenes": "Find source scenes"
+    },
+    "uncertainty": {
+      "title": "Calibrated prediction intervals",
+      "subtitle": "90% marginal prediction intervals from held-out residuals for the same model. Cohort survival accounts for right-censored observations.",
+      "predictedDelayDays": "Predicted delay (days)",
+      "calibrationOutcomes": "{{count}} calibration outcomes",
+      "completion": "Completion: {{point}} [{{lower}} – {{upper}}]",
+      "cohortProbability": "Cohort probability of completion by {{fyEnd}}: {{pct}}",
+      "unavailable": "Unavailable",
+      "runModels": "Run saved ML models with observed project features",
+      "importCalibration": "Import held-out calibration outcomes"
+    },
+    "contractors": {
+      "title": "InfraScore · cross-ministry delivery",
+      "subtitle": "Verified identities and sourced delivery records are required. Scores need at least three projects; agencies are not silently treated as contractors.",
+      "noneYet": "No contractor evidence yet.",
+      "insufficientSample": "Insufficient sample",
+      "projectsCount": "{{count}} projects · {{pct}}% on-time milestones",
+      "claimsPer1000": "{{claims}} claims / ₹1,000 Cr · Payment: {{days}} days",
+      "unknown": "unknown",
+      "criticalPackages": "{{count}} packages delayed over 180 days",
+      "registerRecord": "Register contractor delivery record"
+    },
+    "field": {
+      "title": "Offline field inspection",
+      "subtitle": "Photos are hashed and queued on this device until synced. GPS and capture time are device-reported; hashes do not prove photo authenticity. Open this page online once before using it offline.",
+      "awaitingSync": "{{count}} inspection(s) awaiting sync",
+      "syncNow": "Sync now",
+      "savedOnDevice": "Saved on this device",
+      "paused": "Paused",
+      "pending": "Pending",
+      "attempts": "{{count}} attempts",
+      "resumeUpload": "Resume upload",
+      "pauseUpload": "Pause upload",
+      "downloadBackup": "Download private backup (photos and GPS included)",
+      "savedReceipts": "{{count}} saved sync receipts",
+      "receiptHash": "Receipt #{{id}} · {{hash}}",
+      "milestoneNotes": "Milestone notes",
+      "capturePhoto": "Capture photo",
+      "geolocationUnavailable": "Geolocation unavailable",
+      "getGps": "Get current GPS location",
+      "gpsReading": "{{lat}}, {{lng}} · accuracy {{accuracy}} m",
+      "refreshGps": "Refresh GPS before saving (five minute maximum).",
+      "gpsAccuracyError": "GPS accuracy must be within 100 metres. Try outdoors.",
+      "savedOnThisDevice": "Saved on this device.",
+      "syncedCount": "{{count}} synced. {{errors}}",
+      "saveInspection": "Save inspection on device",
+      "restoreBackup": "Restore a private inspection backup (restored uploads start paused)",
+      "backupTooLarge": "Backup exceeds 50 MB.",
+      "restoredCount": "{{restored}} restored, {{skipped}} already present. Resume uploads after review.",
+      "registerBoundary": "Register project boundary (longitude, latitude polygon)",
+      "capturedReceived": "Captured: {{captured}} · Received: {{received}}",
+      "receiptLabel": "Receipt: {{hash}}"
+    },
+    "dispatch": {
+      "title": "Executive escalation dispatch",
+      "subtitle": "Creates a real outbound message when the provider is configured. Approval links expire in 24 hours and accept one decision. Link previews never approve an action.",
+      "interventionId": "Intervention ID",
+      "findIntervention": "Find an intervention in Risk & Alerts",
+      "deliveryChannel": "Delivery channel",
+      "sendEscalation": "Send executive escalation",
+      "deliveryAudit": "Delivery audit",
+      "interventionTier": "Intervention #{{id}} · Tier {{tier}} · {{channel}}"
+    },
+    "reports": {
+      "title": "Ministry executive dossier",
+      "subtitle": "Export the selected project's financial summary, open alerts, interventions, calibrated forecast availability and document source hashes.",
+      "downloadPdf": "Download project PDF"
+    },
+    "settings": {
+      "title": "Provider readiness",
+      "subtitle": "Provider credentials belong in the backend environment. This page never exposes them. Missing credentials do not activate simulated success.",
+      "operatorKey": "Operator API key (this browser session only)",
+      "saveSessionKey": "Save session key",
+      "sessionKeySaved": "Session key saved."
+    }
+  },
+  "interventions": {
+    "title": "Action-Oriented Risk & Alerts Panel",
+    "subtitle": "Human-in-the-loop governance workflow for reviewing & authorizing high-impact project risk mitigations.",
+    "flaggedCount": "High-Priority Projects Flagged",
+    "generateActions": "Generate evidence review actions",
+    "executiveDispatch": "Executive dispatch",
+    "noneRecorded": "No interventions recorded. Generate review actions from current project risk records.",
+    "recordedAlerts": "Recorded early-warning alerts",
+    "reviewerName": "Reviewer name",
+    "reviewNotes": "Review notes",
+    "projectHash": "Project #{{id}}",
+    "recordReviewResolve": "Record review & resolve",
+    "noUnresolvedAlerts": "No unresolved alerts in the latest records.",
+    "riskScoreLabel": "Risk Score: {{score}} / 100",
+    "recommendedAction": "Recommended Human Review Action",
+    "evidenceGrounding": "Evidence Grounding:",
+    "estimatedImpact": "Estimated Mitigation Impact",
+    "officer": "Officer:",
+    "lastAudit": "Last Workflow Audit: {{date}}",
+    "authorize": "Authorize Intervention",
+    "requestCabinetReview": "Request Cabinet Review",
+    "reject": "Reject",
+    "status": {
+      "approved": "APPROVED",
+      "underReview": "UNDER REVIEW",
+      "rejected": "REJECTED",
+      "proposed": "PROPOSED"
+    }
+  },
+  "projectRecords": {
+    "saved": "Project record saved.",
+    "summary": "Project milestones and progress records",
+    "hint": "These records require a connection. Photo inspections above can be saved offline.",
+    "milestoneName": "Milestone name",
+    "plannedDate": "Planned date",
+    "status": "Status",
+    "statusPending": "Pending",
+    "statusInProgress": "In progress",
+    "statusCompleted": "Completed",
+    "actualCompletionDate": "Actual completion date",
+    "saveMilestone": "Save milestone record",
+    "plannedLabel": "Planned {{date}}",
+    "completedLabel": "Completed {{date}}",
+    "actualExpenditure": "Actual expenditure (INR crore)",
+    "scheduleVariance": "Schedule variance (days; positive = late)",
+    "progressReference": "Progress and source reference",
+    "saveProgress": "Save progress record",
+    "updateLine": "{{status}} · INR {{cost}} crore · {{days}} days · {{timestamp}}"
+  },
+  "liveVoice": {
+    "connecting": "Connecting…",
+    "httpsRequired": "Microphone requires HTTPS or localhost.",
+    "liveSendingAudio": "Live · microphone audio is being sent to Gemini.",
+    "youPrefix": "You: ",
+    "connectionFailed": "Live provider connection failed.",
+    "sessionEnded": "Live session ended.",
+    "title": "Gemini Live voice briefing",
+    "subtitle": "Starting sends microphone audio and this project's evidence to Gemini. Sessions stop after ten minutes. Use Stop to release the microphone.",
+    "stopSession": "Stop live session",
+    "startSession": "Start live voice",
+    "notConfigured": "Configure GEMINI_API_KEY and GEMINI_LIVE_MODEL to enable."
+  }
+}

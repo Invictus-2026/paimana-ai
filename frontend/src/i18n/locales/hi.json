@@ -1,0 +1,720 @@
+{
+  "common": {
+    "all": "सभी",
+    "riskTier": { "highRisk": "उच्च जोखिम", "atRisk": "जोखिम में", "moderate": "मध्यम", "active": "सक्रिय" }
+  },
+  "sidebar": {
+    "nav": {
+      "intelligence": "इंटेलिजेंस",
+      "dashboard": "डैशबोर्ड",
+      "projects": "परियोजनाएँ",
+      "stateProgress": "राज्य एवं प्रगति",
+      "analytics": "विश्लेषण",
+      "riskAlerts": "जोखिम एवं अलर्ट",
+      "forecasting": "पूर्वानुमान",
+      "benchmarks": "बेंचमार्क",
+      "reports": "रिपोर्ट",
+      "aiAssistant": "एआई सहायक",
+      "settings": "सेटिंग्स"
+    },
+    "badge": { "new": "नया" },
+    "brand": { "tagline": "बुनियादी ढांचे की निगरानी के लिए एआई" },
+    "sub": {
+      "benchmarksTrends": "बेंचमार्क एवं रुझान",
+      "costOverrun": "लागत वृद्धि",
+      "timeOverrun": "समय वृद्धि",
+      "aiBadge": "एआई"
+    },
+    "footer": {
+      "dataAsOf": "डेटा अद्यतन तिथि",
+      "dataDate": "अप्रैल 2026",
+      "portal": "पैमाना पोर्टल",
+      "ministryShort": "एमओएसपीआई, भारत सरकार"
+    }
+  },
+  "header": {
+    "title": {
+      "intelligence": "इंटेलिजेंस",
+      "projectIntelligence": "परियोजना इंटेलिजेंस",
+      "projects": "परियोजनाएँ",
+      "benchmarksRiskMap": "बेंचमार्क एवं जोखिम मानचित्र",
+      "forecasting": "पूर्वानुमान एवं सिमुलेशन",
+      "riskAlerts": "जोखिम एवं अलर्ट",
+      "aiAssistant": "एआई सहायक",
+      "dashboard": "डैशबोर्ड"
+    },
+    "searchPlaceholder": "परियोजनाएँ, मंत्रालय, क्षेत्र खोजें...",
+    "adminUser": "एडमिन उपयोगकर्ता",
+    "ministry": "एमओएसपीआई"
+  },
+  "layout": {
+    "footer": {
+      "copyright": "© 2026 पैमाना प्रेडिक्टआईक्यू | सांख्यिकी और कार्यक्रम कार्यान्वयन मंत्रालय (एमओएसपीआई), भारत सरकार",
+      "privacyPolicy": "गोपनीयता नीति",
+      "termsOfUse": "उपयोग की शर्तें"
+    }
+  },
+  "dashboard": {
+    "title": "राष्ट्रीय बुनियादी ढांचा मॉनिटर",
+    "subtitle": "रीयल-टाइम एमओएसपीआई डेटा · जुलाई 2025 – जुलाई 2026 · {{count}} मासिक स्नैपशॉट लोड किए गए",
+    "export": "निर्यात",
+    "viewAll": "सभी",
+    "total": "कुल",
+    "kpi": {
+      "totalProjects": "कुल परियोजनाएँ",
+      "fromPrevMonth": "पिछले माह से",
+      "originalBudget": "मूल बजट",
+      "forMonth": "{{month}} के लिए",
+      "revisedCost": "संशोधित लागत",
+      "overrun": "अधिक व्यय",
+      "cumulativeExpenditure": "संचयी व्यय",
+      "utilisation": "उपयोग: {{pct}}%",
+      "highRiskProjects": "उच्च जोखिम परियोजनाएँ",
+      "riskScoreThreshold": "जोखिम स्कोर ≥ 50/100"
+    },
+    "charts": {
+      "projectTrendTitle": "मासिक परियोजना एवं व्यय रुझान",
+      "projectTrendSubtitle": "जुलाई 2025 → जुलाई 2026 · वास्तविक एमओएसपीआई डेटा",
+      "sectorsTitle": "क्षेत्र – {{month}}",
+      "sectorsSubtitle": "पोर्टफोलियो वितरण",
+      "overrunTrendTitle": "लागत वृद्धि एवं व्यय दर रुझान",
+      "overrunTrendSubtitle": "मासिक वृद्धि % बनाम बजट उपयोग % · वास्तविक डेटा",
+      "topSectorsTitle": "शीर्ष क्षेत्र – {{month}}",
+      "topSectorsSubtitle": "क्षेत्र के अनुसार परियोजनाएँ"
+    },
+    "legend": {
+      "projects": "परियोजनाएँ",
+      "expenditure": "व्यय",
+      "costOverrunPct": "लागत वृद्धि %",
+      "expenditureRatePct": "व्यय दर %"
+    },
+    "insights": {
+      "title": "एमओएसपीआई डेटा से एआई-संचालित अंतर्दृष्टि",
+      "costOverrunAlert": { "title": "लागत वृद्धि अलर्ट", "body": "{{count}} परियोजनाओं का जोखिम स्कोर ≥50% है। औसत वृद्धि: {{pct}}%" },
+      "expenditureRate": { "title": "व्यय दर", "body": "{{month}} में बजट उपयोग {{pct}}% रहा। रेल एवं राजमार्ग वितरण में अग्रणी हैं।" },
+      "portfolioGrowth": { "title": "पोर्टफोलियो वृद्धि", "body": "{{month}} में {{count}} परियोजनाएँ ट्रैक की गईं, सभी क्षेत्रों में माह-दर-माह {{growth}}% की वृद्धि।" }
+    },
+    "quickActions": {
+      "title": "त्वरित कार्रवाई",
+      "projectExplorer": "परियोजना एक्सप्लोरर",
+      "riskAlerts": "जोखिम अलर्ट",
+      "analytics": "विश्लेषण",
+      "aiCopilot": "एआई कोपायलट"
+    }
+  },
+  "projects": {
+    "title": "परियोजना एक्सप्लोरर एवं खोज मैट्रिक्स",
+    "subtitle": "राष्ट्रीय बुनियादी ढांचा परियोजनाओं की खोज योग्य, बहु-स्तंभ फ़िल्टर की गई निर्देशिका। गहन इंटेलिजेंस के लिए किसी भी पंक्ति पर क्लिक करें।",
+    "showingCount": "{{total}} में से {{shown}} परियोजनाएँ दिखाई जा रही हैं",
+    "resetFilters": "फ़िल्टर रीसेट करें",
+    "snapshotMonth": "स्नैपशॉट माह:",
+    "searchPlaceholder": "परियोजना नाम या कोड से खोजें...",
+    "filters": {
+      "allMinistries": "सभी मंत्रालय",
+      "allSectors": "सभी क्षेत्र",
+      "allStates": "सभी राज्य",
+      "allRiskTiers": "सभी जोखिम स्तर",
+      "allCostVariances": "सभी लागत भिन्नताएँ",
+      "costOverrunOver10": "लागत वृद्धि > 10%",
+      "allScheduleVariances": "सभी अनुसूची भिन्नताएँ",
+      "scheduleDelayOver90": "अनुसूची विलंब > 90 दिन"
+    },
+    "table": {
+      "nameCode": "परियोजना नाम एवं कोड",
+      "riskScore": "जोखिम स्कोर",
+      "ministrySector": "मंत्रालय एवं क्षेत्र",
+      "state": "राज्य",
+      "budget": "बजट (करोड़)",
+      "nextMilestone": "अगला माइलस्टोन",
+      "costOverrun": "लागत वृद्धि",
+      "scheduleDelay": "अनुसूची विलंब",
+      "action": "कार्रवाई",
+      "exp": "व्यय: ₹{{amount}}",
+      "due": "नियत तिथि: {{date}}",
+      "daysSuffix": "+{{count}} दिन",
+      "intelligence": "इंटेलिजेंस →",
+      "noResults": "सक्रिय फ़िल्टर मानदंडों से कोई परियोजना मेल नहीं खाती। साफ़ करने के लिए \"फ़िल्टर रीसेट करें\" पर क्लिक करें।"
+    },
+    "pagination": {
+      "showingRange": "{{total}} में से {{from}} से {{to}} तक की प्रविष्टियाँ दिखाई जा रही हैं"
+    }
+  },
+  "projectDetail": {
+    "loading": "परियोजना इंटेलिजेंस लोड हो रहा है...",
+    "unavailable": "परियोजना अनुपलब्ध है। परियोजना आईडी और एपीआई कनेक्शन जांचें।",
+    "trend": { "increasing": "बढ़ रहा है", "decreasing": "घट रहा है", "insufficientData": "अपर्याप्त डेटा" },
+    "tabs": {
+      "satellite": "उपग्रह समीक्षा",
+      "uncertainty": "पूर्वानुमान सीमाएँ",
+      "documents": "दस्तावेज़ साक्ष्य",
+      "field": "क्षेत्र निरीक्षण",
+      "reports": "डोजियर निर्यात"
+    },
+    "backToExplorer": "प्रोजेक्ट एक्सप्लोरर पर वापस जाएँ",
+    "trendLabel": "रुझान: {{trend}}",
+    "monthTrajectoryLoaded": "{{count}}-माह प्रक्षेपवक्र लोड किया गया",
+    "simulateDisruption": "व्यवधान का सिमुलेशन करें",
+    "kpi": {
+      "overallRiskIndex": "समग्र जोखिम सूचकांक",
+      "peak12mo": "12-माह शिखर:",
+      "min": "न्यूनतम:",
+      "costOverrun": "लागत वृद्धि",
+      "peak": "शिखर:",
+      "budget": "बजट",
+      "revised": "संशोधित:",
+      "expenditure": "व्यय",
+      "riskScoreMethod": "जोखिम स्कोर विधि:",
+      "ruleBasedCostGrowth": "नियम-आधारित लागत वृद्धि",
+      "lowRisk": "कम जोखिम"
+    },
+    "charts": {
+      "riskTrajectoryTitleReal": "{{count}}-माह जोखिम स्कोर प्रक्षेपवक्र (वास्तविक डेटा)",
+      "riskTrajectoryTitle12mo": "12-माह जोखिम स्कोर प्रक्षेपवक्र",
+      "riskTrajectoryFallbackSubtitle": "⚠ मासिक डेटासेट फ़ाइलों में परियोजना आईडी नहीं मिली — केवल डीबी स्नैपशॉट दिखाया जा रहा है",
+      "budgetVsExpenditure": "बजट बनाम व्यय (₹ करोड़) · मासिक",
+      "costOverrunMonthwise": "लागत वृद्धि % — माह-वार"
+    },
+    "legend": {
+      "costOverrun": "लागत वृद्धि",
+      "riskScore": "जोखिम स्कोर",
+      "originalCost": "मूल लागत",
+      "revisedCost": "संशोधित लागत"
+    },
+    "analysisSummary": {
+      "title": "1-वर्ष विश्लेषण सारांश",
+      "monthsTracked": "ट्रैक किए गए माह",
+      "dbSnapshotOnly": "केवल डीबी स्नैपशॉट",
+      "latestMonth": "नवीनतम माह",
+      "notAvailable": "उपलब्ध नहीं",
+      "peakRiskScore": "शिखर जोखिम स्कोर",
+      "riskTrajectory": "जोखिम प्रक्षेपवक्र",
+      "peakOverrun": "शिखर वृद्धि",
+      "ministry": "मंत्रालय"
+    },
+    "riskAssessment": {
+      "title": "जोखिम आकलन",
+      "costRisk": "लागत जोखिम",
+      "budgetOverrun": "बजट वृद्धि",
+      "budgetOverrunBody": "संशोधित लागत मूल लागत से {{pct}}% अधिक है। शिखर वृद्धि {{peak}}% पर देखी गई।",
+      "riskTrend": "जोखिम रुझान",
+      "trajectoryAnalysis": "प्रक्षेपवक्र विश्लेषण",
+      "trajectoryAnalysisBody": "{{months}} महीनों के डेटा में जोखिम स्कोर {{from}} से {{to}} हो गया।",
+      "utilisationRate": "उपयोग दर",
+      "utilisationRateBody": "जुलाई 2025 से जुलाई 2026 तक {{months}} मासिक स्नैपशॉट में कुल व्यय ट्रैक किया गया।",
+      "notFound": "परियोजना आईडी \"{{code}}\" मासिक डेटासेट में नहीं मिली",
+      "notFoundBody": "यह परियोजना एपीआई के माध्यम से जोड़ी गई हो सकती है और इसमें कोई मिलान एमओएसपीआई डेटासेट प्रविष्टि नहीं है। केवल डेटाबेस-स्तरीय जोखिम स्कोर दिखाया जा रहा है।"
+    }
+  },
+  "analytics": {
+    "loading": "{{month}} के लिए पूर्वानुमानित जोखिम वेक्टर की गणना हो रही है...",
+    "searchPlaceholder": "परियोजना नाम, आईडी या क्षेत्र खोजें...",
+    "totalProjects": "कुल परियोजनाएँ",
+    "totalMonitored": "कुल निगरानी में",
+    "header": {
+      "title": "पोर्टफोलियो विश्लेषण एवं पूर्वानुमानित इंटेलिजेंस",
+      "badge": "v2.0 मॉडल",
+      "subtitle": "सभी निगरानी किए गए एमओएसपीआई डेटासेट में बहु-आयामी जोखिम स्कोरिंग, लागत वृद्धि पूर्वानुमान एवं अनुसूची विलंब पूर्वानुमान",
+      "datasetMonth": "डेटासेट माह:",
+      "hybridEngine": "हाइब्रिड बहु-आयामी इंजन से स्कोर किया गया"
+    },
+    "tabs": {
+      "benchmarks": "व्यापक रुझान एवं बेंचमार्क",
+      "costOverrun": "लागत वृद्धि पूर्वानुमान",
+      "allProjects": "सभी परियोजनाएँ",
+      "timeOverrun": "समय वृद्धि पूर्वानुमान",
+      "scheduleRisk": "अनुसूची जोखिम"
+    },
+    "badges": {
+      "critical": "गंभीर",
+      "high": "उच्च",
+      "low": "कम",
+      "severeDelay": "गंभीर विलंब (>1 वर्ष)",
+      "significantDelay": "महत्वपूर्ण (6-12 माह)",
+      "minorDelay": "मामूली (2-6 माह)",
+      "onTrack": "समय पर"
+    },
+    "delaySeverity": {
+      "severe": "गंभीर (>12 माह)",
+      "significant": "महत्वपूर्ण (6-12 माह)",
+      "minor": "मामूली (2-6 माह)",
+      "onTrack": "समय पर (<2 माह)"
+    },
+    "costDistribution": {
+      "onBudget": "बजट के भीतर (0%)",
+      "minor": "मामूली (<10%)",
+      "moderate": "मध्यम (10-25%)",
+      "high": "उच्च (25-50%)",
+      "severe": "गंभीर (>50%)"
+    },
+    "legend": {
+      "avgCostGrowth": "औसत लागत वृद्धि (%)",
+      "avgRiskScore": "औसत जोखिम स्कोर (0-100)",
+      "avgRiskScoreShort": "औसत जोखिम स्कोर",
+      "totalBudget": "कुल बजट",
+      "costEscalationExposure": "लागत वृद्धि एक्सपोज़र",
+      "costOverrunExposure": "लागत वृद्धि एक्सपोज़र",
+      "averageDelay": "औसत विलंब",
+      "predictedDelay": "अनुमानित विलंब"
+    },
+    "axis": {
+      "xMajorSectors": "X-अक्ष: प्रमुख क्षेत्र",
+      "yCapitalOverrunExposure": "Y-अक्ष: कुल पूंजी वृद्धि एक्सपोज़र (₹ करोड़)",
+      "xInfraSectors": "X-अक्ष: बुनियादी ढांचा क्षेत्र",
+      "yAvgDelayMonths": "Y-अक्ष: औसत विलंब (माह)",
+      "leftCostGrowth": "बायाँ अक्ष: लागत वृद्धि (%)",
+      "rightRiskScore": "दायाँ अक्ष: जोखिम स्कोर (0-100)",
+      "yLineMinistries": "Y-अक्ष: लाइन मंत्रालय",
+      "xCompositeRiskIndex": "X-अक्ष: समग्र जोखिम सूचकांक (0-100 स्केल)",
+      "yMajorSectors": "Y-अक्ष: प्रमुख क्षेत्र",
+      "xCapitalOutlay": "X-अक्ष: पूंजी परिव्यय (₹ करोड़)"
+    },
+    "filters": {
+      "allRiskTiers": "सभी जोखिम स्तर",
+      "criticalRisk": "गंभीर जोखिम (≥75)",
+      "highRisk": "उच्च जोखिम (50-74)",
+      "moderateRisk": "मध्यम जोखिम (25-49)",
+      "lowRisk": "कम जोखिम (<25)",
+      "sortCostOverrunPct": "क्रमबद्ध करें: लागत वृद्धि %",
+      "sortExposure": "क्रमबद्ध करें: एक्सपोज़र (₹ करोड़)",
+      "sortOriginalBudget": "क्रमबद्ध करें: मूल बजट",
+      "sortRiskScore": "क्रमबद्ध करें: जोखिम स्कोर",
+      "allDelaySeverities": "सभी विलंब गंभीरताएँ",
+      "onTrackShort": "समय पर",
+      "sortDelayDuration": "क्रमबद्ध करें: विलंब अवधि",
+      "sortDelayRiskScore": "क्रमबद्ध करें: विलंब जोखिम स्कोर",
+      "sortOverallRiskScore": "क्रमबद्ध करें: समग्र जोखिम स्कोर"
+    },
+    "table": {
+      "projectDetails": "परियोजना विवरण",
+      "sectorMinistry": "क्षेत्र एवं मंत्रालय",
+      "original": "मूल (₹ करोड़)",
+      "revised": "संशोधित (₹ करोड़)",
+      "expenditureCr": "व्यय (₹ करोड़)",
+      "predictedOverrun": "अनुमानित वृद्धि",
+      "exposureCr": "एक्सपोज़र (₹ करोड़)",
+      "riskTier": "जोखिम स्तर",
+      "riskScore": "जोखिम स्कोर",
+      "pctSpent": "{{pct}}% खर्च",
+      "view": "देखें",
+      "pageOf": "पृष्ठ {{page}} / {{total}}",
+      "previous": "पिछला",
+      "next": "अगला",
+      "showingRange": "{{total}} में से {{from}} - {{to}} दिखाया जा रहा है",
+      "sanctionedBudget": "स्वीकृत बजट",
+      "predictedDelayDays": "अनुमानित विलंब (दिन)",
+      "delayMonths": "विलंब (माह)",
+      "delayClassification": "विलंब वर्गीकरण",
+      "delayRisk": "विलंब जोखिम",
+      "overallRisk": "समग्र जोखिम",
+      "daysSuffix": "{{count}} दिन",
+      "moSuffix": "{{count}} माह"
+    },
+    "units": { "months": "{{count}} माह" },
+    "titles": {
+      "toggleScreenFullscreen": "स्क्रीन फुलस्क्रीन टॉगल करें",
+      "closeFullscreenView": "फुलस्क्रीन दृश्य बंद करें (Esc)",
+      "viewFullScreen": "चार्ट को पूर्ण स्क्रीन में देखें",
+      "toggleSortOrder": "क्रम टॉगल करें"
+    },
+    "modal": {
+      "benchmarksTitle": "प्रदर्शन बेंचमार्क: लागत वृद्धि बनाम जोखिम स्कोर",
+      "benchmarksSubtitle": "{{dimension}} के अनुसार वर्णनात्मक तुलनात्मक बेंचमार्किंग",
+      "regionalTitle": "क्षेत्रीय एवं राज्य बुनियादी ढांचा संकेंद्रण",
+      "regionalSubtitle": "भारतीय राज्यों एवं क्षेत्राधिकारों में निगरानी की गई परियोजनाओं का व्यापक विवरण",
+      "budgetLabel": "बजट: {{amount}}",
+      "ministryTitle": "मंत्रालय जोखिम प्रोफ़ाइल एवं पोर्टफोलियो स्वास्थ्य",
+      "ministrySubtitle": "लाइन मंत्रालयों में बहु-आयामी समग्र जोखिम सूचकांक",
+      "capitalTitle": "क्षेत्र के अनुसार पूंजी परिव्यय आवंटन",
+      "capitalSubtitle": "बुनियादी ढांचा क्षेत्रों में कुल स्वीकृत व्यय आवंटन (₹ करोड़)",
+      "costSectorTitle": "क्षेत्र-वार लागत वृद्धि एक्सपोज़र",
+      "costSectorSubtitle": "{{month}} में क्षेत्रों में कुल रुपये लागत वृद्धि एक्सपोज़र",
+      "costProjectsTitle": "शीर्ष पूंजी वृद्धि मेगा परियोजनाएँ",
+      "costProjectsSubtitle": "सबसे अधिक निरपेक्ष लागत वृद्धि एक्सपोज़र (₹ करोड़) वाली व्यक्तिगत परियोजनाएँ",
+      "timeSectorTitle": "क्षेत्र-वार औसत अनुसूची विलंब",
+      "timeSectorSubtitle": "{{month}} में बुनियादी ढांचा क्षेत्रों में अनुभवजन्य आयोग विलंब",
+      "timeProjectsTitle": "शीर्ष अनुसूची विलंब मेगा परियोजनाएँ",
+      "timeProjectsSubtitle": "स्वीकृत आयोग के बाद सबसे अधिक अवधि विलंब का सामना कर रही महत्वपूर्ण पहलें",
+      "costSeverityTitle": "लागत वृद्धि गंभीरता वितरण",
+      "costSeveritySubtitle": "{{month}} में लागत वृद्धि स्तर के अनुसार पोर्टफोलियो वितरण",
+      "costEscalationBreakdown": "लागत वृद्धि विवरण",
+      "projectsCount": "{{count}} परियोजनाएँ",
+      "timeSeverityTitle": "अनुसूची विलंब एवं गंभीरता वितरण",
+      "timeSeveritySubtitle": "{{month}} में विलंब गंभीरता के अनुसार वर्गीकृत परियोजनाएँ",
+      "scheduleSlippageBreakdown": "अनुसूची विलंब विवरण",
+      "footerBrand": "पैमाना प्रेडिक्टआईक्यू एंटरप्राइज विज़ुअलाइज़र • उच्च-रिज़ॉल्यूशन दृश्य",
+      "footerHint": "डैशबोर्ड पर लौटने के लिए Esc दबाएँ या बंद करें पर क्लिक करें"
+    },
+    "cost": {
+      "kpi": {
+        "totalMonitored": "कुल निगरानी की गई परियोजनाएँ",
+        "snapshotMonth": "स्नैपशॉट माह: {{month}}",
+        "totalExposure": "कुल लागत वृद्धि एक्सपोज़र",
+        "exchequerEscalation": "राजकोष पूंजी वृद्धि",
+        "projectsWithOverrun": "वृद्धि वाली परियोजनाएँ",
+        "overrunPortfolioPct": "पोर्टफोलियो का {{pct}}% लागत वृद्धि का अनुभव कर रहा है",
+        "criticalTier": "गंभीर लागत जोखिम स्तर",
+        "criticalTierBody": "सक्रिय कैबिनेट हस्तक्षेप की आवश्यकता वाली परियोजनाएँ"
+      },
+      "charts": {
+        "sectorExposureTitle": "क्षेत्र-वार लागत वृद्धि एक्सपोज़र (₹ करोड़)",
+        "sectorExposureSubtitle": "{{month}} में शीर्ष बुनियादी ढांचा क्षेत्रों में कुल रुपये वृद्धि एक्सपोज़र",
+        "topImpactSectors": "शीर्ष प्रभाव क्षेत्र",
+        "severitySpreadTitle": "वृद्धि गंभीरता प्रसार",
+        "severitySpreadSubtitle": "लागत वृद्धि स्तर के अनुसार पोर्टफोलियो वितरण",
+        "topProjectsTitle": "शीर्ष पूंजी वृद्धि मेगा परियोजनाएँ (₹ करोड़)",
+        "topProjectsSubtitle": "मूल बजट एवं संशोधित स्वीकृति के बीच सबसे बड़ी मौद्रिक वृद्धि वाली व्यक्तिगत परियोजनाएँ",
+        "sortedByExposure": "निरपेक्ष वृद्धि एक्सपोज़र के अनुसार क्रमबद्ध"
+      },
+      "table": { "title": "परियोजना-दर-परियोजना लागत वृद्धि पूर्वानुमान ({{count}} निगरानी की गई परियोजनाएँ)" }
+    },
+    "time": {
+      "kpi": {
+        "avgDelay": "औसत अनुसूची विलंब",
+        "avgDelayDays": "~{{days}} दिन अनुमानित विलंब",
+        "severeDelay": "गंभीर विलंब (>1 वर्ष)",
+        "severeDelayBody": "12 कैलेंडर माह से अधिक विलंबित परियोजनाएँ",
+        "significantDelay": "महत्वपूर्ण विलंब (6-12 माह)",
+        "significantDelayBody": "माइलस्टोन रिकवरी आवश्यक मध्यम विलंब",
+        "onTrackAdherence": "समय पर अनुपालन",
+        "onTrackBody": "लक्षित आयोग का {{pct}}% पालन कर रहा है"
+      },
+      "charts": {
+        "sectorSlippageTitle": "क्षेत्र-वार औसत अनुसूची विलंब (माह)",
+        "sectorSlippageSubtitle": "{{month}} के लिए बुनियादी ढांचा क्षेत्रों में अनुभवजन्य आयोग विलंब",
+        "scheduleVariance": "अनुसूची भिन्नता",
+        "slippageDistTitle": "विलंब वितरण",
+        "slippageDistSubtitle": "विलंब गंभीरता के अनुसार वर्गीकृत परियोजनाएँ",
+        "monitored": "निगरानी में",
+        "topProjectsTitle": "शीर्ष अनुसूची विलंब मेगा परियोजनाएँ (माह)",
+        "topProjectsSubtitle": "स्वीकृत आयोग के बाद सबसे अधिक अवधि विलंब का सामना कर रही महत्वपूर्ण बुनियादी ढांचा पहलें",
+        "rankedByMonths": "विलंबित कैलेंडर माह के अनुसार क्रमबद्ध"
+      },
+      "table": { "title": "परियोजना-दर-परियोजना अनुसूची एवं विलंब पूर्वानुमान ({{count}} निगरानी की गई परियोजनाएँ)" }
+    },
+    "benchmarks": {
+      "kpi": {
+        "monitoredPortfolio": "निगरानी किया गया बुनियादी ढांचा पोर्टफोलियो",
+        "totalCapitalOutlay": "कुल पूंजी परिव्यय",
+        "sanctionedExpenditure": "स्वीकृत सार्वजनिक व्यय",
+        "avgRiskScore": "औसत जोखिम स्कोर",
+        "compositeBenchmark": "बहु-आयामी समग्र बेंचमार्क",
+        "costOverrunExposure": "लागत वृद्धि एक्सपोज़र",
+        "totalEscalation": "कुल पोर्टफोलियो लागत वृद्धि"
+      },
+      "performanceBenchmarks": "प्रदर्शन बेंचमार्क",
+      "crossCategoryComparison": "लागत वृद्धि (%) बनाम जोखिम स्कोर की क्रॉस-श्रेणी तुलना",
+      "byDimension": "{{dimension}} के अनुसार",
+      "dimension": { "sector": "क्षेत्र", "ministry": "मंत्रालय", "region": "भौगोलिक क्षेत्र" },
+      "statisticalContext": "सांख्यिकीय संदर्भ:",
+      "regionalDistribution": "क्षेत्रीय वितरण",
+      "regionalDistributionSubtitle": "राज्य एवं क्षेत्राधिकार के अनुसार परियोजना संकेंद्रण",
+      "ministryRiskProfiles": "मंत्रालय जोखिम प्रोफ़ाइल",
+      "ministryRiskProfilesSubtitle": "प्रमुख लाइन मंत्रालयों में औसत जोखिम स्कोर",
+      "capitalOutlayBySector": "क्षेत्र के अनुसार पूंजी परिव्यय",
+      "capitalOutlayBySectorSubtitle": "कुल स्वीकृत व्यय आवंटन (₹ करोड़)"
+    }
+  },
+  "benchmarks": {
+    "title": "बेंचमार्किंग एवं तुलनात्मक विश्लेषण मैट्रिक्स",
+    "subtitle": "क्षेत्रों, लाइन मंत्रालयों एवं भौगोलिक क्षेत्रों में वर्णनात्मक, गैर-मूल्यांकनात्मक प्रदर्शन वितरण।",
+    "openInfraScore": "इन्फ्रास्कोर ठेकेदार रिकॉर्ड खोलें",
+    "dimensions": {
+      "sector": "क्षेत्र",
+      "lineMinistry": "लाइन मंत्रालय",
+      "geographicRegion": "भौगोलिक क्षेत्र",
+      "implementationStage": "कार्यान्वयन चरण"
+    },
+    "metrics": {
+      "sampleSize": "नमूना आकार (N)",
+      "validGroups": "{{count}} वैध समूह",
+      "timeWindow": "समय अवधि शामिल",
+      "unavailable": "अनुपलब्ध",
+      "twelveMonths": "12 माह",
+      "dataCompleteness": "डेटा पूर्णता स्कोर",
+      "safeguardThreshold": "सुरक्षा सीमा",
+      "minProjects": "N ≥ {{n}} परियोजनाएँ न्यूनतम।",
+      "activeGuardrail": "सक्रिय सुरक्षा उपाय"
+    },
+    "annotation": {
+      "heading": "अनिवार्य विश्लेषणात्मक संदर्भ एवं गैर-मूल्यांकनात्मक व्याख्या ढांचा",
+      "q1": "1. मैं क्या देख रहा हूँ?",
+      "q1Fallback": "बुनियादी ढांचा क्षेत्रों में लागत वृद्धि, अनुसूची विलंब एवं जोखिम वितरण की वर्णनात्मक तुलना।",
+      "q2": "2. यह पैटर्न क्यों मौजूद हो सकता है?",
+      "q2Fallback": "क्षेत्र भूमि अधिग्रहण आवश्यकताओं, पर्यावरण मंजूरी प्रोटोकॉल एवं आपूर्ति श्रृंखला जटिलता में मौलिक रूप से भिन्न होते हैं।",
+      "q3": "3. मुझे क्या निष्कर्ष नहीं निकालना चाहिए?",
+      "q3Fallback": "परिवहन या जल में अधिक औसत विलंब खराब परियोजना प्रबंधन गुणवत्ता का संकेत नहीं देता; यह आधारभूत संरचनात्मक जटिलता को दर्शाता है।"
+    },
+    "charts": {
+      "comparativeTitle": "{{dimension}} के अनुसार तुलनात्मक विलंब दिन एवं लागत वृद्धि (%)",
+      "aggregatedSummary": "समग्र सारांश",
+      "avgScheduleDelay": "औसत अनुसूची विलंब (दिन)"
+    },
+    "milestoneRate": {
+      "title": "समय पर माइलस्टोन दर (%)",
+      "onTimePct": "{{pct}}% समय पर",
+      "insufficientData": "N={{n}} (अपर्याप्त डेटा)",
+      "note": "नोट: समय पर माइलस्टोन दर सक्रिय पैकेजों में सांविधिक प्रगति रिपोर्टिंग विंडो को दर्शाती है।"
+    },
+    "table": {
+      "title": "बेंचमार्क समूह डेटा मैट्रिक्स एवं सीमा स्थिति",
+      "minThresholdGuardrail": "न्यूनतम सीमा सुरक्षा उपाय:",
+      "categoryGroup": "श्रेणी समूह",
+      "thresholdStatus": "सीमा स्थिति",
+      "totalCapital": "कुल पूंजी (करोड़)",
+      "avgRiskIndex": "औसत जोखिम सूचकांक",
+      "costVariance": "लागत भिन्नता (%)",
+      "avgDelayDays": "औसत विलंब दिन",
+      "nEquals": "N = {{n}}",
+      "validAggregation": "वैध एकत्रीकरण",
+      "insufficientDataShort": "अपर्याप्त डेटा (N < 3)",
+      "plusDays": "+{{count}} दिन",
+      "filterProjects": "परियोजनाएँ फ़िल्टर करें"
+    }
+  },
+  "stateProgress": {
+    "title": "राज्य एवं भौतिक प्रगति इंटेलिजेंस",
+    "subtitle": "बुनियादी ढांचा परियोजनाओं के भौगोलिक वितरण एवं निष्पादन चरण का विश्लेषण करें।",
+    "regionalIntelligence": "क्षेत्रीय इंटेलिजेंस",
+    "activeProjects": "सक्रिय परियोजनाएँ",
+    "pctSpent": "{{pct}}% खर्च",
+    "revisedCostEstimate": "संशोधित लागत अनुमान",
+    "clickStateHint": "रीयल-टाइम पोर्टफोलियो मेट्रिक्स, बजट एवं व्यय देखने के लिए मानचित्र पर किसी भी राज्य पर क्लिक करें।",
+    "charts": {
+      "topStatesTitle": "परियोजना गणना के अनुसार शीर्ष 10 राज्य",
+      "physicalProgressTitle": "भौतिक प्रगति वितरण"
+    },
+    "insights": {
+      "aiInsight": "एआई अंतर्दृष्टि",
+      "geoConcentrationTitle": "भौगोलिक संकेंद्रण",
+      "geoConcentrationBody": "{{name}} {{count}} परियोजनाओं के साथ अग्रणी है, जो राष्ट्रीय पोर्टफोलियो का {{pct}}% है। संसाधन आवंटन एल्गोरिदम इस क्षेत्र में आपूर्ति श्रृंखलाओं को अनुकूलित करने का सुझाव देते हैं।",
+      "executionBottleneck": "निष्पादन बाधा",
+      "stagnantPhaseTitle": "स्थिर पूर्णता चरण",
+      "stagnantPhaseBody": "{{count}} परियोजनाएँ 90-100% पूर्णता ब्रैकेट में हैं। पूर्वानुमान मॉडल विलंबित मंजूरी के कारण इस अंतिम चरण में ऐतिहासिक रूप से उच्च ठहराव दर को उजागर करते हैं।",
+      "earlyStageMonitor": "प्रारंभिक चरण मॉनिटर",
+      "initialMobilizationTitle": "प्रारंभिक मोबिलाइजेशन",
+      "initialMobilizationBody": "{{count}} परियोजनाएँ अभी शुरू हो रही हैं (0-10%). दीर्घकालिक वृद्धि को रोकने के लिए सक्रिय लागत-नियंत्रण उपायों को लागू करने का यह महत्वपूर्ण अवसर है।"
+    }
+  },
+  "intelligence": {
+    "cannotLoadProjects": "परियोजनाएँ लोड नहीं हो सकीं: {{error}}",
+    "workspaceLabel": "पैमाना / इंटेलिजेंस वर्कस्पेस",
+    "heroTitle": "साक्ष्य से कार्रवाई तक",
+    "heroSubtitle": "स्रोत का निरीक्षण करें, लागत एवं जलवायु एक्सपोज़र का अन्वेषण करें, एवं निर्णय दर्ज करें। हर पूर्वानुमान एवं सत्यापन अपने साक्ष्य एवं सीमाएँ दिखाता है।",
+    "offlineMode": "ऑफ़लाइन मोड · कैश्ड परियोजना निर्देशिका · निरीक्षण सिंक होने तक इस डिवाइस पर रहते हैं।",
+    "projectContext": "परियोजना संदर्भ",
+    "selectProject": "एक परियोजना चुनें",
+    "unknownState": "अज्ञात राज्य",
+    "speechUnavailable": "इस ब्राउज़र में वाक् पहचान उपलब्ध नहीं है। आप इसके बजाय टाइप कर सकते हैं।",
+    "microphoneError": "माइक्रोफ़ोन: {{error}}",
+    "speechPlaybackUnavailable": "वाक् प्लेबैक उपलब्ध नहीं है।",
+    "sections": {
+      "documents": "दस्तावेज़ इंटेलिजेंस",
+      "twin": "जलवायु एवं लागत ट्विन",
+      "satellite": "उपग्रह साक्ष्य",
+      "uncertainty": "पूर्वानुमान सीमाएँ",
+      "contractors": "इन्फ्रास्कोर",
+      "field": "क्षेत्र निरीक्षण",
+      "dispatch": "एस्केलेशन",
+      "reports": "कार्यकारी डोजियर",
+      "settings": "कनेक्शन"
+    },
+    "evidenceImport": {
+      "hint": "अपने स्रोतित अवलोकन आयात करें। नीचे दिए गए मान इनपुट उदाहरण हैं, परियोजना साक्ष्य नहीं। सहेजने से पहले उन्हें बदलें।",
+      "saved": "मान्य एवं सहेजा गया।",
+      "validateSave": "साक्ष्य को मान्य करें एवं सहेजें"
+    },
+    "documents": {
+      "title": "परियोजना दस्तावेज़ एवं द्विभाषी कोपायलट",
+      "providerGemini": "पुनर्प्राप्त दस्तावेज़ साक्ष्य के साथ जेमिनी",
+      "providerOllama": "पुनर्प्राप्त दस्तावेज़ साक्ष्य के साथ स्थानीय मॉडल ({{model}})",
+      "providerNone": "स्थानीय साक्ष्य पुनर्प्राप्ति; जनरेटिव उत्तरों के लिए जेमिनी या ओलामा कॉन्फ़िगर करें",
+      "providerNote": "दस्तावेज़ सामग्री केवल तभी कॉन्फ़िगर किए गए प्रदाता को भेजी जाती है जब आप कोई प्रश्न पूछते हैं।",
+      "uploadLabel": "डीपीआर, अनुबंध या ऑडिट (टेक्स्ट पीडीएफ / यूटीएफ-8, 8 एमबी तक)",
+      "uploadButton": "दस्तावेज़ अपलोड करें",
+      "pagesCount": "{{count}} पृष्ठ",
+      "scannedNeedsOcr": "· स्कैन किया गया: जेमिनी या ओसीआर आवश्यक",
+      "noneYet": "इस परियोजना के लिए अभी तक कोई दस्तावेज़ नहीं है।",
+      "searchPortfolio": "चयनित परियोजना के बजाय संपूर्ण पोर्टफोलियो खोजें",
+      "askPlaceholder": "कौन सा साक्ष्य इस परियोजना के विलंब की व्याख्या करता है?",
+      "readingEvidence": "साक्ष्य पढ़ रहा है…",
+      "askCopilot": "कोपायलट से पूछें",
+      "dictate": "डिक्टेट करें",
+      "readAloud": "ब्रीफिंग जोर से पढ़ें",
+      "pageLabel": "पृष्ठ {{page}}",
+      "matchedRiskTitle": "मिलान की गई परियोजना जोखिम",
+      "matchedRiskSubtitle": "{{count}} मिलान; 30 तक दर्ज जोखिम स्कोर दिखाए जा रहे हैं",
+      "appliedFilters": "लागू फ़िल्टर: {{filters}}"
+    },
+    "twin": {
+      "title": "कमोडिटी एवं जलवायु तनाव ट्विन",
+      "subtitle": "पारदर्शी क्षेत्र BOM मान्यताएँ। यह एक्सपोज़र का अनुमान लगाता है; यह सटीक संविदात्मक दायित्व स्थापित नहीं करता।",
+      "changePct": "परिवर्तन (%)",
+      "applyPortfolio": "संपूर्ण पोर्टफोलियो में मान्यताएँ लागू करें",
+      "calculateExposure": "एक्सपोज़र की गणना करें",
+      "estimatedIncrementalCost": "अनुमानित वृद्धिशील लागत",
+      "costIncrease": "₹{{amount}} करोड़ · {{days}} वर्षा बफर दिन",
+      "importObservation": "दिनांकित कमोडिटी / वर्षा अवलोकन आयात करें",
+      "viewMarketObservations": "बाजार अवलोकन एवं आईडी देखें",
+      "refreshMarketFeed": "कॉन्फ़िगर किया गया बाजार फ़ीड रीफ्रेश करें",
+      "compareIndexObservations": "स्रोतित सूचकांक अवलोकनों की तुलना करें",
+      "baselineObservationId": "आधारभूत अवलोकन आईडी",
+      "currentObservationId": "वर्तमान अवलोकन आईडी",
+      "runIndexScenario": "सूचकांक-युग्मित परिदृश्य चलाएँ"
+    },
+    "satellite": {
+      "title": "उपग्रह ग्राउंड-ट्रुथ समीक्षा",
+      "subtitle": "स्रोतित, सह-पंजीकृत सतह परावर्तन अवलोकनों की तुलना करें। ऑप्टिकल सूचकांक पूर्णता या धोखाधड़ी साबित नहीं कर सकते। बादल छाए अवलोकन अनिर्णायक हैं।",
+      "importBeforeAfter": "पहले / बाद के अवलोकन आयात करें",
+      "computeIndices": "वास्तविक उपग्रह दृश्यों से सूचकांक की गणना करें",
+      "compareRadar": "सेंटिनल-1 रडार अवलोकनों की तुलना करें (खाता आवश्यक)",
+      "noneImported": "कोई उपग्रह साक्ष्य आयात नहीं किया गया।",
+      "ndviLabel": "एनडीवीआई: {{values}}",
+      "notOptical": "ऑप्टिकल नहीं",
+      "ndbiDelta": "एनडीबीआई डेल्टा: {{value}}",
+      "unavailable": "अनुपलब्ध",
+      "sarDelta": "एसएआर डेल्टा: {{value}}",
+      "notSupplied": "आपूर्ति नहीं की गई",
+      "beforeAfterComparison": "पहले / बाद की तुलना",
+      "sourceLabel": "स्रोत: {{source}}.",
+      "searchCatalog": "खुला सेंटिनल / लैंडसैट कैटलॉग खोजें",
+      "findScenes": "स्रोत दृश्य खोजें"
+    },
+    "uncertainty": {
+      "title": "कैलिब्रेटेड पूर्वानुमान अंतराल",
+      "subtitle": "समान मॉडल के लिए होल्ड-आउट अवशेषों से 90% सीमांत पूर्वानुमान अंतराल। कोहॉर्ट उत्तरजीविता दाएं-सेंसर्ड अवलोकनों को ध्यान में रखती है।",
+      "predictedDelayDays": "अनुमानित विलंब (दिन)",
+      "calibrationOutcomes": "{{count}} कैलिब्रेशन परिणाम",
+      "completion": "पूर्णता: {{point}} [{{lower}} – {{upper}}]",
+      "cohortProbability": "{{fyEnd}} तक पूर्णता की कोहॉर्ट संभावना: {{pct}}",
+      "unavailable": "अनुपलब्ध",
+      "runModels": "देखे गए परियोजना फीचर्स के साथ सहेजे गए एमएल मॉडल चलाएँ",
+      "importCalibration": "होल्ड-आउट कैलिब्रेशन परिणाम आयात करें"
+    },
+    "contractors": {
+      "title": "इन्फ्रास्कोर · अंतर-मंत्रालय डिलीवरी",
+      "subtitle": "सत्यापित पहचान एवं स्रोतित डिलीवरी रिकॉर्ड आवश्यक हैं। स्कोर के लिए कम से कम तीन परियोजनाओं की आवश्यकता होती है; एजेंसियों को चुपचाप ठेकेदार नहीं माना जाता।",
+      "noneYet": "अभी तक कोई ठेकेदार साक्ष्य नहीं है।",
+      "insufficientSample": "अपर्याप्त नमूना",
+      "projectsCount": "{{count}} परियोजनाएँ · {{pct}}% समय पर माइलस्टोन",
+      "claimsPer1000": "{{claims}} दावे / ₹1,000 करोड़ · भुगतान: {{days}} दिन",
+      "unknown": "अज्ञात",
+      "criticalPackages": "{{count}} पैकेज 180 दिनों से अधिक विलंबित",
+      "registerRecord": "ठेकेदार डिलीवरी रिकॉर्ड पंजीकृत करें"
+    },
+    "field": {
+      "title": "ऑफ़लाइन क्षेत्र निरीक्षण",
+      "subtitle": "फ़ोटो हैश किए जाते हैं एवं सिंक होने तक इस डिवाइस पर कतारबद्ध रहते हैं। जीपीएस एवं कैप्चर समय डिवाइस-रिपोर्टेड हैं; हैश फ़ोटो की प्रामाणिकता साबित नहीं करते। इसे ऑफ़लाइन उपयोग करने से पहले एक बार ऑनलाइन खोलें।",
+      "awaitingSync": "{{count}} निरीक्षण सिंक की प्रतीक्षा में",
+      "syncNow": "अभी सिंक करें",
+      "savedOnDevice": "इस डिवाइस पर सहेजा गया",
+      "paused": "रोका गया",
+      "pending": "लंबित",
+      "attempts": "{{count}} प्रयास",
+      "resumeUpload": "अपलोड फिर से शुरू करें",
+      "pauseUpload": "अपलोड रोकें",
+      "downloadBackup": "निजी बैकअप डाउनलोड करें (फ़ोटो एवं जीपीएस सहित)",
+      "savedReceipts": "{{count}} सहेजी गई सिंक रसीदें",
+      "receiptHash": "रसीद #{{id}} · {{hash}}",
+      "milestoneNotes": "माइलस्टोन नोट्स",
+      "capturePhoto": "फ़ोटो कैप्चर करें",
+      "geolocationUnavailable": "जियोलोकेशन उपलब्ध नहीं है",
+      "getGps": "वर्तमान जीपीएस स्थान प्राप्त करें",
+      "gpsReading": "{{lat}}, {{lng}} · सटीकता {{accuracy}} मी",
+      "refreshGps": "सहेजने से पहले जीपीएस रीफ्रेश करें (अधिकतम पांच मिनट)।",
+      "gpsAccuracyError": "जीपीएस सटीकता 100 मीटर के भीतर होनी चाहिए। बाहर प्रयास करें।",
+      "savedOnThisDevice": "इस डिवाइस पर सहेजा गया।",
+      "syncedCount": "{{count}} सिंक किए गए। {{errors}}",
+      "saveInspection": "डिवाइस पर निरीक्षण सहेजें",
+      "restoreBackup": "एक निजी निरीक्षण बैकअप पुनर्स्थापित करें (पुनर्स्थापित अपलोड रुकी हुई स्थिति में शुरू होते हैं)",
+      "backupTooLarge": "बैकअप 50 एमबी से अधिक है।",
+      "restoredCount": "{{restored}} पुनर्स्थापित, {{skipped}} पहले से मौजूद। समीक्षा के बाद अपलोड फिर से शुरू करें।",
+      "registerBoundary": "परियोजना सीमा पंजीकृत करें (देशांतर, अक्षांश बहुभुज)",
+      "capturedReceived": "कैप्चर किया गया: {{captured}} · प्राप्त: {{received}}",
+      "receiptLabel": "रसीद: {{hash}}"
+    },
+    "dispatch": {
+      "title": "कार्यकारी एस्केलेशन डिस्पैच",
+      "subtitle": "जब प्रदाता कॉन्फ़िगर किया जाता है तो एक वास्तविक आउटबाउंड संदेश बनाता है। अनुमोदन लिंक 24 घंटे में समाप्त हो जाते हैं एवं एक निर्णय स्वीकार करते हैं। लिंक पूर्वावलोकन कभी भी कार्रवाई को स्वीकृत नहीं करते।",
+      "interventionId": "हस्तक्षेप आईडी",
+      "findIntervention": "जोखिम एवं अलर्ट में एक हस्तक्षेप खोजें",
+      "deliveryChannel": "डिलीवरी चैनल",
+      "sendEscalation": "कार्यकारी एस्केलेशन भेजें",
+      "deliveryAudit": "डिलीवरी ऑडिट",
+      "interventionTier": "हस्तक्षेप #{{id}} · स्तर {{tier}} · {{channel}}"
+    },
+    "reports": {
+      "title": "मंत्रालय कार्यकारी डोजियर",
+      "subtitle": "चयनित परियोजना का वित्तीय सारांश, खुले अलर्ट, हस्तक्षेप, कैलिब्रेटेड पूर्वानुमान उपलब्धता एवं दस्तावेज़ स्रोत हैश निर्यात करें।",
+      "downloadPdf": "परियोजना पीडीएफ डाउनलोड करें"
+    },
+    "settings": {
+      "title": "प्रदाता तत्परता",
+      "subtitle": "प्रदाता क्रेडेंशियल्स बैकएंड वातावरण में होते हैं। यह पृष्ठ उन्हें कभी उजागर नहीं करता। अनुपलब्ध क्रेडेंशियल्स नकली सफलता को सक्रिय नहीं करते।",
+      "operatorKey": "ऑपरेटर एपीआई की (केवल यह ब्राउज़र सत्र)",
+      "saveSessionKey": "सत्र की सहेजें",
+      "sessionKeySaved": "सत्र की सहेजी गई।"
+    }
+  },
+  "interventions": {
+    "title": "कार्रवाई-उन्मुख जोखिम एवं अलर्ट पैनल",
+    "subtitle": "उच्च-प्रभाव वाली परियोजना जोखिम शमन की समीक्षा एवं प्राधिकरण के लिए मानव-सहभागी शासन कार्यप्रवाह।",
+    "flaggedCount": "उच्च-प्राथमिकता वाली परियोजनाएँ फ्लैग की गईं",
+    "generateActions": "साक्ष्य समीक्षा कार्रवाई उत्पन्न करें",
+    "executiveDispatch": "कार्यकारी डिस्पैच",
+    "noneRecorded": "कोई हस्तक्षेप दर्ज नहीं है। वर्तमान परियोजना जोखिम रिकॉर्ड से समीक्षा कार्रवाई उत्पन्न करें।",
+    "recordedAlerts": "दर्ज प्रारंभिक-चेतावनी अलर्ट",
+    "reviewerName": "समीक्षक का नाम",
+    "reviewNotes": "समीक्षा नोट्स",
+    "projectHash": "परियोजना #{{id}}",
+    "recordReviewResolve": "समीक्षा दर्ज करें एवं हल करें",
+    "noUnresolvedAlerts": "नवीनतम रिकॉर्ड में कोई अनसुलझा अलर्ट नहीं है।",
+    "riskScoreLabel": "जोखिम स्कोर: {{score}} / 100",
+    "recommendedAction": "अनुशंसित मानव समीक्षा कार्रवाई",
+    "evidenceGrounding": "साक्ष्य आधार:",
+    "estimatedImpact": "अनुमानित शमन प्रभाव",
+    "officer": "अधिकारी:",
+    "lastAudit": "अंतिम कार्यप्रवाह ऑडिट: {{date}}",
+    "authorize": "हस्तक्षेप अधिकृत करें",
+    "requestCabinetReview": "कैबिनेट समीक्षा का अनुरोध करें",
+    "reject": "अस्वीकार करें",
+    "status": {
+      "approved": "स्वीकृत",
+      "underReview": "समीक्षाधीन",
+      "rejected": "अस्वीकृत",
+      "proposed": "प्रस्तावित"
+    }
+  },
+  "projectRecords": {
+    "saved": "परियोजना रिकॉर्ड सहेजा गया।",
+    "summary": "परियोजना माइलस्टोन एवं प्रगति रिकॉर्ड",
+    "hint": "इन रिकॉर्ड्स के लिए कनेक्शन आवश्यक है। ऊपर दिए गए फ़ोटो निरीक्षण ऑफ़लाइन सहेजे जा सकते हैं।",
+    "milestoneName": "माइलस्टोन नाम",
+    "plannedDate": "नियोजित तिथि",
+    "status": "स्थिति",
+    "statusPending": "लंबित",
+    "statusInProgress": "प्रगति में",
+    "statusCompleted": "पूर्ण",
+    "actualCompletionDate": "वास्तविक पूर्णता तिथि",
+    "saveMilestone": "माइलस्टोन रिकॉर्ड सहेजें",
+    "plannedLabel": "नियोजित {{date}}",
+    "completedLabel": "पूर्ण {{date}}",
+    "actualExpenditure": "वास्तविक व्यय (INR करोड़)",
+    "scheduleVariance": "अनुसूची भिन्नता (दिन; धनात्मक = विलंबित)",
+    "progressReference": "प्रगति एवं स्रोत संदर्भ",
+    "saveProgress": "प्रगति रिकॉर्ड सहेजें",
+    "updateLine": "{{status}} · INR {{cost}} करोड़ · {{days}} दिन · {{timestamp}}"
+  },
+  "liveVoice": {
+    "connecting": "कनेक्ट हो रहा है…",
+    "httpsRequired": "माइक्रोफ़ोन के लिए HTTPS या localhost आवश्यक है।",
+    "liveSendingAudio": "लाइव · माइक्रोफ़ोन ऑडियो जेमिनी को भेजा जा रहा है।",
+    "youPrefix": "आप: ",
+    "connectionFailed": "लाइव प्रदाता कनेक्शन विफल रहा।",
+    "sessionEnded": "लाइव सत्र समाप्त हो गया।",
+    "title": "जेमिनी लाइव वॉइस ब्रीफिंग",
+    "subtitle": "शुरू करने पर माइक्रोफ़ोन ऑडियो एवं इस परियोजना का साक्ष्य जेमिनी को भेजा जाता है। सत्र दस मिनट के बाद रुक जाते हैं। माइक्रोफ़ोन जारी करने के लिए स्टॉप का उपयोग करें।",
+    "stopSession": "लाइव सत्र रोकें",
+    "startSession": "लाइव वॉइस शुरू करें",
+    "notConfigured": "सक्षम करने के लिए GEMINI_API_KEY एवं GEMINI_LIVE_MODEL कॉन्फ़िगर करें।"
+  }
+}

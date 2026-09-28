@@ -1,0 +1,720 @@
+{
+  "common": {
+    "all": "সব",
+    "riskTier": { "highRisk": "উচ্চ ঝুঁকি", "atRisk": "ঝুঁকিতে", "moderate": "মাঝারি", "active": "সক্রিয়" }
+  },
+  "sidebar": {
+    "nav": {
+      "intelligence": "ইন্টেলিজেন্স",
+      "dashboard": "ড্যাশবোর্ড",
+      "projects": "প্রকল্পসমূহ",
+      "stateProgress": "রাজ্য ও অগ্রগতি",
+      "analytics": "বিশ্লেষণ",
+      "riskAlerts": "ঝুঁকি ও সতর্কতা",
+      "forecasting": "পূর্বাভাস",
+      "benchmarks": "বেঞ্চমার্ক",
+      "reports": "প্রতিবেদন",
+      "aiAssistant": "এআই সহায়ক",
+      "settings": "সেটিংস"
+    },
+    "badge": { "new": "নতুন" },
+    "brand": { "tagline": "অবকাঠামো পর্যবেক্ষণের জন্য এআই" },
+    "sub": {
+      "benchmarksTrends": "বেঞ্চমার্ক ও প্রবণতা",
+      "costOverrun": "ব্যয় বৃদ্ধি",
+      "timeOverrun": "সময় বিলম্ব",
+      "aiBadge": "এআই"
+    },
+    "footer": {
+      "dataAsOf": "তথ্য হালনাগাদ",
+      "dataDate": "এপ্রিল ২০২৬",
+      "portal": "পাইমানা পোর্টাল",
+      "ministryShort": "MoSPI, ভারত সরকার"
+    }
+  },
+  "header": {
+    "title": {
+      "intelligence": "ইন্টেলিজেন্স",
+      "projectIntelligence": "প্রকল্প ইন্টেলিজেন্স",
+      "projects": "প্রকল্পসমূহ",
+      "benchmarksRiskMap": "বেঞ্চমার্ক ও ঝুঁকি মানচিত্র",
+      "forecasting": "পূর্বাভাস ও সিমুলেশন",
+      "riskAlerts": "ঝুঁকি ও সতর্কতা",
+      "aiAssistant": "এআই সহায়ক",
+      "dashboard": "ড্যাশবোর্ড"
+    },
+    "searchPlaceholder": "প্রকল্প, মন্ত্রণালয়, খাত অনুসন্ধান করুন...",
+    "adminUser": "অ্যাডমিন ব্যবহারকারী",
+    "ministry": "MoSPI"
+  },
+  "layout": {
+    "footer": {
+      "copyright": "© ২০২৬ পাইমানা প্রেডিক্টআইকিউ | পরিসংখ্যান ও কর্মসূচি বাস্তবায়ন মন্ত্রণালয় (MoSPI), ভারত সরকার",
+      "privacyPolicy": "গোপনীয়তা নীতি",
+      "termsOfUse": "ব্যবহারের শর্তাবলী"
+    }
+  },
+  "dashboard": {
+    "title": "জাতীয় অবকাঠামো মনিটর",
+    "subtitle": "রিয়েল-টাইম MoSPI তথ্য · জুলাই ২০২৫ – জুলাই ২০২৬ · {{count}}টি মাসিক স্ন্যাপশট লোড হয়েছে",
+    "export": "রপ্তানি",
+    "viewAll": "সব",
+    "total": "মোট",
+    "kpi": {
+      "totalProjects": "মোট প্রকল্প",
+      "fromPrevMonth": "আগের মাস থেকে",
+      "originalBudget": "মূল বাজেট",
+      "forMonth": "{{month}} এর জন্য",
+      "revisedCost": "সংশোধিত ব্যয়",
+      "overrun": "অতিরিক্ত ব্যয়",
+      "cumulativeExpenditure": "সঞ্চিত ব্যয়",
+      "utilisation": "ব্যবহার: {{pct}}%",
+      "highRiskProjects": "উচ্চ ঝুঁকির প্রকল্প",
+      "riskScoreThreshold": "ঝুঁকি স্কোর ≥ 50/100"
+    },
+    "charts": {
+      "projectTrendTitle": "মাসিক প্রকল্প ও ব্যয়ের প্রবণতা",
+      "projectTrendSubtitle": "জুলাই ২০২৫ → জুলাই ২০২৬ · প্রকৃত MoSPI তথ্য",
+      "sectorsTitle": "খাত – {{month}}",
+      "sectorsSubtitle": "পোর্টফোলিও বণ্টন",
+      "overrunTrendTitle": "ব্যয় বৃদ্ধি ও ব্যয় হারের প্রবণতা",
+      "overrunTrendSubtitle": "মাসিক বৃদ্ধি % বনাম বাজেট ব্যবহার % · প্রকৃত তথ্য",
+      "topSectorsTitle": "শীর্ষ খাত – {{month}}",
+      "topSectorsSubtitle": "খাত অনুযায়ী প্রকল্প"
+    },
+    "legend": {
+      "projects": "প্রকল্প",
+      "expenditure": "ব্যয়",
+      "costOverrunPct": "ব্যয় বৃদ্ধি %",
+      "expenditureRatePct": "ব্যয় হার %"
+    },
+    "insights": {
+      "title": "MoSPI তথ্য থেকে এআই-চালিত অন্তর্দৃষ্টি",
+      "costOverrunAlert": { "title": "ব্যয় বৃদ্ধি সতর্কতা", "body": "{{count}}টি প্রকল্পের ঝুঁকি স্কোর ≥৫০%। গড় বৃদ্ধি: {{pct}}%" },
+      "expenditureRate": { "title": "ব্যয় হার", "body": "{{month}} এ বাজেট ব্যবহার {{pct}}%। রেল ও মহাসড়ক বিতরণে শীর্ষে।" },
+      "portfolioGrowth": { "title": "পোর্টফোলিও বৃদ্ধি", "body": "{{month}} এ {{count}}টি প্রকল্প ট্র্যাক করা হয়েছে, সমস্ত খাতে মাসিক {{growth}}% বৃদ্ধি।" }
+    },
+    "quickActions": {
+      "title": "দ্রুত পদক্ষেপ",
+      "projectExplorer": "প্রকল্প এক্সপ্লোরার",
+      "riskAlerts": "ঝুঁকি সতর্কতা",
+      "analytics": "বিশ্লেষণ",
+      "aiCopilot": "এআই কোপাইলট"
+    }
+  },
+  "projects": {
+    "title": "প্রকল্প এক্সপ্লোরার ও অনুসন্ধান ম্যাট্রিক্স",
+    "subtitle": "জাতীয় অবকাঠামো প্রকল্পগুলির অনুসন্ধানযোগ্য, বহু-কলাম ফিল্টার করা ডিরেক্টরি। গভীর ইন্টেলিজেন্সের জন্য যেকোনো সারিতে ক্লিক করুন।",
+    "showingCount": "{{total}}টির মধ্যে {{shown}}টি প্রকল্প দেখানো হচ্ছে",
+    "resetFilters": "ফিল্টার পুনরায় সেট করুন",
+    "snapshotMonth": "স্ন্যাপশট মাস:",
+    "searchPlaceholder": "প্রকল্পের নাম বা কোড দিয়ে অনুসন্ধান করুন...",
+    "filters": {
+      "allMinistries": "সব মন্ত্রণালয়",
+      "allSectors": "সব খাত",
+      "allStates": "সব রাজ্য",
+      "allRiskTiers": "সব ঝুঁকি স্তর",
+      "allCostVariances": "সব ব্যয় বৈচিত্র্য",
+      "costOverrunOver10": "ব্যয় বৃদ্ধি > ১০%",
+      "allScheduleVariances": "সব সময়সূচি বৈচিত্র্য",
+      "scheduleDelayOver90": "সময়সূচি বিলম্ব > ৯০ দিন"
+    },
+    "table": {
+      "nameCode": "প্রকল্পের নাম ও কোড",
+      "riskScore": "ঝুঁকি স্কোর",
+      "ministrySector": "মন্ত্রণালয় ও খাত",
+      "state": "রাজ্য",
+      "budget": "বাজেট (কোটি)",
+      "nextMilestone": "পরবর্তী মাইলফলক",
+      "costOverrun": "ব্যয় বৃদ্ধি",
+      "scheduleDelay": "সময়সূচি বিলম্ব",
+      "action": "পদক্ষেপ",
+      "exp": "ব্যয়: ₹{{amount}}",
+      "due": "নির্ধারিত তারিখ: {{date}}",
+      "daysSuffix": "+{{count}} দিন",
+      "intelligence": "ইন্টেলিজেন্স →",
+      "noResults": "সক্রিয় ফিল্টার মানদণ্ডের সাথে কোনো প্রকল্প মেলে না। মুছতে \"ফিল্টার পুনরায় সেট করুন\" ক্লিক করুন।"
+    },
+    "pagination": {
+      "showingRange": "{{total}}টির মধ্যে {{from}} থেকে {{to}} পর্যন্ত এন্ট্রি দেখানো হচ্ছে"
+    }
+  },
+  "projectDetail": {
+    "loading": "প্রকল্প ইন্টেলিজেন্স লোড হচ্ছে...",
+    "unavailable": "প্রকল্পটি অনুপলব্ধ। প্রকল্প আইডি এবং API সংযোগ পরীক্ষা করুন।",
+    "trend": { "increasing": "বৃদ্ধি পাচ্ছে", "decreasing": "হ্রাস পাচ্ছে", "insufficientData": "অপর্যাপ্ত তথ্য" },
+    "tabs": {
+      "satellite": "স্যাটেলাইট পর্যালোচনা",
+      "uncertainty": "পূর্বাভাসের সীমা",
+      "documents": "নথি প্রমাণ",
+      "field": "ক্ষেত্র পরিদর্শন",
+      "reports": "ডসিয়ার রপ্তানি"
+    },
+    "backToExplorer": "প্রকল্প এক্সপ্লোরারে ফিরে যান",
+    "trendLabel": "প্রবণতা: {{trend}}",
+    "monthTrajectoryLoaded": "{{count}}-মাসের গতিপথ লোড হয়েছে",
+    "simulateDisruption": "বিঘ্ন সিমুলেট করুন",
+    "kpi": {
+      "overallRiskIndex": "সামগ্রিক ঝুঁকি সূচক",
+      "peak12mo": "১২-মাসের শীর্ষ:",
+      "min": "সর্বনিম্ন:",
+      "costOverrun": "ব্যয় বৃদ্ধি",
+      "peak": "শীর্ষ:",
+      "budget": "বাজেট",
+      "revised": "সংশোধিত:",
+      "expenditure": "ব্যয়",
+      "riskScoreMethod": "ঝুঁকি স্কোর পদ্ধতি:",
+      "ruleBasedCostGrowth": "নিয়ম-ভিত্তিক ব্যয় বৃদ্ধি",
+      "lowRisk": "কম ঝুঁকি"
+    },
+    "charts": {
+      "riskTrajectoryTitleReal": "{{count}}-মাসের ঝুঁকি স্কোর গতিপথ (প্রকৃত তথ্য)",
+      "riskTrajectoryTitle12mo": "১২-মাসের ঝুঁকি স্কোর গতিপথ",
+      "riskTrajectoryFallbackSubtitle": "⚠ মাসিক ডেটাসেট ফাইলে প্রকল্প আইডি পাওয়া যায়নি — শুধুমাত্র DB স্ন্যাপশট দেখানো হচ্ছে",
+      "budgetVsExpenditure": "বাজেট বনাম ব্যয় (₹ কোটি) · মাসিক",
+      "costOverrunMonthwise": "ব্যয় বৃদ্ধি % — মাসভিত্তিক"
+    },
+    "legend": {
+      "costOverrun": "ব্যয় বৃদ্ধি",
+      "riskScore": "ঝুঁকি স্কোর",
+      "originalCost": "মূল ব্যয়",
+      "revisedCost": "সংশোধিত ব্যয়"
+    },
+    "analysisSummary": {
+      "title": "১-বছরের বিশ্লেষণ সারসংক্ষেপ",
+      "monthsTracked": "ট্র্যাক করা মাস",
+      "dbSnapshotOnly": "শুধুমাত্র DB স্ন্যাপশট",
+      "latestMonth": "সর্বশেষ মাস",
+      "notAvailable": "প্রযোজ্য নয়",
+      "peakRiskScore": "শীর্ষ ঝুঁকি স্কোর",
+      "riskTrajectory": "ঝুঁকি গতিপথ",
+      "peakOverrun": "শীর্ষ বৃদ্ধি",
+      "ministry": "মন্ত্রণালয়"
+    },
+    "riskAssessment": {
+      "title": "ঝুঁকি মূল্যায়ন",
+      "costRisk": "ব্যয় ঝুঁকি",
+      "budgetOverrun": "বাজেট বৃদ্ধি",
+      "budgetOverrunBody": "সংশোধিত ব্যয় মূল ব্যয়ের চেয়ে {{pct}}% বেশি। শীর্ষ বৃদ্ধি লক্ষ্য করা গেছে {{peak}}% এ।",
+      "riskTrend": "ঝুঁকি প্রবণতা",
+      "trajectoryAnalysis": "গতিপথ বিশ্লেষণ",
+      "trajectoryAnalysisBody": "{{months}} মাসের তথ্যে ঝুঁকি স্কোর {{from}} থেকে {{to}} তে পরিবর্তিত হয়েছে।",
+      "utilisationRate": "ব্যবহার হার",
+      "utilisationRateBody": "জুলাই ২০২৫ থেকে জুলাই ২০২৬ পর্যন্ত {{months}}টি মাসিক স্ন্যাপশটে মোট ব্যয় ট্র্যাক করা হয়েছে।",
+      "notFound": "প্রকল্প আইডি \"{{code}}\" মাসিক ডেটাসেটে পাওয়া যায়নি",
+      "notFoundBody": "এই প্রকল্পটি API-এর মাধ্যমে যুক্ত করা হয়ে থাকতে পারে এবং এর সাথে মিলে যাওয়া কোনো MoSPI ডেটাসেট এন্ট্রি নেই। শুধুমাত্র ডেটাবেস-স্তরের ঝুঁকি স্কোর দেখানো হচ্ছে।"
+    }
+  },
+  "analytics": {
+    "loading": "{{month}} এর জন্য পূর্বাভাসমূলক ঝুঁকি ভেক্টর গণনা করা হচ্ছে...",
+    "searchPlaceholder": "প্রকল্পের নাম, আইডি বা খাত অনুসন্ধান করুন...",
+    "totalProjects": "মোট প্রকল্প",
+    "totalMonitored": "মোট পর্যবেক্ষিত",
+    "header": {
+      "title": "পোর্টফোলিও বিশ্লেষণ ও পূর্বাভাসমূলক বুদ্ধিমত্তা",
+      "badge": "v2.0 মডেল",
+      "subtitle": "সমস্ত পর্যবেক্ষিত MoSPI ডেটাসেটে বহু-মাত্রিক ঝুঁকি স্কোরিং, ব্যয় বৃদ্ধি পূর্বাভাস ও সময়সূচি বিলম্ব পূর্বাভাস",
+      "datasetMonth": "ডেটাসেট মাস:",
+      "hybridEngine": "হাইব্রিড বহু-মাত্রিক ইঞ্জিন দ্বারা স্কোর করা হয়েছে"
+    },
+    "tabs": {
+      "benchmarks": "বৃহৎ প্রবণতা ও বেঞ্চমার্ক",
+      "costOverrun": "ব্যয় বৃদ্ধি পূর্বাভাস",
+      "allProjects": "সব প্রকল্প",
+      "timeOverrun": "সময় বৃদ্ধি পূর্বাভাস",
+      "scheduleRisk": "সময়সূচি ঝুঁকি"
+    },
+    "badges": {
+      "critical": "সংকটজনক",
+      "high": "উচ্চ",
+      "low": "কম",
+      "severeDelay": "গুরুতর বিলম্ব (>১ বছর)",
+      "significantDelay": "উল্লেখযোগ্য (৬-১২ মাস)",
+      "minorDelay": "সামান্য (২-৬ মাস)",
+      "onTrack": "সঠিক পথে"
+    },
+    "delaySeverity": {
+      "severe": "গুরুতর (>১২ মাস)",
+      "significant": "উল্লেখযোগ্য (৬-১২ মাস)",
+      "minor": "সামান্য (২-৬ মাস)",
+      "onTrack": "সঠিক পথে (<২ মাস)"
+    },
+    "costDistribution": {
+      "onBudget": "বাজেটের মধ্যে (0%)",
+      "minor": "সামান্য (<১০%)",
+      "moderate": "মাঝারি (১০-২৫%)",
+      "high": "উচ্চ (২৫-৫০%)",
+      "severe": "গুরুতর (>৫০%)"
+    },
+    "legend": {
+      "avgCostGrowth": "গড় ব্যয় বৃদ্ধি (%)",
+      "avgRiskScore": "গড় ঝুঁকি স্কোর (0-100)",
+      "avgRiskScoreShort": "গড় ঝুঁকি স্কোর",
+      "totalBudget": "মোট বাজেট",
+      "costEscalationExposure": "ব্যয় বৃদ্ধি এক্সপোজার",
+      "costOverrunExposure": "ব্যয় বৃদ্ধি এক্সপোজার",
+      "averageDelay": "গড় বিলম্ব",
+      "predictedDelay": "পূর্বাভাসিত বিলম্ব"
+    },
+    "axis": {
+      "xMajorSectors": "X-অক্ষ: প্রধান খাত",
+      "yCapitalOverrunExposure": "Y-অক্ষ: মোট মূলধন বৃদ্ধি এক্সপোজার (₹ কোটি)",
+      "xInfraSectors": "X-অক্ষ: অবকাঠামো খাত",
+      "yAvgDelayMonths": "Y-অক্ষ: গড় বিলম্ব (মাস)",
+      "leftCostGrowth": "বাম অক্ষ: ব্যয় বৃদ্ধি (%)",
+      "rightRiskScore": "ডান অক্ষ: ঝুঁকি স্কোর (0-100)",
+      "yLineMinistries": "Y-অক্ষ: লাইন মন্ত্রণালয়",
+      "xCompositeRiskIndex": "X-অক্ষ: সমন্বিত ঝুঁকি সূচক (0-100 স্কেল)",
+      "yMajorSectors": "Y-অক্ষ: প্রধান খাত",
+      "xCapitalOutlay": "X-অক্ষ: মূলধন ব্যয় (₹ কোটি)"
+    },
+    "filters": {
+      "allRiskTiers": "সব ঝুঁকি স্তর",
+      "criticalRisk": "সংকটজনক ঝুঁকি (≥৭৫)",
+      "highRisk": "উচ্চ ঝুঁকি (৫০-৭৪)",
+      "moderateRisk": "মাঝারি ঝুঁকি (২৫-৪৯)",
+      "lowRisk": "কম ঝুঁকি (<২৫)",
+      "sortCostOverrunPct": "সাজান: ব্যয় বৃদ্ধি %",
+      "sortExposure": "সাজান: এক্সপোজার (₹ কোটি)",
+      "sortOriginalBudget": "সাজান: মূল বাজেট",
+      "sortRiskScore": "সাজান: ঝুঁকি স্কোর",
+      "allDelaySeverities": "সব বিলম্ব তীব্রতা",
+      "onTrackShort": "সঠিক পথে",
+      "sortDelayDuration": "সাজান: বিলম্বের সময়কাল",
+      "sortDelayRiskScore": "সাজান: বিলম্ব ঝুঁকি স্কোর",
+      "sortOverallRiskScore": "সাজান: সামগ্রিক ঝুঁকি স্কোর"
+    },
+    "table": {
+      "projectDetails": "প্রকল্পের বিবরণ",
+      "sectorMinistry": "খাত ও মন্ত্রণালয়",
+      "original": "মূল (₹ কোটি)",
+      "revised": "সংশোধিত (₹ কোটি)",
+      "expenditureCr": "ব্যয় (₹ কোটি)",
+      "predictedOverrun": "পূর্বাভাসিত বৃদ্ধি",
+      "exposureCr": "এক্সপোজার (₹ কোটি)",
+      "riskTier": "ঝুঁকি স্তর",
+      "riskScore": "ঝুঁকি স্কোর",
+      "pctSpent": "{{pct}}% ব্যয় হয়েছে",
+      "view": "দেখুন",
+      "pageOf": "পৃষ্ঠা {{page}} / {{total}}",
+      "previous": "পূর্ববর্তী",
+      "next": "পরবর্তী",
+      "showingRange": "{{total}} এর মধ্যে {{from}} - {{to}} দেখানো হচ্ছে",
+      "sanctionedBudget": "অনুমোদিত বাজেট",
+      "predictedDelayDays": "পূর্বাভাসিত বিলম্ব (দিন)",
+      "delayMonths": "বিলম্ব (মাস)",
+      "delayClassification": "বিলম্ব শ্রেণিবিন্যাস",
+      "delayRisk": "বিলম্ব ঝুঁকি",
+      "overallRisk": "সামগ্রিক ঝুঁকি",
+      "daysSuffix": "{{count}} দিন",
+      "moSuffix": "{{count}} মাস"
+    },
+    "units": { "months": "{{count}} মাস" },
+    "titles": {
+      "toggleScreenFullscreen": "স্ক্রিন ফুলস্ক্রিন টগল করুন",
+      "closeFullscreenView": "ফুলস্ক্রিন দৃশ্য বন্ধ করুন (Esc)",
+      "viewFullScreen": "চার্টটি পূর্ণ স্ক্রিনে দেখুন",
+      "toggleSortOrder": "ক্রম টগল করুন"
+    },
+    "modal": {
+      "benchmarksTitle": "কর্মক্ষমতা বেঞ্চমার্ক: ব্যয় বৃদ্ধি বনাম ঝুঁকি স্কোর",
+      "benchmarksSubtitle": "{{dimension}} অনুসারে বর্ণনামূলক তুলনামূলক বেঞ্চমার্কিং",
+      "regionalTitle": "আঞ্চলিক ও রাজ্য অবকাঠামো ঘনত্ব",
+      "regionalSubtitle": "ভারতীয় রাজ্য ও এখতিয়ারে পর্যবেক্ষিত প্রকল্পগুলির বিস্তারিত বিভাজন",
+      "budgetLabel": "বাজেট: {{amount}}",
+      "ministryTitle": "মন্ত্রণালয় ঝুঁকি প্রোফাইল ও পোর্টফোলিও স্বাস্থ্য",
+      "ministrySubtitle": "লাইন মন্ত্রণালয়ে বহু-মাত্রিক সমন্বিত ঝুঁকি সূচক",
+      "capitalTitle": "খাত অনুযায়ী মূলধন ব্যয় বরাদ্দ",
+      "capitalSubtitle": "অবকাঠামো খাতে মোট অনুমোদিত ব্যয় বরাদ্দ (₹ কোটি)",
+      "costSectorTitle": "খাত-ভিত্তিক ব্যয় বৃদ্ধি এক্সপোজার",
+      "costSectorSubtitle": "{{month}} এ খাতগুলিতে মোট রুপি ব্যয় বৃদ্ধি এক্সপোজার",
+      "costProjectsTitle": "শীর্ষ মূলধন বৃদ্ধি মেগা প্রকল্প",
+      "costProjectsSubtitle": "সর্বোচ্চ পরম ব্যয় বৃদ্ধি এক্সপোজার (₹ কোটি) সহ পৃথক প্রকল্প",
+      "timeSectorTitle": "খাত-ভিত্তিক গড় সময়সূচি বিলম্ব",
+      "timeSectorSubtitle": "{{month}} এ অবকাঠামো খাতে অভিজ্ঞতাগত কমিশনিং বিলম্ব",
+      "timeProjectsTitle": "শীর্ষ সময়সূচি বিলম্ব মেগা প্রকল্প",
+      "timeProjectsSubtitle": "অনুমোদিত কমিশনিংয়ের পরে সর্বোচ্চ সময়কাল বিলম্বের সম্মুখীন গুরুত্বপূর্ণ উদ্যোগ",
+      "costSeverityTitle": "ব্যয় বৃদ্ধি তীব্রতা বণ্টন",
+      "costSeveritySubtitle": "{{month}} এ ব্যয় বৃদ্ধি স্তর অনুযায়ী পোর্টফোলিও বণ্টন",
+      "costEscalationBreakdown": "ব্যয় বৃদ্ধি বিভাজন",
+      "projectsCount": "{{count}}টি প্রকল্প",
+      "timeSeverityTitle": "সময়সূচি বিলম্ব ও তীব্রতা বণ্টন",
+      "timeSeveritySubtitle": "{{month}} এ বিলম্ব তীব্রতা অনুযায়ী শ্রেণিবদ্ধ প্রকল্প",
+      "scheduleSlippageBreakdown": "সময়সূচি বিলম্ব বিভাজন",
+      "footerBrand": "পাইমানা প্রেডিক্টআইকিউ এন্টারপ্রাইজ ভিজ্যুয়ালাইজার • উচ্চ-রেজোলিউশন দৃশ্য",
+      "footerHint": "ড্যাশবোর্ডে ফিরে যেতে Esc চাপুন অথবা বন্ধ করুন-এ ক্লিক করুন"
+    },
+    "cost": {
+      "kpi": {
+        "totalMonitored": "মোট পর্যবেক্ষিত প্রকল্প",
+        "snapshotMonth": "স্ন্যাপশট মাস: {{month}}",
+        "totalExposure": "মোট ব্যয় বৃদ্ধি এক্সপোজার",
+        "exchequerEscalation": "রাষ্ট্রীয় কোষাগার মূলধন বৃদ্ধি",
+        "projectsWithOverrun": "বৃদ্ধিসহ প্রকল্প",
+        "overrunPortfolioPct": "পোর্টফোলিওর {{pct}}% ব্যয় বৃদ্ধির সম্মুখীন",
+        "criticalTier": "সংকটজনক ব্যয় ঝুঁকি স্তর",
+        "criticalTierBody": "সক্রিয় মন্ত্রিসভা হস্তক্ষেপ প্রয়োজন এমন প্রকল্প"
+      },
+      "charts": {
+        "sectorExposureTitle": "খাত-ভিত্তিক ব্যয় বৃদ্ধি এক্সপোজার (₹ কোটি)",
+        "sectorExposureSubtitle": "{{month}} এ শীর্ষ অবকাঠামো খাতে মোট রুপি বৃদ্ধি এক্সপোজার",
+        "topImpactSectors": "শীর্ষ প্রভাবিত খাত",
+        "severitySpreadTitle": "বৃদ্ধি তীব্রতা বিস্তার",
+        "severitySpreadSubtitle": "ব্যয় বৃদ্ধি স্তর অনুযায়ী পোর্টফোলিও বণ্টন",
+        "topProjectsTitle": "শীর্ষ মূলধন বৃদ্ধি মেগা প্রকল্প (₹ কোটি)",
+        "topProjectsSubtitle": "মূল বাজেট ও সংশোধিত অনুমোদনের মধ্যে সবচেয়ে বড় আর্থিক বৃদ্ধিসহ পৃথক প্রকল্প",
+        "sortedByExposure": "পরম বৃদ্ধি এক্সপোজার অনুযায়ী সাজানো"
+      },
+      "table": { "title": "প্রকল্প-ভিত্তিক ব্যয় বৃদ্ধি পূর্বাভাস ({{count}}টি পর্যবেক্ষিত প্রকল্প)" }
+    },
+    "time": {
+      "kpi": {
+        "avgDelay": "গড় সময়সূচি বিলম্ব",
+        "avgDelayDays": "~{{days}} দিন আনুমানিক বিলম্ব",
+        "severeDelay": "গুরুতর বিলম্ব (>১ বছর)",
+        "severeDelayBody": "১২ ক্যালেন্ডার মাসের বেশি বিলম্বিত প্রকল্প",
+        "significantDelay": "উল্লেখযোগ্য বিলম্ব (৬-১২ মাস)",
+        "significantDelayBody": "মাইলস্টোন পুনরুদ্ধার প্রয়োজন এমন মাঝারি বিলম্ব",
+        "onTrackAdherence": "সঠিক পথে সম্মতি",
+        "onTrackBody": "লক্ষ্য কমিশনিংয়ের {{pct}}% অনুসরণ করছে"
+      },
+      "charts": {
+        "sectorSlippageTitle": "খাত-ভিত্তিক গড় সময়সূচি বিলম্ব (মাস)",
+        "sectorSlippageSubtitle": "{{month}} এর জন্য অবকাঠামো খাতে অভিজ্ঞতাগত কমিশনিং বিলম্ব",
+        "scheduleVariance": "সময়সূচি ভিন্নতা",
+        "slippageDistTitle": "বিলম্ব বণ্টন",
+        "slippageDistSubtitle": "বিলম্ব তীব্রতা অনুযায়ী শ্রেণিবদ্ধ প্রকল্প",
+        "monitored": "পর্যবেক্ষিত",
+        "topProjectsTitle": "শীর্ষ সময়সূচি বিলম্ব মেগা প্রকল্প (মাস)",
+        "topProjectsSubtitle": "অনুমোদিত কমিশনিংয়ের পরে সর্বোচ্চ সময়কাল বিলম্বের সম্মুখীন গুরুত্বপূর্ণ অবকাঠামো উদ্যোগ",
+        "rankedByMonths": "বিলম্বিত ক্যালেন্ডার মাস অনুযায়ী র‍্যাংক করা"
+      },
+      "table": { "title": "প্রকল্প-ভিত্তিক সময়সূচি ও বিলম্ব পূর্বাভাস ({{count}}টি পর্যবেক্ষিত প্রকল্প)" }
+    },
+    "benchmarks": {
+      "kpi": {
+        "monitoredPortfolio": "পর্যবেক্ষিত অবকাঠামো পোর্টফোলিও",
+        "totalCapitalOutlay": "মোট মূলধন ব্যয়",
+        "sanctionedExpenditure": "অনুমোদিত সরকারি ব্যয়",
+        "avgRiskScore": "গড় ঝুঁকি স্কোর",
+        "compositeBenchmark": "বহু-মাত্রিক সমন্বিত বেঞ্চমার্ক",
+        "costOverrunExposure": "ব্যয় বৃদ্ধি এক্সপোজার",
+        "totalEscalation": "মোট পোর্টফোলিও ব্যয় বৃদ্ধি"
+      },
+      "performanceBenchmarks": "কর্মক্ষমতা বেঞ্চমার্ক",
+      "crossCategoryComparison": "ব্যয় বৃদ্ধি (%) বনাম ঝুঁকি স্কোরের ক্রস-ক্যাটাগরি তুলনা",
+      "byDimension": "{{dimension}} অনুযায়ী",
+      "dimension": { "sector": "খাত", "ministry": "মন্ত্রণালয়", "region": "ভৌগোলিক অঞ্চল" },
+      "statisticalContext": "পরিসংখ্যানগত প্রেক্ষাপট:",
+      "regionalDistribution": "আঞ্চলিক বণ্টন",
+      "regionalDistributionSubtitle": "রাজ্য ও এখতিয়ার অনুযায়ী প্রকল্প ঘনত্ব",
+      "ministryRiskProfiles": "মন্ত্রণালয় ঝুঁকি প্রোফাইল",
+      "ministryRiskProfilesSubtitle": "প্রধান লাইন মন্ত্রণালয়ে গড় ঝুঁকি স্কোর",
+      "capitalOutlayBySector": "খাত অনুযায়ী মূলধন ব্যয়",
+      "capitalOutlayBySectorSubtitle": "মোট অনুমোদিত ব্যয় বরাদ্দ (₹ কোটি)"
+    }
+  },
+  "benchmarks": {
+    "title": "বেঞ্চমার্কিং ও তুলনামূলক বিশ্লেষণ ম্যাট্রিক্স",
+    "subtitle": "খাত, লাইন মন্ত্রণালয় ও ভৌগোলিক অঞ্চল জুড়ে বর্ণনামূলক, অ-মূল্যায়নমূলক কর্মক্ষমতা বণ্টন।",
+    "openInfraScore": "InfraScore ঠিকাদার রেকর্ড খুলুন",
+    "dimensions": {
+      "sector": "খাত",
+      "lineMinistry": "লাইন মন্ত্রণালয়",
+      "geographicRegion": "ভৌগোলিক অঞ্চল",
+      "implementationStage": "বাস্তবায়ন পর্যায়"
+    },
+    "metrics": {
+      "sampleSize": "নমুনা আকার (N)",
+      "validGroups": "{{count}}টি বৈধ গ্রুপ",
+      "timeWindow": "সময়কাল অন্তর্ভুক্ত",
+      "unavailable": "অনুপলব্ধ",
+      "twelveMonths": "১২ মাস",
+      "dataCompleteness": "তথ্য সম্পূর্ণতা স্কোর",
+      "safeguardThreshold": "সুরক্ষা সীমা",
+      "minProjects": "N ≥ {{n}} প্রকল্প ন্যূনতম।",
+      "activeGuardrail": "সক্রিয় সুরক্ষা"
+    },
+    "annotation": {
+      "heading": "বাধ্যতামূলক বিশ্লেষণাত্মক প্রেক্ষাপট ও অ-মূল্যায়নমূলক ব্যাখ্যা কাঠামো",
+      "q1": "১. আমি কী দেখছি?",
+      "q1Fallback": "অবকাঠামো খাত জুড়ে ব্যয় বৃদ্ধি, সময়সূচি বিলম্ব ও ঝুঁকি বণ্টনের বর্ণনামূলক তুলনা।",
+      "q2": "২. এই প্যাটার্ন কেন থাকতে পারে?",
+      "q2Fallback": "জমি অধিগ্রহণের প্রয়োজনীয়তা, পরিবেশগত ছাড়পত্র প্রোটোকল ও সরবরাহ শৃঙ্খলের জটিলতায় খাতগুলি মৌলিকভাবে ভিন্ন।",
+      "q3": "৩. আমার কী উপসংহারে আসা উচিত নয়?",
+      "q3Fallback": "পরিবহন বা জলে বেশি গড় বিলম্ব দুর্বল প্রকল্প ব্যবস্থাপনার মান নির্দেশ করে না; এটি মৌলিক কাঠামোগত জটিলতা প্রতিফলিত করে।"
+    },
+    "charts": {
+      "comparativeTitle": "{{dimension}} অনুযায়ী তুলনামূলক বিলম্ব দিন ও ব্যয় বৃদ্ধি (%)",
+      "aggregatedSummary": "সমষ্টিগত সারসংক্ষেপ",
+      "avgScheduleDelay": "গড় সময়সূচি বিলম্ব (দিন)"
+    },
+    "milestoneRate": {
+      "title": "যথাসময়ে মাইলফলক হার (%)",
+      "onTimePct": "{{pct}}% যথাসময়ে",
+      "insufficientData": "N={{n}} (অপর্যাপ্ত তথ্য)",
+      "note": "দ্রষ্টব্য: যথাসময়ে মাইলফলক হার সক্রিয় প্যাকেজ জুড়ে সংবিধিবদ্ধ অগ্রগতি প্রতিবেদন উইন্ডো প্রতিফলিত করে।"
+    },
+    "table": {
+      "title": "বেঞ্চমার্ক গ্রুপ তথ্য ম্যাট্রিক্স ও সীমা অবস্থা",
+      "minThresholdGuardrail": "ন্যূনতম সীমা সুরক্ষা:",
+      "categoryGroup": "বিভাগ গ্রুপ",
+      "thresholdStatus": "সীমা অবস্থা",
+      "totalCapital": "মোট মূলধন (কোটি)",
+      "avgRiskIndex": "গড় ঝুঁকি সূচক",
+      "costVariance": "ব্যয় ভিন্নতা (%)",
+      "avgDelayDays": "গড় বিলম্ব দিন",
+      "nEquals": "N = {{n}}",
+      "validAggregation": "বৈধ সমষ্টি",
+      "insufficientDataShort": "অপর্যাপ্ত তথ্য (N < 3)",
+      "plusDays": "+{{count}} দিন",
+      "filterProjects": "প্রকল্প ফিল্টার করুন"
+    }
+  },
+  "stateProgress": {
+    "title": "রাজ্য ও ভৌত অগ্রগতি বুদ্ধিমত্তা",
+    "subtitle": "অবকাঠামো প্রকল্পগুলির ভৌগোলিক বণ্টন ও বাস্তবায়ন পর্যায় বিশ্লেষণ করুন।",
+    "regionalIntelligence": "আঞ্চলিক বুদ্ধিমত্তা",
+    "activeProjects": "সক্রিয় প্রকল্প",
+    "pctSpent": "{{pct}}% ব্যয় হয়েছে",
+    "revisedCostEstimate": "সংশোধিত ব্যয় অনুমান",
+    "clickStateHint": "রিয়েল-টাইম পোর্টফোলিও মেট্রিক্স, বাজেট ও ব্যয় দেখতে মানচিত্রে যেকোনো রাজ্যে ক্লিক করুন।",
+    "charts": {
+      "topStatesTitle": "প্রকল্প সংখ্যা অনুযায়ী শীর্ষ ১০ রাজ্য",
+      "physicalProgressTitle": "ভৌত অগ্রগতি বণ্টন"
+    },
+    "insights": {
+      "aiInsight": "এআই অন্তর্দৃষ্টি",
+      "geoConcentrationTitle": "ভৌগোলিক ঘনত্ব",
+      "geoConcentrationBody": "{{name}} {{count}}টি প্রকল্প নিয়ে শীর্ষে আছে, যা জাতীয় পোর্টফোলিওর {{pct}}%। সম্পদ বরাদ্দ অ্যালগরিদম এই অঞ্চলে সরবরাহ শৃঙ্খল অপ্টিমাইজ করার পরামর্শ দেয়।",
+      "executionBottleneck": "বাস্তবায়ন বাধা",
+      "stagnantPhaseTitle": "স্থবির সমাপ্তি পর্যায়",
+      "stagnantPhaseBody": "{{count}}টি প্রকল্প ৯০-১০০% সমাপ্তি ব্র্যাকেটে রয়েছে। বিলম্বিত ছাড়পত্রের কারণে পূর্বাভাস মডেলগুলি এই চূড়ান্ত পর্যায়ে ঐতিহাসিকভাবে উচ্চ স্থবিরতার হার তুলে ধরে।",
+      "earlyStageMonitor": "প্রাথমিক পর্যায় পর্যবেক্ষণ",
+      "initialMobilizationTitle": "প্রাথমিক সংগঠন",
+      "initialMobilizationBody": "{{count}}টি প্রকল্প সবে শুরু হচ্ছে (০-১০%)। দীর্ঘমেয়াদী বৃদ্ধি রোধ করতে সক্রিয় ব্যয়-নিয়ন্ত্রণ ব্যবস্থা কার্যকর করার এটি গুরুত্বপূর্ণ সময়।"
+    }
+  },
+  "intelligence": {
+    "cannotLoadProjects": "প্রকল্প লোড করা যায়নি: {{error}}",
+    "workspaceLabel": "পাইমানা / ইন্টেলিজেন্স ওয়ার্কস্পেস",
+    "heroTitle": "প্রমাণ থেকে কর্মে",
+    "heroSubtitle": "উৎস পরিদর্শন করুন, ব্যয় ও জলবায়ু এক্সপোজার অন্বেষণ করুন এবং সিদ্ধান্ত নথিভুক্ত করুন। প্রতিটি পূর্বাভাস ও যাচাইকরণ তার প্রমাণ ও সীমাবদ্ধতা দেখায়।",
+    "offlineMode": "অফলাইন মোড · ক্যাশে করা প্রকল্প ডিরেক্টরি · সিঙ্ক না হওয়া পর্যন্ত পরিদর্শন এই ডিভাইসে থাকে।",
+    "projectContext": "প্রকল্প প্রসঙ্গ",
+    "selectProject": "একটি প্রকল্প নির্বাচন করুন",
+    "unknownState": "অজানা রাজ্য",
+    "speechUnavailable": "এই ব্রাউজারে বক্তৃতা শনাক্তকরণ উপলব্ধ নেই। আপনি পরিবর্তে টাইপ করতে পারেন।",
+    "microphoneError": "মাইক্রোফোন: {{error}}",
+    "speechPlaybackUnavailable": "বক্তৃতা প্লেব্যাক উপলব্ধ নেই।",
+    "sections": {
+      "documents": "নথি ইন্টেলিজেন্স",
+      "twin": "জলবায়ু ও ব্যয় টুইন",
+      "satellite": "স্যাটেলাইট প্রমাণ",
+      "uncertainty": "পূর্বাভাসের সীমা",
+      "contractors": "InfraScore",
+      "field": "ক্ষেত্র পরিদর্শন",
+      "dispatch": "এসকেলেশন",
+      "reports": "নির্বাহী ডসিয়ার",
+      "settings": "সংযোগ"
+    },
+    "evidenceImport": {
+      "hint": "আপনার সোর্স করা পর্যবেক্ষণ আমদানি করুন। নীচের মানগুলি ইনপুট উদাহরণ, প্রকল্প প্রমাণ নয়। সংরক্ষণের আগে সেগুলি প্রতিস্থাপন করুন।",
+      "saved": "যাচাই ও সংরক্ষিত হয়েছে।",
+      "validateSave": "প্রমাণ যাচাই ও সংরক্ষণ করুন"
+    },
+    "documents": {
+      "title": "প্রকল্প নথি ও দ্বিভাষিক কোপাইলট",
+      "providerGemini": "পুনরুদ্ধার করা নথি প্রমাণসহ Gemini",
+      "providerOllama": "পুনরুদ্ধার করা নথি প্রমাণসহ স্থানীয় মডেল ({{model}})",
+      "providerNone": "স্থানীয় প্রমাণ পুনরুদ্ধার; জেনারেটিভ উত্তরের জন্য Gemini বা Ollama কনফিগার করুন",
+      "providerNote": "আপনি প্রশ্ন জিজ্ঞাসা করলেই কেবল নথির বিষয়বস্তু কনফিগার করা প্রদানকারীর কাছে পাঠানো হয়।",
+      "uploadLabel": "DPR, চুক্তি বা নিরীক্ষা (টেক্সট PDF / UTF-8, ৮ MB পর্যন্ত)",
+      "uploadButton": "নথি আপলোড করুন",
+      "pagesCount": "{{count}}টি পৃষ্ঠা",
+      "scannedNeedsOcr": "· স্ক্যান করা: Gemini বা OCR প্রয়োজন",
+      "noneYet": "এই প্রকল্পের জন্য এখনো কোনো নথি নেই।",
+      "searchPortfolio": "নির্বাচিত প্রকল্পের পরিবর্তে সম্পূর্ণ পোর্টফোলিও অনুসন্ধান করুন",
+      "askPlaceholder": "কোন প্রমাণ এই প্রকল্পের বিলম্ব ব্যাখ্যা করে?",
+      "readingEvidence": "প্রমাণ পড়া হচ্ছে…",
+      "askCopilot": "কোপাইলটকে জিজ্ঞাসা করুন",
+      "dictate": "বলুন",
+      "readAloud": "ব্রিফিং জোরে পড়ুন",
+      "pageLabel": "পৃষ্ঠা {{page}}",
+      "matchedRiskTitle": "মিলিত প্রকল্প ঝুঁকি",
+      "matchedRiskSubtitle": "{{count}}টি মিল; ৩০ পর্যন্ত রেকর্ড করা ঝুঁকি স্কোর দেখানো হচ্ছে",
+      "appliedFilters": "প্রযোজ্য ফিল্টার: {{filters}}"
+    },
+    "twin": {
+      "title": "পণ্য ও জলবায়ু চাপ টুইন",
+      "subtitle": "স্বচ্ছ খাত BOM অনুমান। এটি এক্সপোজার অনুমান করে; এটি সঠিক চুক্তিভিত্তিক দায় প্রতিষ্ঠা করে না।",
+      "changePct": "পরিবর্তন (%)",
+      "applyPortfolio": "সম্পূর্ণ পোর্টফোলিওতে অনুমান প্রয়োগ করুন",
+      "calculateExposure": "এক্সপোজার গণনা করুন",
+      "estimatedIncrementalCost": "আনুমানিক অতিরিক্ত ব্যয়",
+      "costIncrease": "₹{{amount}} কোটি · {{days}} বৃষ্টি বাফার দিন",
+      "importObservation": "তারিখযুক্ত পণ্য / বৃষ্টি পর্যবেক্ষণ আমদানি করুন",
+      "viewMarketObservations": "বাজার পর্যবেক্ষণ ও আইডি দেখুন",
+      "refreshMarketFeed": "কনফিগার করা বাজার ফিড রিফ্রেশ করুন",
+      "compareIndexObservations": "সোর্স করা সূচক পর্যবেক্ষণ তুলনা করুন",
+      "baselineObservationId": "বেসলাইন পর্যবেক্ষণ আইডি",
+      "currentObservationId": "বর্তমান পর্যবেক্ষণ আইডি",
+      "runIndexScenario": "সূচক-সংযুক্ত দৃশ্যকল্প চালান"
+    },
+    "satellite": {
+      "title": "স্যাটেলাইট গ্রাউন্ড-ট্রুথ পর্যালোচনা",
+      "subtitle": "সোর্স করা, সহ-নিবন্ধিত পৃষ্ঠ প্রতিফলন পর্যবেক্ষণ তুলনা করুন। অপটিক্যাল সূচক সমাপ্তি বা জালিয়াতি প্রমাণ করতে পারে না। মেঘলা পর্যবেক্ষণ অনির্ণায়ক।",
+      "importBeforeAfter": "আগে / পরে পর্যবেক্ষণ আমদানি করুন",
+      "computeIndices": "প্রকৃত স্যাটেলাইট দৃশ্য থেকে সূচক গণনা করুন",
+      "compareRadar": "Sentinel-1 রাডার পর্যবেক্ষণ তুলনা করুন (অ্যাকাউন্ট প্রয়োজন)",
+      "noneImported": "কোনো স্যাটেলাইট প্রমাণ আমদানি করা হয়নি।",
+      "ndviLabel": "NDVI: {{values}}",
+      "notOptical": "অপটিক্যাল নয়",
+      "ndbiDelta": "NDBI ডেল্টা: {{value}}",
+      "unavailable": "অনুপলব্ধ",
+      "sarDelta": "SAR ডেল্টা: {{value}}",
+      "notSupplied": "সরবরাহ করা হয়নি",
+      "beforeAfterComparison": "আগে / পরে তুলনা",
+      "sourceLabel": "উৎস: {{source}}।",
+      "searchCatalog": "খোলা Sentinel / Landsat ক্যাটালগ অনুসন্ধান করুন",
+      "findScenes": "উৎস দৃশ্য খুঁজুন"
+    },
+    "uncertainty": {
+      "title": "ক্যালিব্রেটেড পূর্বাভাস ব্যবধান",
+      "subtitle": "একই মডেলের জন্য হোল্ড-আউট অবশিষ্টাংশ থেকে ৯০% প্রান্তিক পূর্বাভাস ব্যবধান। কোহোর্ট বেঁচে থাকা ডান-সেন্সরড পর্যবেক্ষণের হিসাব রাখে।",
+      "predictedDelayDays": "পূর্বাভাসিত বিলম্ব (দিন)",
+      "calibrationOutcomes": "{{count}}টি ক্যালিব্রেশন ফলাফল",
+      "completion": "সমাপ্তি: {{point}} [{{lower}} – {{upper}}]",
+      "cohortProbability": "{{fyEnd}} এর মধ্যে সমাপ্তির কোহোর্ট সম্ভাবনা: {{pct}}",
+      "unavailable": "অনুপলব্ধ",
+      "runModels": "পর্যবেক্ষিত প্রকল্প বৈশিষ্ট্য দিয়ে সংরক্ষিত ML মডেল চালান",
+      "importCalibration": "হোল্ড-আউট ক্যালিব্রেশন ফলাফল আমদানি করুন"
+    },
+    "contractors": {
+      "title": "InfraScore · আন্তঃমন্ত্রণালয় ডেলিভারি",
+      "subtitle": "যাচাইকৃত পরিচয় ও সোর্স করা ডেলিভারি রেকর্ড প্রয়োজন। স্কোরের জন্য কমপক্ষে তিনটি প্রকল্প প্রয়োজন; সংস্থাগুলিকে নীরবে ঠিকাদার হিসেবে বিবেচনা করা হয় না।",
+      "noneYet": "এখনো কোনো ঠিকাদার প্রমাণ নেই।",
+      "insufficientSample": "অপর্যাপ্ত নমুনা",
+      "projectsCount": "{{count}}টি প্রকল্প · {{pct}}% যথাসময়ে মাইলফলক",
+      "claimsPer1000": "{{claims}}টি দাবি / ₹১,০০০ কোটি · পেমেন্ট: {{days}} দিন",
+      "unknown": "অজানা",
+      "criticalPackages": "{{count}}টি প্যাকেজ ১৮০ দিনের বেশি বিলম্বিত",
+      "registerRecord": "ঠিকাদার ডেলিভারি রেকর্ড নিবন্ধন করুন"
+    },
+    "field": {
+      "title": "অফলাইন ক্ষেত্র পরিদর্শন",
+      "subtitle": "ছবি হ্যাশ করা হয় এবং সিঙ্ক না হওয়া পর্যন্ত এই ডিভাইসে সারিবদ্ধ থাকে। GPS ও ক্যাপচার সময় ডিভাইস-রিপোর্টেড; হ্যাশ ছবির সত্যতা প্রমাণ করে না। অফলাইনে ব্যবহারের আগে এই পৃষ্ঠাটি একবার অনলাইনে খুলুন।",
+      "awaitingSync": "{{count}}টি পরিদর্শন সিঙ্কের অপেক্ষায়",
+      "syncNow": "এখনই সিঙ্ক করুন",
+      "savedOnDevice": "এই ডিভাইসে সংরক্ষিত",
+      "paused": "বিরতিপ্রাপ্ত",
+      "pending": "মুলতুবি",
+      "attempts": "{{count}}টি প্রচেষ্টা",
+      "resumeUpload": "আপলোড আবার শুরু করুন",
+      "pauseUpload": "আপলোড বিরতি দিন",
+      "downloadBackup": "ব্যক্তিগত ব্যাকআপ ডাউনলোড করুন (ছবি ও GPS সহ)",
+      "savedReceipts": "{{count}}টি সংরক্ষিত সিঙ্ক রসিদ",
+      "receiptHash": "রসিদ #{{id}} · {{hash}}",
+      "milestoneNotes": "মাইলফলক নোট",
+      "capturePhoto": "ছবি তুলুন",
+      "geolocationUnavailable": "জিওলোকেশন অনুপলব্ধ",
+      "getGps": "বর্তমান GPS অবস্থান পান",
+      "gpsReading": "{{lat}}, {{lng}} · নির্ভুলতা {{accuracy}} মি",
+      "refreshGps": "সংরক্ষণের আগে GPS রিফ্রেশ করুন (সর্বোচ্চ পাঁচ মিনিট)।",
+      "gpsAccuracyError": "GPS নির্ভুলতা ১০০ মিটারের মধ্যে হতে হবে। বাইরে চেষ্টা করুন।",
+      "savedOnThisDevice": "এই ডিভাইসে সংরক্ষিত।",
+      "syncedCount": "{{count}}টি সিঙ্ক হয়েছে। {{errors}}",
+      "saveInspection": "ডিভাইসে পরিদর্শন সংরক্ষণ করুন",
+      "restoreBackup": "একটি ব্যক্তিগত পরিদর্শন ব্যাকআপ পুনরুদ্ধার করুন (পুনরুদ্ধার করা আপলোড বিরতিপ্রাপ্ত অবস্থায় শুরু হয়)",
+      "backupTooLarge": "ব্যাকআপ ৫০ MB অতিক্রম করেছে।",
+      "restoredCount": "{{restored}}টি পুনরুদ্ধার করা হয়েছে, {{skipped}}টি ইতিমধ্যে বিদ্যমান। পর্যালোচনার পরে আপলোড পুনরায় শুরু করুন।",
+      "registerBoundary": "প্রকল্প সীমানা নিবন্ধন করুন (দ্রাঘিমাংশ, অক্ষাংশ বহুভুজ)",
+      "capturedReceived": "ধারণ করা হয়েছে: {{captured}} · প্রাপ্ত: {{received}}",
+      "receiptLabel": "রসিদ: {{hash}}"
+    },
+    "dispatch": {
+      "title": "নির্বাহী এসকেলেশন প্রেরণ",
+      "subtitle": "প্রদানকারী কনফিগার করা থাকলে একটি প্রকৃত বহির্গামী বার্তা তৈরি করে। অনুমোদন লিংক ২৪ ঘণ্টার মধ্যে মেয়াদ শেষ হয় এবং একটি সিদ্ধান্ত গ্রহণ করে। লিংক প্রিভিউ কখনো কোনো কর্ম অনুমোদন করে না।",
+      "interventionId": "হস্তক্ষেপ আইডি",
+      "findIntervention": "ঝুঁকি ও সতর্কতায় একটি হস্তক্ষেপ খুঁজুন",
+      "deliveryChannel": "ডেলিভারি চ্যানেল",
+      "sendEscalation": "নির্বাহী এসকেলেশন পাঠান",
+      "deliveryAudit": "ডেলিভারি নিরীক্ষা",
+      "interventionTier": "হস্তক্ষেপ #{{id}} · স্তর {{tier}} · {{channel}}"
+    },
+    "reports": {
+      "title": "মন্ত্রণালয় নির্বাহী ডসিয়ার",
+      "subtitle": "নির্বাচিত প্রকল্পের আর্থিক সারসংক্ষেপ, খোলা সতর্কতা, হস্তক্ষেপ, ক্যালিব্রেটেড পূর্বাভাস প্রাপ্যতা এবং নথি উৎস হ্যাশ রপ্তানি করুন।",
+      "downloadPdf": "প্রকল্প PDF ডাউনলোড করুন"
+    },
+    "settings": {
+      "title": "প্রদানকারীর প্রস্তুতি",
+      "subtitle": "প্রদানকারীর শংসাপত্র ব্যাকএন্ড পরিবেশে থাকে। এই পৃষ্ঠা কখনো সেগুলি প্রকাশ করে না। অনুপস্থিত শংসাপত্র নকল সাফল্য সক্রিয় করে না।",
+      "operatorKey": "অপারেটর API কী (শুধুমাত্র এই ব্রাউজার সেশন)",
+      "saveSessionKey": "সেশন কী সংরক্ষণ করুন",
+      "sessionKeySaved": "সেশন কী সংরক্ষিত হয়েছে।"
+    }
+  },
+  "interventions": {
+    "title": "কর্ম-কেন্দ্রিক ঝুঁকি ও সতর্কতা প্যানেল",
+    "subtitle": "উচ্চ-প্রভাবশালী প্রকল্প ঝুঁকি প্রশমন পর্যালোচনা ও অনুমোদনের জন্য মানব-অংশগ্রহণমূলক শাসন কর্মপ্রবাহ।",
+    "flaggedCount": "উচ্চ-অগ্রাধিকার প্রকল্প চিহ্নিত করা হয়েছে",
+    "generateActions": "প্রমাণ পর্যালোচনা পদক্ষেপ তৈরি করুন",
+    "executiveDispatch": "নির্বাহী প্রেরণ",
+    "noneRecorded": "কোনো হস্তক্ষেপ নথিভুক্ত নেই। বর্তমান প্রকল্প ঝুঁকি রেকর্ড থেকে পর্যালোচনা পদক্ষেপ তৈরি করুন।",
+    "recordedAlerts": "নথিভুক্ত প্রাথমিক-সতর্কতা সতর্কীকরণ",
+    "reviewerName": "পর্যালোচকের নাম",
+    "reviewNotes": "পর্যালোচনা নোট",
+    "projectHash": "প্রকল্প #{{id}}",
+    "recordReviewResolve": "পর্যালোচনা নথিভুক্ত করুন ও সমাধান করুন",
+    "noUnresolvedAlerts": "সাম্প্রতিক রেকর্ডে কোনো অমীমাংসিত সতর্কতা নেই।",
+    "riskScoreLabel": "ঝুঁকি স্কোর: {{score}} / 100",
+    "recommendedAction": "প্রস্তাবিত মানব পর্যালোচনা পদক্ষেপ",
+    "evidenceGrounding": "প্রমাণ ভিত্তি:",
+    "estimatedImpact": "আনুমানিক প্রশমন প্রভাব",
+    "officer": "কর্মকর্তা:",
+    "lastAudit": "সর্বশেষ কর্মপ্রবাহ নিরীক্ষা: {{date}}",
+    "authorize": "হস্তক্ষেপ অনুমোদন করুন",
+    "requestCabinetReview": "মন্ত্রিসভা পর্যালোচনার অনুরোধ করুন",
+    "reject": "প্রত্যাখ্যান করুন",
+    "status": {
+      "approved": "অনুমোদিত",
+      "underReview": "পর্যালোচনাধীন",
+      "rejected": "প্রত্যাখ্যাত",
+      "proposed": "প্রস্তাবিত"
+    }
+  },
+  "projectRecords": {
+    "saved": "প্রকল্প রেকর্ড সংরক্ষিত হয়েছে।",
+    "summary": "প্রকল্প মাইলফলক ও অগ্রগতি রেকর্ড",
+    "hint": "এই রেকর্ডগুলির জন্য সংযোগ প্রয়োজন। উপরের ছবি পরিদর্শন অফলাইনে সংরক্ষণ করা যেতে পারে।",
+    "milestoneName": "মাইলফলক নাম",
+    "plannedDate": "পরিকল্পিত তারিখ",
+    "status": "অবস্থা",
+    "statusPending": "মুলতুবি",
+    "statusInProgress": "চলমান",
+    "statusCompleted": "সম্পন্ন",
+    "actualCompletionDate": "প্রকৃত সমাপ্তি তারিখ",
+    "saveMilestone": "মাইলফলক রেকর্ড সংরক্ষণ করুন",
+    "plannedLabel": "পরিকল্পিত {{date}}",
+    "completedLabel": "সম্পন্ন {{date}}",
+    "actualExpenditure": "প্রকৃত ব্যয় (INR কোটি)",
+    "scheduleVariance": "সময়সূচি ভিন্নতা (দিন; ধনাত্মক = বিলম্বিত)",
+    "progressReference": "অগ্রগতি ও উৎস তথ্যসূত্র",
+    "saveProgress": "অগ্রগতি রেকর্ড সংরক্ষণ করুন",
+    "updateLine": "{{status}} · INR {{cost}} কোটি · {{days}} দিন · {{timestamp}}"
+  },
+  "liveVoice": {
+    "connecting": "সংযোগ করা হচ্ছে…",
+    "httpsRequired": "মাইক্রোফোনের জন্য HTTPS বা localhost প্রয়োজন।",
+    "liveSendingAudio": "লাইভ · মাইক্রোফোন অডিও Gemini-তে পাঠানো হচ্ছে।",
+    "youPrefix": "আপনি: ",
+    "connectionFailed": "লাইভ প্রদানকারী সংযোগ ব্যর্থ হয়েছে।",
+    "sessionEnded": "লাইভ সেশন শেষ হয়েছে।",
+    "title": "Gemini লাইভ ভয়েস ব্রিফিং",
+    "subtitle": "শুরু করলে মাইক্রোফোন অডিও ও এই প্রকল্পের প্রমাণ Gemini-তে পাঠানো হয়। সেশন দশ মিনিট পরে বন্ধ হয়ে যায়। মাইক্রোফোন ছাড়তে স্টপ ব্যবহার করুন।",
+    "stopSession": "লাইভ সেশন বন্ধ করুন",
+    "startSession": "লাইভ ভয়েস শুরু করুন",
+    "notConfigured": "সক্রিয় করতে GEMINI_API_KEY ও GEMINI_LIVE_MODEL কনফিগার করুন।"
+  }
+}
