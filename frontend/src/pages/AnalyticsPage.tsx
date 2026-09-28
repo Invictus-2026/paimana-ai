@@ -28,6 +28,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip
 } from 'recharts';
+import { OverrunAnalysisPanel } from '../components/common/OverrunAnalysisPanel';
 
 interface AnalyticsPageProps {
   defaultSubTab?: 'benchmarks' | 'cost-overrun' | 'time-overrun';
@@ -160,6 +161,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
   const [selectedRiskTier, setSelectedRiskTier] = useState<string>('ALL');
   const [selectedDelaySeverity, setSelectedDelaySeverity] = useState<string>('ALL');
   const [costSortBy, setCostSortBy] = useState<string>('cost_overrun_pct');
+  const [explainProjectId, setExplainProjectId] = useState<number | null>(null);
   const [timeSortBy, setTimeSortBy] = useState<string>('predicted_delay_days');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
@@ -1134,7 +1136,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                         .map((proj: any, idx: number) => {
                           const hasOverrun = proj.cost_overrun_pct > 0;
                           return (
-                            <tr key={proj.id || idx} className="hover:bg-slate-50/80 transition-colors">
+                            <React.Fragment key={proj.id || idx}>
+                            <tr className="hover:bg-slate-50/80 transition-colors">
                               <td className="py-3.5 px-4 font-semibold text-slate-900 max-w-[280px]">
                                 <div className="truncate font-bold text-slate-800" title={proj.name}>
                                   {proj.name}
@@ -1200,15 +1203,31 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                                 </div>
                               </td>
                               <td className="py-3.5 px-4 text-center">
-                                <Link
-                                  to={`/projects/${proj.id}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-[#0d52ce] hover:text-white transition-colors"
-                                >
-                                  <span>{t('analytics.table.view')}</span>
-                                  <ChevronRight className="w-3 h-3" />
-                                </Link>
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <button
+                                    onClick={() => setExplainProjectId(id => id === proj.id ? null : proj.id)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white transition-colors"
+                                  >
+                                    {t('analytics.table.explain')}
+                                  </button>
+                                  <Link
+                                    to={`/projects/${proj.id}`}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-[#0d52ce] hover:text-white transition-colors"
+                                  >
+                                    <span>{t('analytics.table.view')}</span>
+                                    <ChevronRight className="w-3 h-3" />
+                                  </Link>
+                                </div>
                               </td>
                             </tr>
+                            {explainProjectId === proj.id && (
+                              <tr>
+                                <td colSpan={10} className="p-4 bg-slate-50/60">
+                                  <OverrunAnalysisPanel projectId={proj.id} />
+                                </td>
+                              </tr>
+                            )}
+                            </React.Fragment>
                           );
                         })}
                     </tbody>
@@ -1592,7 +1611,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                         .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                         .map((proj: any, idx: number) => {
                           return (
-                            <tr key={proj.id || idx} className="hover:bg-slate-50/80 transition-colors">
+                            <React.Fragment key={proj.id || idx}>
+                            <tr className="hover:bg-slate-50/80 transition-colors">
                               <td className="py-3.5 px-4 font-semibold text-slate-900 max-w-[300px]">
                                 <div className="truncate font-bold text-slate-800" title={proj.name}>
                                   {proj.name}
@@ -1642,15 +1662,31 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                                 {renderRiskBadge(proj.risk_level)}
                               </td>
                               <td className="py-3.5 px-4 text-center">
-                                <Link
-                                  to={`/projects/${proj.id}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-[#0d52ce] hover:text-white transition-colors"
-                                >
-                                  <span>{t('analytics.table.view')}</span>
-                                  <ChevronRight className="w-3 h-3" />
-                                </Link>
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <button
+                                    onClick={() => setExplainProjectId(id => id === proj.id ? null : proj.id)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white transition-colors"
+                                  >
+                                    {t('analytics.table.explain')}
+                                  </button>
+                                  <Link
+                                    to={`/projects/${proj.id}`}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-[#0d52ce] hover:text-white transition-colors"
+                                  >
+                                    <span>{t('analytics.table.view')}</span>
+                                    <ChevronRight className="w-3 h-3" />
+                                  </Link>
+                                </div>
                               </td>
                             </tr>
+                            {explainProjectId === proj.id && (
+                              <tr>
+                                <td colSpan={9} className="p-4 bg-slate-50/60">
+                                  <OverrunAnalysisPanel projectId={proj.id} />
+                                </td>
+                              </tr>
+                            )}
+                            </React.Fragment>
                           );
                         })}
                     </tbody>

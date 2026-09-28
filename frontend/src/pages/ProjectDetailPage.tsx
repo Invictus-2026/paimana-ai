@@ -12,6 +12,7 @@ import {
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend
 } from 'recharts';
 import { ExpandableChartCard } from '../components/common/ExpandableChartCard';
+import { OverrunAnalysisPanel } from '../components/common/OverrunAnalysisPanel';
 
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -304,6 +305,8 @@ export const ProjectDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <OverrunAnalysisPanel projectId={project.id} />
     </div>
   );
 };

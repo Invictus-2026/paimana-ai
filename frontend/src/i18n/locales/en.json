@@ -203,6 +203,20 @@
       "utilisationRateBody": "Total expenditure tracked across {{months}} monthly snapshots from Jul 2025 to Jul 2026.",
       "notFound": "Project ID \"{{code}}\" not found in monthly datasets",
       "notFoundBody": "This project may have been added via the API and does not have a matching MoSPI dataset entry. Showing database-level risk score only."
+    },
+    "overrunAnalysis": {
+      "title": "AI Overrun Analysis",
+      "generate": "Generate Analysis",
+      "regenerate": "Regenerate",
+      "loading": "Analyzing risk factors with Ollama...",
+      "reason": "Likely Cause",
+      "prevention": "Prevention Steps",
+      "severity": "Severity",
+      "alert": "Alert",
+      "noPrediction": "No risk prediction available for this project yet. Run risk scoring first.",
+      "notConfigured": "Configure OLLAMA_MODEL on the backend to enable AI overrun analysis.",
+      "error": "Local LLM (Ollama) unavailable or returned an invalid response. Retry or disable the provider.",
+      "alertCreated": "A {{severity}} severity alert was added to the alerts feed."
     }
   },
   "analytics": {
@@ -296,6 +310,7 @@
       "riskScore": "Risk Score",
       "pctSpent": "{{pct}}% spent",
       "view": "View",
+      "explain": "Explain",
       "pageOf": "Page {{page}} of {{total}}",
       "previous": "Previous",
       "next": "Next",

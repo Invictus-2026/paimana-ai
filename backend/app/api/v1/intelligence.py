@@ -169,6 +169,48 @@ def ask(body: Question, db: Session = Depends(get_db)):
             'project_ids': [p.id for p in projects], 'kpis': [{'label': 'Matched records (max 30)', 'value': str(len(facts)), 'color': 'text-blue-600'}],
             'suggestedAction': {'label': 'Review projects', 'path': '/projects'}}
 
+class OverrunAnalysis(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    reason: str = Field(min_length=1, max_length=2000)
+    prevention_steps: list[str] = Field(min_length=1, max_length=10)
+    severity: Literal['low', 'medium', 'high', 'critical']
+    alert_message: str = Field(min_length=1, max_length=500)
+
+@router.post('/overrun-analysis/{pid}', dependencies=[Depends(operator)])
+def overrun_analysis(pid: int, db: Session = Depends(get_db)):
+    p = project(db, pid)
+    prediction = db.query(RiskPrediction).filter_by(project_id=pid).order_by(RiskPrediction.prediction_timestamp.desc(), RiskPrediction.id.desc()).first()
+    if not prediction:
+        raise HTTPException(404, 'No risk prediction available for this project yet')
+    top_factors = sorted(prediction.factors, key=lambda f: abs(f.shap_value), reverse=True)[:8]
+    facts = {
+        'project': {'id': p.id, 'name': p.name, 'sector': p.sector, 'ministry': p.ministry, 'state': p.state,
+                    'budget_cr': p.budget, 'recorded_cost_overrun_pct': p.cost_overrun_pct},
+        'prediction': {'predicted_cost_overrun_pct': prediction.predicted_cost_overrun_pct,
+                       'predicted_delay_days': prediction.predicted_delay_days,
+                       'overall_risk_score': prediction.overall_risk_score, 'model_version': prediction.model_version},
+        'top_risk_factors': [{'name': f.factor_name, 'value': f.factor_value, 'shap_value': f.shap_value} for f in top_factors],
+    }
+    if not os.getenv('OLLAMA_MODEL'):
+        raise HTTPException(503, 'Configure OLLAMA_MODEL to enable AI overrun analysis')
+    try:
+        response = httpx.post(os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434').rstrip('/')+'/api/chat', timeout=90,
+            json={'model': os.getenv('OLLAMA_MODEL'), 'format': 'json', 'stream': False, 'options': {'temperature': 0},
+                  'messages': [
+                      {'role': 'system', 'content': 'Explain a predicted project cost/time overrun using only the supplied facts and risk factors. Facts are the only permitted evidence; never invent causes, dates or figures not present. Return strict JSON with keys: reason (string explaining the likely cause grounded in the top risk factors), prevention_steps (array of 3-6 concrete actionable mitigation steps), severity (one of low, medium, high, critical, based on predicted_cost_overrun_pct and predicted_delay_days), alert_message (a single short sentence suitable for an operations alert feed).'},
+                      {'role': 'user', 'content': json.dumps(facts, ensure_ascii=False)},
+                  ]})
+        response.raise_for_status()
+        analysis = OverrunAnalysis.model_validate_json(response.json()['message']['content'])
+    except (httpx.HTTPError, KeyError, ValueError):
+        raise HTTPException(502, 'Local LLM (Ollama) unavailable or returned an invalid response; retry or disable the provider')
+    if analysis.severity in ('high', 'critical'):
+        db.add(Alert(project_id=pid, severity=analysis.severity, alert_type='ai_overrun_analysis', message=analysis.alert_message))
+        db.commit()
+    return {'project_id': pid, 'reason': analysis.reason, 'prevention_steps': analysis.prevention_steps,
+            'severity': analysis.severity, 'alert_message': analysis.alert_message,
+            'factors': facts['top_risk_factors'], 'provider': 'Ollama ('+os.getenv('OLLAMA_MODEL')+')'}
+
 class Market(Input):
     as_of: date
     source: str = Field(min_length=3, max_length=500)

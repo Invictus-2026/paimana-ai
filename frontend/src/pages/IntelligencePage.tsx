@@ -86,9 +86,12 @@ function IntelligenceWorkspace() {
       <button disabled={busy||(!portfolio&&!pid)} className={buttonClass} onClick={()=>run(()=>intelligence('/twin',{...shocks,project_id:portfolio?null:pid}))}>{t('intelligence.twin.calculateExposure')}</button>
       {result?.projects&&<><div className="rounded-xl bg-blue-50 p-5"><p className="text-sm">{t('intelligence.twin.estimatedIncrementalCost')}</p><strong className="text-3xl text-blue-800">₹{result.total_cost_increase_cr.toLocaleString('en-IN',{maximumFractionDigits:2})} Cr</strong><p className="mt-2 text-xs">{result.source}</p></div><div className="max-h-96 overflow-auto">{result.projects.map((p:any)=><div key={p.project_id} className="border-b py-3 text-sm"><strong>{p.name}</strong><p>{t('intelligence.twin.costIncrease', { amount: p.cost_increase_cr.toFixed(2), days: p.schedule_buffer_days })}</p></div>)}</div></>}
       <EvidenceImport title={t('intelligence.twin.importObservation')} path="/market" initial={{as_of:today,source:'Replace with published source and index series',region:'Maharashtra',steel:100,cement:100,bitumen:100,diesel:100,rain_days:0}} onSaved={reload}/>
-      <button className="text-sm text-blue-700 underline" onClick={()=>run(()=>intelligence('/market'))}>{t('intelligence.twin.viewMarketObservations')}</button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button className="text-sm text-blue-700 underline" onClick={()=>run(()=>intelligence('/market'))}>{t('intelligence.twin.viewMarketObservations')}</button>
+        <button className={buttonClass} disabled={busy} onClick={()=>run(()=>intelligence('/market/refresh',{}))}>{t('intelligence.twin.refreshMarketFeed')}</button>
+      </div>
       {Array.isArray(result)&&<JsonView value={result}/>}
-      <button className={buttonClass} disabled={busy} onClick={()=>run(()=>intelligence('/market/refresh',{}))}>{t('intelligence.twin.refreshMarketFeed')}</button><MarketComparison pid={pid} onRun={run}/>
+      <MarketComparison pid={pid} onRun={run}/>
     </>}
     {tab==='satellite'&&<>
       <h2 className="text-xl font-bold">{t('intelligence.satellite.title')}</h2><p className="text-sm text-slate-500">{t('intelligence.satellite.subtitle')}</p>
