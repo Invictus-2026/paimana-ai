@@ -20,7 +20,7 @@ async def live(ws: WebSocket):
         if not key or not model:
             await ws.send_json({'error':'Configure GEMINI_API_KEY and GEMINI_LIVE_MODEL for live audio.'});return
         language=hello.get('language','en-IN')
-        if language not in ('en-IN','hi-IN'):raise ValueError('Invalid language')
+        if language not in ('en-IN','hi-IN','ta-IN','bn-IN'):raise ValueError('Invalid language')
         with SessionLocal() as db:
             p=project(db,int(hello['project_id']))
             context={'project':{'id':p.id,'name':p.name,'state':p.state,'sector':p.sector,'risk':p.overall_risk_score,'cost_overrun_pct':p.cost_overrun_pct},
