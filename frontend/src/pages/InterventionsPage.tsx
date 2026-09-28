@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { InterventionData } from '../data/mockData';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/client';
@@ -8,6 +9,7 @@ import { CheckCircle2, XCircle, Clock, ShieldAlert } from 'lucide-react';
 
 export const InterventionsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [reviewer,setReviewer]=useState('');
   const [reviewNote,setReviewNote]=useState('');
@@ -52,10 +54,10 @@ export const InterventionsPage: React.FC = () => {
   };
 
   const getStatusBadge = (status: InterventionData['status']) => {
-    if (status === 'Approved') return <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold">APPROVED</span>;
-    if (status === 'Under Review') return <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">UNDER REVIEW</span>;
-    if (status === 'Rejected') return <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold">REJECTED</span>;
-    return <span className="px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 text-[10px] font-bold">PROPOSED</span>;
+    if (status === 'Approved') return <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold">{t('interventions.status.approved')}</span>;
+    if (status === 'Under Review') return <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">{t('interventions.status.underReview')}</span>;
+    if (status === 'Rejected') return <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold">{t('interventions.status.rejected')}</span>;
+    return <span className="px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 text-[10px] font-bold">{t('interventions.status.proposed')}</span>;
   };
 
   return (
@@ -65,24 +67,24 @@ export const InterventionsPage: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2">
             <ShieldAlert className="w-5 h-5 text-red-500" />
-            <h1 className="text-xl font-bold text-slate-900">Action-Oriented Risk & Alerts Panel</h1>
+            <h1 className="text-xl font-bold text-slate-900">{t('interventions.title')}</h1>
           </div>
           <p className="text-slate-500 text-xs mt-1 font-medium">
-            Human-in-the-loop governance workflow for reviewing & authorizing high-impact project risk mitigations.
+            {t('interventions.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center space-x-3 shrink-0">
           <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3.5 py-2 rounded-xl border border-slate-200">
-            <strong>{interventions.length}</strong> High-Priority Projects Flagged
+            <strong>{interventions.length}</strong> {t('interventions.flaggedCount')}
           </span>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3"><button className="rounded-xl bg-blue-700 px-4 py-2 text-sm text-white" disabled={generateMutation.isPending} onClick={()=>generateMutation.mutate()}>Generate evidence review actions</button><button className="rounded-xl border px-4 py-2 text-sm" onClick={()=>navigate('/intelligence?tab=dispatch')}>Executive dispatch</button></div>
+      <div className="flex flex-wrap gap-3"><button className="rounded-xl bg-blue-700 px-4 py-2 text-sm text-white" disabled={generateMutation.isPending} onClick={()=>generateMutation.mutate()}>{t('interventions.generateActions')}</button><button className="rounded-xl border px-4 py-2 text-sm" onClick={()=>navigate('/intelligence?tab=dispatch')}>{t('interventions.executiveDispatch')}</button></div>
       {(updateStatusMutation.error||generateMutation.error)&&<p role="alert" className="text-red-700">{(updateStatusMutation.error||generateMutation.error)?.message}</p>}
-      {!interventions.length&&<p className="text-sm text-slate-500">No interventions recorded. Generate review actions from current project risk records.</p>}
-      <section className="light-card space-y-4 p-5"><h2 className="font-bold">Recorded early-warning alerts</h2><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">Reviewer name<input className="mt-1 w-full rounded-xl border p-3" value={reviewer} onChange={e=>setReviewer(e.target.value)}/></label><label className="text-sm">Review notes<input className="mt-1 w-full rounded-xl border p-3" value={reviewNote} onChange={e=>setReviewNote(e.target.value)}/></label></div>{reviewAlert.error&&<p role="alert" className="text-red-700">{reviewAlert.error.message}</p>}{alerts.filter(a=>!a.is_resolved).map(a=><article key={a.id} className="rounded-xl border p-4 text-sm"><strong>{a.severity.toUpperCase()} · Project #{a.project_id}</strong><p className="my-2">{a.message}</p><button className="rounded-lg border px-3 py-2 text-blue-700 disabled:opacity-50" disabled={reviewAlert.isPending||!reviewer.trim()||!reviewNote.trim()} onClick={()=>reviewAlert.mutate(a.id)}>Record review & resolve</button></article>)}{!alerts.some(a=>!a.is_resolved)&&<p className="text-sm text-slate-500">No unresolved alerts in the latest records.</p>}</section>
+      {!interventions.length&&<p className="text-sm text-slate-500">{t('interventions.noneRecorded')}</p>}
+      <section className="light-card space-y-4 p-5"><h2 className="font-bold">{t('interventions.recordedAlerts')}</h2><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">{t('interventions.reviewerName')}<input className="mt-1 w-full rounded-xl border p-3" value={reviewer} onChange={e=>setReviewer(e.target.value)}/></label><label className="text-sm">{t('interventions.reviewNotes')}<input className="mt-1 w-full rounded-xl border p-3" value={reviewNote} onChange={e=>setReviewNote(e.target.value)}/></label></div>{reviewAlert.error&&<p role="alert" className="text-red-700">{reviewAlert.error.message}</p>}{alerts.filter(a=>!a.is_resolved).map(a=><article key={a.id} className="rounded-xl border p-4 text-sm"><strong>{a.severity.toUpperCase()} · {t('interventions.projectHash', { id: a.project_id })}</strong><p className="my-2">{a.message}</p><button className="rounded-lg border px-3 py-2 text-blue-700 disabled:opacity-50" disabled={reviewAlert.isPending||!reviewer.trim()||!reviewNote.trim()} onClick={()=>reviewAlert.mutate(a.id)}>{t('interventions.recordReviewResolve')}</button></article>)}{!alerts.some(a=>!a.is_resolved)&&<p className="text-sm text-slate-500">{t('interventions.noUnresolvedAlerts')}</p>}</section>
       {/* Recommended Interventions Feed */}
       <div className="space-y-4">
         {interventions.map((item) => (
@@ -105,7 +107,7 @@ export const InterventionsPage: React.FC = () => {
 
               <div className="flex items-center space-x-3">
                 <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-xs font-bold">
-                  Risk Score: {item.currentRiskScore} / 100
+                  {t('interventions.riskScoreLabel', { score: item.currentRiskScore })}
                 </span>
                 {getStatusBadge(item.status)}
               </div>
@@ -114,28 +116,28 @@ export const InterventionsPage: React.FC = () => {
             {/* Middle: Recommended Action & Impact Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               <div className="md:col-span-8 space-y-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Recommended Human Review Action</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('interventions.recommendedAction')}</span>
                 <p className="text-sm font-bold text-slate-900 leading-snug">{item.recommendedAction}</p>
                 <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed font-medium">
-                  <strong>Evidence Grounding:</strong> {item.evidence}
+                  <strong>{t('interventions.evidenceGrounding')}</strong> {item.evidence}
                 </p>
               </div>
 
               <div className="md:col-span-4 space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Estimated Mitigation Impact</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('interventions.estimatedImpact')}</span>
                 <div className="space-y-1 text-xs font-extrabold">
                   <p className="text-emerald-600">{item.estimatedRiskImpact}</p>
                   <p className="text-[#0d52ce]">{item.estimatedTimelineImpact}</p>
                 </div>
                 <p className="text-[10px] text-slate-500 pt-2 border-t border-slate-200 font-medium">
-                  Officer: <strong className="text-slate-800">{item.assignedOfficer}</strong>
+                  {t('interventions.officer')} <strong className="text-slate-800">{item.assignedOfficer}</strong>
                 </p>
               </div>
             </div>
 
             {/* Bottom Approval Workflow Buttons */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium">Last Workflow Audit: {item.lastUpdated}</span>
+              <span className="text-[11px] text-slate-400 font-medium">{t('interventions.lastAudit', { date: item.lastUpdated })}</span>
 
               <div className="flex items-center space-x-2">
                 <button
@@ -144,7 +146,7 @@ export const InterventionsPage: React.FC = () => {
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Authorize Intervention</span>
+                  <span>{t('interventions.authorize')}</span>
                 </button>
 
                 <button
@@ -153,7 +155,7 @@ export const InterventionsPage: React.FC = () => {
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition"
                 >
                   <Clock className="w-3.5 h-3.5" />
-                  <span>Request Cabinet Review</span>
+                  <span>{t('interventions.requestCabinetReview')}</span>
                 </button>
 
                 <button
@@ -162,7 +164,7 @@ export const InterventionsPage: React.FC = () => {
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded-xl text-xs font-bold transition"
                 >
                   <XCircle className="w-3.5 h-3.5" />
-                  <span>Reject</span>
+                  <span>{t('interventions.reject')}</span>
                 </button>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import {
   Award,
@@ -59,6 +60,7 @@ interface BenchmarkData {
 
 export const BenchmarksPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [selectedDimension, setSelectedDimension] = useState<string>('sector');
   const [selectedSectorFilter] = useState<string>('ALL');
 
@@ -71,10 +73,10 @@ export const BenchmarksPage: React.FC = () => {
   const benchmarkData = data?.data;
 
   const dimensions = [
-    { key: 'sector', label: 'Sector' },
-    { key: 'ministry', label: 'Line Ministry' },
-    { key: 'geographic_region', label: 'Geographic Region' },
-    { key: 'implementation_stage', label: 'Implementation Stage' },
+    { key: 'sector', label: t('benchmarks.dimensions.sector') },
+    { key: 'ministry', label: t('benchmarks.dimensions.lineMinistry') },
+    { key: 'geographic_region', label: t('benchmarks.dimensions.geographicRegion') },
+    { key: 'implementation_stage', label: t('benchmarks.dimensions.implementationStage') },
   ];
 
   return (
@@ -84,10 +86,10 @@ export const BenchmarksPage: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2">
             <Award className="w-5 h-5 text-[#0d52ce]" />
-            <h1 className="text-xl font-bold text-slate-900">Benchmarking & Comparative Analytics Matrix</h1>
+            <h1 className="text-xl font-bold text-slate-900">{t('benchmarks.title')}</h1>
           </div>
           <p className="text-slate-500 text-xs mt-1 font-medium">
-            Descriptive, non-evaluative performance distributions across sectors, line ministries, and geographic zones.
+            {t('benchmarks.subtitle')}
           </p>
         </div>
 
@@ -109,41 +111,41 @@ export const BenchmarksPage: React.FC = () => {
         </div>
       </div>
 
-      <button className="rounded-xl border bg-white px-4 py-2 text-sm text-blue-700" onClick={()=>navigate('/intelligence?tab=contractors')}>Open InfraScore contractor records</button>
+      <button className="rounded-xl border bg-white px-4 py-2 text-sm text-blue-700" onClick={()=>navigate('/intelligence?tab=contractors')}>{t('benchmarks.openInfraScore')}</button>
       {/* Prominent Data Transparency Indicators Header Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Total Projects Analyzed */}
         <div className="light-card p-4 flex items-center justify-between border-l-4 border-l-[#0d52ce]">
           <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sample Size (N)</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('benchmarks.metrics.sampleSize')}</span>
             <p className="text-2xl font-black text-slate-900 mt-0.5 font-sans">
-              {benchmarkData?.transparency_metadata.total_projects_analyzed ?? 0} <span className="text-xs font-normal text-slate-400">Projects</span>
+              {benchmarkData?.transparency_metadata.total_projects_analyzed ?? 0} <span className="text-xs font-normal text-slate-400">{t('analytics.totalProjects')}</span>
             </p>
           </div>
           <span className="px-2.5 py-1 rounded-full bg-blue-50 text-[#0d52ce] text-[10px] font-bold border border-blue-200">
-            {benchmarkData?.transparency_metadata.valid_groups_count ?? 0} Valid Groups
+            {t('benchmarks.metrics.validGroups', { count: benchmarkData?.transparency_metadata.valid_groups_count ?? 0 })}
           </span>
         </div>
 
         {/* Metric 2: Time Window */}
         <div className="light-card p-4 flex items-center justify-between border-l-4 border-l-orange-500">
           <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Time Window Covered</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('benchmarks.metrics.timeWindow')}</span>
             <p className="text-base font-extrabold text-slate-900 mt-0.5">
-              {benchmarkData?.transparency_metadata.time_period_covered || 'Unavailable'}
+              {benchmarkData?.transparency_metadata.time_period_covered || t('benchmarks.metrics.unavailable')}
             </p>
           </div>
           <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-200">
-            12 Months
+            {t('benchmarks.metrics.twelveMonths')}
           </span>
         </div>
 
         {/* Metric 3: Data Completeness Score */}
         <div className="light-card p-4 flex items-center justify-between border-l-4 border-l-emerald-500">
           <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Data Completeness Score</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('benchmarks.metrics.dataCompleteness')}</span>
             <p className="text-2xl font-black text-emerald-600 mt-0.5 font-sans">
-              {benchmarkData?.transparency_metadata.data_completeness_pct ?? 'Unavailable'}%
+              {benchmarkData?.transparency_metadata.data_completeness_pct ?? t('benchmarks.metrics.unavailable')}%
             </p>
           </div>
           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -152,13 +154,13 @@ export const BenchmarksPage: React.FC = () => {
         {/* Metric 4: Statistical Safeguard Minimum Threshold */}
         <div className="light-card p-4 flex items-center justify-between border-l-4 border-l-purple-500">
           <div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Safeguard Threshold</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('benchmarks.metrics.safeguardThreshold')}</span>
             <p className="text-sm font-extrabold text-slate-900 mt-0.5">
-              N ≥ {benchmarkData?.transparency_metadata.minimum_sample_size_threshold || 3} Projects Min.
+              {t('benchmarks.metrics.minProjects', { n: benchmarkData?.transparency_metadata.minimum_sample_size_threshold || 3 })}
             </p>
           </div>
           <span className="px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 text-[10px] font-bold border border-purple-200">
-            Active Guardrail
+            {t('benchmarks.metrics.activeGuardrail')}
           </span>
         </div>
       </div>
@@ -168,7 +170,7 @@ export const BenchmarksPage: React.FC = () => {
         <div className="flex items-center space-x-2 border-b border-blue-100 pb-2">
           <Info className="w-4 h-4 text-[#0d52ce]" />
           <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-            Mandatory Analytical Context & Non-Evaluative Interpretation Framework
+            {t('benchmarks.annotation.heading')}
           </h2>
         </div>
 
@@ -176,33 +178,30 @@ export const BenchmarksPage: React.FC = () => {
           {/* Question 1: What am I looking at? */}
           <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1 shadow-sm">
             <span className="font-extrabold text-[#0d52ce] flex items-center gap-1.5">
-              <HelpCircle className="w-3.5 h-3.5" /> 1. What am I looking at?
+              <HelpCircle className="w-3.5 h-3.5" /> {t('benchmarks.annotation.q1')}
             </span>
             <p className="text-slate-700 leading-relaxed font-medium">
-              {benchmarkData?.explanatory_annotations.what_am_i_looking_at ||
-                'Descriptive comparison of cost growth, schedule delays, and risk distribution across infrastructure sectors.'}
+              {benchmarkData?.explanatory_annotations.what_am_i_looking_at || t('benchmarks.annotation.q1Fallback')}
             </p>
           </div>
 
           {/* Question 2: Why might this pattern exist? */}
           <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1 shadow-sm">
             <span className="font-extrabold text-orange-600 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5" /> 2. Why might this pattern exist?
+              <Layers className="w-3.5 h-3.5" /> {t('benchmarks.annotation.q2')}
             </span>
             <p className="text-slate-700 leading-relaxed font-medium">
-              {benchmarkData?.explanatory_annotations.why_might_pattern_exist ||
-                'Sectors differ fundamentally in land acquisition requirements, environmental clearance protocols, and supply chain complexity.'}
+              {benchmarkData?.explanatory_annotations.why_might_pattern_exist || t('benchmarks.annotation.q2Fallback')}
             </p>
           </div>
 
           {/* Question 3: What should I NOT conclude? */}
           <div className="p-3.5 rounded-xl bg-white border border-red-200 bg-red-50/10 space-y-1 shadow-sm">
             <span className="font-extrabold text-red-600 flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" /> 3. What should I NOT conclude?
+              <AlertTriangle className="w-3.5 h-3.5" /> {t('benchmarks.annotation.q3')}
             </span>
             <p className="text-slate-700 leading-relaxed font-medium">
-              {benchmarkData?.explanatory_annotations.what_should_not_be_concluded ||
-                'Higher average delays in Transport or Water do NOT indicate poor project management quality; they reflect baseline structural complexity.'}
+              {benchmarkData?.explanatory_annotations.what_should_not_be_concluded || t('benchmarks.annotation.q3Fallback')}
             </p>
           </div>
         </div>
@@ -217,10 +216,10 @@ export const BenchmarksPage: React.FC = () => {
           title={
             <span className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-[#0d52ce]" />
-              Comparative Delay Days & Cost Growth (%) by {selectedDimension}
+              {t('benchmarks.charts.comparativeTitle', { dimension: selectedDimension })}
             </span>
           }
-          subtitle="Aggregated Summary"
+          subtitle={t('benchmarks.charts.aggregatedSummary')}
         >
           {(isFull) => (
             <div className="h-full pt-2">
@@ -234,8 +233,8 @@ export const BenchmarksPage: React.FC = () => {
                   <YAxis tickLine={false} axisLine={false} tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} />
                   <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px' }} />
                   <Legend wrapperStyle={{ fontSize: isFull ? 12 : 11 }} />
-                  <Bar dataKey="avg_delay_days" name="Avg Schedule Delay (Days)" fill="#0d52ce" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="avg_cost_growth_pct" name="Avg Cost Growth (%)" fill="#f97316" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="avg_delay_days" name={t('benchmarks.charts.avgScheduleDelay')} fill="#0d52ce" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="avg_cost_growth_pct" name={t('analytics.legend.avgCostGrowth')} fill="#f97316" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -248,7 +247,7 @@ export const BenchmarksPage: React.FC = () => {
             <div className="border-b border-slate-100 pb-3">
               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>On-Time Milestone Rate (%)</span>
+                <span>{t('benchmarks.milestoneRate.title')}</span>
               </h2>
             </div>
 
@@ -258,10 +257,10 @@ export const BenchmarksPage: React.FC = () => {
                   <div className="flex justify-between items-center text-xs">
                     <span className="font-bold text-slate-800">{grp.category}</span>
                     {grp.meets_minimum_threshold ? (
-                      <span className="font-mono font-bold text-emerald-600">{grp.on_time_milestone_rate}% On-Time</span>
+                      <span className="font-mono font-bold text-emerald-600">{t('benchmarks.milestoneRate.onTimePct', { pct: grp.on_time_milestone_rate })}</span>
                     ) : (
                       <span className="px-2 py-0.5 rounded bg-red-50 text-red-600 border border-red-200 font-bold text-[10px]">
-                        N={grp.sample_size} (Insufficient Data)
+                        {t('benchmarks.milestoneRate.insufficientData', { n: grp.sample_size })}
                       </span>
                     )}
                   </div>
@@ -280,7 +279,7 @@ export const BenchmarksPage: React.FC = () => {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500 font-medium">
-            Note: On-time milestone rate reflects statutory progress reporting windows across active packages.
+            {t('benchmarks.milestoneRate.note')}
           </div>
         </div>
       </div>
@@ -289,10 +288,10 @@ export const BenchmarksPage: React.FC = () => {
       <div className="light-card overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-            Benchmark Group Data Matrix & Threshold Status
+            {t('benchmarks.table.title')}
           </h2>
           <span className="text-xs text-slate-500 font-medium">
-            Minimum Threshold Guardrail: <strong>N ≥ 3</strong>
+            {t('benchmarks.table.minThresholdGuardrail')} <strong>N ≥ 3</strong>
           </span>
         </div>
 
@@ -300,31 +299,31 @@ export const BenchmarksPage: React.FC = () => {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold uppercase text-[10px] tracking-wider">
-                <th className="p-3.5">Category Group</th>
-                <th className="p-3.5">Sample Size (N)</th>
-                <th className="p-3.5">Threshold Status</th>
-                <th className="p-3.5">Total Capital (Cr)</th>
-                <th className="p-3.5">Avg Risk Index</th>
-                <th className="p-3.5">Cost Variance (%)</th>
-                <th className="p-3.5">Avg Delay Days</th>
-                <th className="p-3.5 text-right">Action</th>
+                <th className="p-3.5">{t('benchmarks.table.categoryGroup')}</th>
+                <th className="p-3.5">{t('benchmarks.metrics.sampleSize')}</th>
+                <th className="p-3.5">{t('benchmarks.table.thresholdStatus')}</th>
+                <th className="p-3.5">{t('benchmarks.table.totalCapital')}</th>
+                <th className="p-3.5">{t('benchmarks.table.avgRiskIndex')}</th>
+                <th className="p-3.5">{t('benchmarks.table.costVariance')}</th>
+                <th className="p-3.5">{t('benchmarks.table.avgDelayDays')}</th>
+                <th className="p-3.5 text-right">{t('projects.table.action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {benchmarkData?.benchmark_groups.map((grp: any) => (
                 <tr key={grp.category} className="hover:bg-slate-50 transition">
                   <td className="p-3.5 font-bold text-slate-900">{grp.category}</td>
-                  <td className="p-3.5 font-mono font-bold text-slate-700">N = {grp.sample_size}</td>
+                  <td className="p-3.5 font-mono font-bold text-slate-700">{t('benchmarks.table.nEquals', { n: grp.sample_size })}</td>
 
                   <td className="p-3.5">
                     {grp.meets_minimum_threshold ? (
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold">
-                        VALID AGGREGATION
+                        {t('benchmarks.table.validAggregation')}
                       </span>
                     ) : (
                       <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold flex items-center gap-1 w-fit">
                         <AlertTriangle className="w-3 h-3" />
-                        INSUFFICIENT DATA (N &lt; 3)
+                        {t('benchmarks.table.insufficientDataShort')}
                       </span>
                     )}
                   </td>
@@ -349,7 +348,7 @@ export const BenchmarksPage: React.FC = () => {
 
                   <td className="p-3.5 font-bold">
                     {grp.meets_minimum_threshold ? (
-                      <span className="text-red-600">+{grp.avg_delay_days} Days</span>
+                      <span className="text-red-600">{t('benchmarks.table.plusDays', { count: grp.avg_delay_days })}</span>
                     ) : '—'}
                   </td>
 
@@ -358,7 +357,7 @@ export const BenchmarksPage: React.FC = () => {
                       onClick={() => navigate(`/projects?${selectedDimension==='ministry'?'ministry':selectedDimension==='geographic_region'?'state':selectedDimension==='sector'?'sector':'status'}=${encodeURIComponent(grp.category)}`)}
                       className="px-3 py-1.5 rounded-xl bg-[#0d52ce] hover:bg-[#0b45ad] text-white text-xs font-bold shadow-sm transition flex items-center space-x-1 ml-auto"
                     >
-                      <span>Filter Projects</span>
+                      <span>{t('benchmarks.table.filterProjects')}</span>
                       <ArrowRight className="w-3 h-3" />
                     </button>
                   </td>

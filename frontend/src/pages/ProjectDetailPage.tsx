@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
 import {
@@ -15,6 +16,7 @@ import { ExpandableChartCard } from '../components/common/ExpandableChartCard';
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { data: project, isLoading: projLoading } = useQuery({
     queryKey: ['project', id],
@@ -40,18 +42,18 @@ export const ProjectDetailPage: React.FC = () => {
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
-          <p className="text-slate-500 font-medium">Loading Project Intelligence...</p>
+          <p className="text-slate-500 font-medium">{t('projectDetail.loading')}</p>
         </div>
       </div>
     );
   }
 
-  if (!project) return <p role="alert">Project unavailable. Check the project ID and API connection.</p>;
+  if (!project) return <p role="alert">{t('projectDetail.unavailable')}</p>;
   const getRiskColor = (score: number) => {
-    if (score >= 75) return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', fill: '#ef4444', label: 'HIGH RISK' };
-    if (score >= 50) return { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', fill: '#f97316', label: 'AT RISK' };
-    if (score >= 35) return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', fill: '#eab308', label: 'MODERATE' };
-    return { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', fill: '#10b981', label: 'ACTIVE' };
+    if (score >= 75) return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', fill: '#ef4444', label: t('common.riskTier.highRisk') };
+    if (score >= 50) return { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', fill: '#f97316', label: t('common.riskTier.atRisk') };
+    if (score >= 35) return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', fill: '#eab308', label: t('common.riskTier.moderate') };
+    return { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', fill: '#10b981', label: t('common.riskTier.active') };
   };
 
   const overallColor = getRiskColor(project.overallRiskScore);
@@ -74,19 +76,19 @@ export const ProjectDetailPage: React.FC = () => {
   const peakRisk = riskScores.length ? Math.max(...riskScores) : project.overallRiskScore;
   const minRisk = riskScores.length ? Math.min(...riskScores) : 0;
   const riskTrend = riskScores.length >= 2
-    ? (riskScores[riskScores.length - 1] > riskScores[0] ? '↑ Increasing' : '↓ Decreasing')
-    : 'Insufficient data';
+    ? (riskScores[riskScores.length - 1] > riskScores[0] ? '↑ ' + t('projectDetail.trend.increasing') : '↓ ' + t('projectDetail.trend.decreasing'))
+    : t('projectDetail.trend.insufficientData');
 
   const hasTrajectory = trajectoryData.length > 0;
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto font-sans pb-6 text-slate-800">
-      <div className="flex flex-wrap gap-2">{[['satellite','Satellite review'],['uncertainty','Prediction bounds'],['documents','Document evidence'],['field','Field inspection'],['reports','Export dossier']].map(([tab,label])=><button key={tab} className="rounded-xl border bg-white px-3 py-2 text-sm text-blue-700" onClick={()=>navigate('/intelligence?tab='+tab+'&project_id='+project.id)}>{label}</button>)}</div>
+      <div className="flex flex-wrap gap-2">{[['satellite',t('projectDetail.tabs.satellite')],['uncertainty',t('projectDetail.tabs.uncertainty')],['documents',t('projectDetail.tabs.documents')],['field',t('projectDetail.tabs.field')],['reports',t('projectDetail.tabs.reports')]].map(([tab,label])=><button key={tab} className="rounded-xl border bg-white px-3 py-2 text-sm text-blue-700" onClick={()=>navigate('/intelligence?tab='+tab+'&project_id='+project.id)}>{label}</button>)}</div>
       {/* Header */}
       <div className="light-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <button onClick={() => navigate('/projects')} className="flex items-center space-x-1.5 text-xs text-[#0d52ce] hover:underline font-bold mb-2">
-            <ArrowLeft className="w-3.5 h-3.5" /><span>Back to Project Explorer</span>
+            <ArrowLeft className="w-3.5 h-3.5" /><span>{t('projectDetail.backToExplorer')}</span>
           </button>
           <div className="flex items-center flex-wrap gap-2">
             <h1 className="text-xl font-black text-slate-900">{project.name}</h1>
@@ -95,51 +97,51 @@ export const ProjectDetailPage: React.FC = () => {
             </span>
             {summary && (
               <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${summary.risk_trend === 'increasing' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'}`}>
-                Trend: {riskTrend}
+                {t('projectDetail.trendLabel', { trend: riskTrend })}
               </span>
             )}
           </div>
           <p className="text-slate-500 text-xs mt-1 font-medium">
             {project.code} · {project.ministry} · {project.sector} · {project.state}
-            {hasTrajectory && <span className="ml-2 text-blue-600 font-bold">· {trajectoryData.length}-month trajectory loaded</span>}
+            {hasTrajectory && <span className="ml-2 text-blue-600 font-bold">· {t('projectDetail.monthTrajectoryLoaded', { count: trajectoryData.length })}</span>}
           </p>
         </div>
         <button onClick={() => navigate(`/scenarios?project_id=${project.id}`)}
           className="flex items-center space-x-2 px-4 py-2.5 bg-[#0d52ce] hover:bg-[#0b45ad] text-white rounded-xl text-xs font-bold shadow-md shrink-0">
-          <Sliders className="w-4 h-4" /><span>Simulate Disruption</span>
+          <Sliders className="w-4 h-4" /><span>{t('projectDetail.simulateDisruption')}</span>
         </button>
       </div>
 
       {/* Risk KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="light-card p-5 border-l-4 border-l-red-500">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Overall Risk Index</span>
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t('projectDetail.kpi.overallRiskIndex')}</span>
           <h2 className="text-3xl font-black text-red-600 mt-3">{project.overallRiskScore} <span className="text-xs text-slate-400 font-normal">/ 100</span></h2>
-          <p className="text-xs text-slate-500 mt-1">Peak 12-mo: <strong className="text-slate-800">{peakRisk}</strong> · Min: <strong>{minRisk}</strong></p>
+          <p className="text-xs text-slate-500 mt-1">{t('projectDetail.kpi.peak12mo')} <strong className="text-slate-800">{peakRisk}</strong> · {t('projectDetail.kpi.min')} <strong>{minRisk}</strong></p>
         </div>
         <div className="light-card p-5">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cost Overrun</span>
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t('projectDetail.kpi.costOverrun')}</span>
             <IndianRupee className="w-4 h-4 text-orange-500" />
           </div>
           <h3 className="text-2xl font-black text-slate-900 mt-3">+{summary?.latest_cost_overrun_pct?.toFixed(1) || project.costOverrunPct.toFixed(1)}%</h3>
-          <p className="text-xs text-orange-600 font-bold mt-1">Peak: +{summary?.peak_cost_overrun_pct?.toFixed(1) || '—'}%</p>
+          <p className="text-xs text-orange-600 font-bold mt-1">{t('projectDetail.kpi.peak')} +{summary?.peak_cost_overrun_pct?.toFixed(1) || '—'}%</p>
         </div>
         <div className="light-card p-5">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Budget</span>
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t('projectDetail.kpi.budget')}</span>
             <Activity className="w-4 h-4 text-blue-500" />
           </div>
           <h3 className="text-2xl font-black text-slate-900 mt-3">₹{(summary?.latest_original_cost_cr || project.budgetCr).toLocaleString()} Cr</h3>
-          <p className="text-xs text-slate-500 mt-1">Revised: ₹{(summary?.latest_revised_cost_cr || project.revisedBudgetCr).toLocaleString()} Cr</p>
+          <p className="text-xs text-slate-500 mt-1">{t('projectDetail.kpi.revised')} ₹{(summary?.latest_revised_cost_cr || project.revisedBudgetCr).toLocaleString()} Cr</p>
         </div>
         <div className="light-card p-5">
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Expenditure</span>
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t('projectDetail.kpi.expenditure')}</span>
             <TrendingUp className="w-4 h-4 text-emerald-500" />
           </div>
           <h3 className="text-2xl font-black text-slate-900 mt-3">₹{(summary?.total_expenditure_cr || project.cumulativeExpenditureCr).toLocaleString()} Cr</h3>
-          <p className="text-xs text-slate-500 mt-1">Risk score method: {project.overallRiskScore >= 50 ? 'Rule-based cost-growth' : 'Low risk'}</p>
+          <p className="text-xs text-slate-500 mt-1">{t('projectDetail.kpi.riskScoreMethod')} {project.overallRiskScore >= 50 ? t('projectDetail.kpi.ruleBasedCostGrowth') : t('projectDetail.kpi.lowRisk')}</p>
         </div>
       </div>
 
@@ -151,10 +153,10 @@ export const ProjectDetailPage: React.FC = () => {
           title={
             <span className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-[#0d52ce]" />
-              {hasTrajectory ? `${trajectoryData.length}-Month Risk Score Trajectory (Real Data)` : '12-Month Risk Score Trajectory'}
+              {hasTrajectory ? t('projectDetail.charts.riskTrajectoryTitleReal', { count: trajectoryData.length }) : t('projectDetail.charts.riskTrajectoryTitle12mo')}
             </span>
           }
-          subtitle={!hasTrajectory ? '⚠ Project ID not found in monthly dataset files — showing DB snapshot only' : undefined}
+          subtitle={!hasTrajectory ? t('projectDetail.charts.riskTrajectoryFallbackSubtitle') : undefined}
           headerRight={
             <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
               riskTrend.includes('↑') ? 'bg-red-50 text-red-600 border-red-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
@@ -175,9 +177,9 @@ export const ProjectDetailPage: React.FC = () => {
                 <XAxis dataKey="label" tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} tickLine={false} axisLine={{ stroke: '#e2e8f0' }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: isFull ? 12 : 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
-                  formatter={(v: any, n: any) => [n === 'overrun' ? `${v}%` : `${v}/100`, n === 'overrun' ? 'Cost Overrun' : 'Risk Score']} />
+                  formatter={(v: any, n: any) => [n === 'overrun' ? `${v}%` : `${v}/100`, n === 'overrun' ? t('projectDetail.legend.costOverrun') : t('projectDetail.legend.riskScore')]} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: isFull ? 12 : 11 }} />
-                <Area type="monotone" dataKey="risk" name="Risk Score" stroke="#ef4444" strokeWidth={2.5} fill="url(#gradRisk)" dot={{ r: 3, fill: '#ef4444' }} />
+                <Area type="monotone" dataKey="risk" name={t('projectDetail.legend.riskScore')} stroke="#ef4444" strokeWidth={2.5} fill="url(#gradRisk)" dot={{ r: 3, fill: '#ef4444' }} />
                 {hasTrajectory && <Line type="monotone" dataKey="overrun" name="overrun" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 2" />}
               </AreaChart>
             </ResponsiveContainer>
@@ -186,15 +188,15 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* Analysis summary */}
         <div className="light-card p-5 lg:col-span-4">
-          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4">1-Year Analysis Summary</h2>
+          <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4">{t('projectDetail.analysisSummary.title')}</h2>
           <div className="space-y-3">
             {[
-              { label: 'Months Tracked', value: summary ? `${summary.months_found} / 13` : 'DB snapshot only', icon: Clock, color: 'text-blue-500' },
-              { label: 'Latest Month', value: summary?.latest_month || 'N/A', icon: Activity, color: 'text-slate-500' },
-              { label: 'Peak Risk Score', value: summary ? `${Math.round(summary.peak_risk_score * 100)} / 100` : `${peakRisk} / 100`, icon: AlertTriangle, color: 'text-red-500' },
-              { label: 'Risk Trajectory', value: riskTrend, icon: TrendingUp, color: riskTrend.includes('↑') ? 'text-red-500' : 'text-emerald-500' },
-              { label: 'Peak Overrun', value: summary ? `+${summary.peak_cost_overrun_pct?.toFixed(1)}%` : `+${project.costOverrunPct.toFixed(1)}%`, icon: IndianRupee, color: 'text-orange-500' },
-              { label: 'Ministry', value: project.ministry, icon: ShieldAlert, color: 'text-[#0d52ce]' },
+              { label: t('projectDetail.analysisSummary.monthsTracked'), value: summary ? `${summary.months_found} / 13` : t('projectDetail.analysisSummary.dbSnapshotOnly'), icon: Clock, color: 'text-blue-500' },
+              { label: t('projectDetail.analysisSummary.latestMonth'), value: summary?.latest_month || t('projectDetail.analysisSummary.notAvailable'), icon: Activity, color: 'text-slate-500' },
+              { label: t('projectDetail.analysisSummary.peakRiskScore'), value: summary ? `${Math.round(summary.peak_risk_score * 100)} / 100` : `${peakRisk} / 100`, icon: AlertTriangle, color: 'text-red-500' },
+              { label: t('projectDetail.analysisSummary.riskTrajectory'), value: riskTrend, icon: TrendingUp, color: riskTrend.includes('↑') ? 'text-red-500' : 'text-emerald-500' },
+              { label: t('projectDetail.analysisSummary.peakOverrun'), value: summary ? `+${summary.peak_cost_overrun_pct?.toFixed(1)}%` : `+${project.costOverrunPct.toFixed(1)}%`, icon: IndianRupee, color: 'text-orange-500' },
+              { label: t('projectDetail.analysisSummary.ministry'), value: project.ministry, icon: ShieldAlert, color: 'text-[#0d52ce]' },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className="flex items-center justify-between py-2 border-b border-slate-50">
                 <div className="flex items-center gap-2">
@@ -217,7 +219,7 @@ export const ProjectDetailPage: React.FC = () => {
             title={
               <span className="flex items-center gap-2">
                 <BarChart2 className="w-4 h-4 text-[#0d52ce]" />
-                Budget vs Expenditure (₹ Cr) · Monthly
+                {t('projectDetail.charts.budgetVsExpenditure')}
               </span>
             }
           >
@@ -230,9 +232,9 @@ export const ProjectDetailPage: React.FC = () => {
                   <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px' }}
                     formatter={(v: any) => [`₹${Number(v).toLocaleString()} Cr`]} />
                   <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: isFull ? 12 : 11 }} />
-                  <Bar dataKey="original" name="Original Cost" fill="#0d52ce" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="revised" name="Revised Cost" fill="#f97316" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="expenditure" name="Expenditure" fill="#10b981" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="original" name={t('projectDetail.legend.originalCost')} fill="#0d52ce" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="revised" name={t('projectDetail.legend.revisedCost')} fill="#f97316" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="expenditure" name={t('dashboard.legend.expenditure')} fill="#10b981" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -245,7 +247,7 @@ export const ProjectDetailPage: React.FC = () => {
             title={
               <span className="flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-orange-500" />
-                Cost Overrun % — Month-wise
+                {t('projectDetail.charts.costOverrunMonthwise')}
               </span>
             }
           >
@@ -257,7 +259,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <YAxis tick={{ fontSize: isFull ? 12 : 10, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `${v}%`} />
                   <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '11px' }}
                     formatter={(v: any) => [`${v}%`]} />
-                  <Line type="monotone" dataKey="overrun" name="Cost Overrun %" stroke="#f97316" strokeWidth={2.5} dot={{ r: 4, fill: '#f97316' }} />
+                  <Line type="monotone" dataKey="overrun" name={t('dashboard.legend.costOverrunPct')} stroke="#f97316" strokeWidth={2.5} dot={{ r: 4, fill: '#f97316' }} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -267,38 +269,38 @@ export const ProjectDetailPage: React.FC = () => {
 
       {/* Risk Drivers */}
       <div className="light-card p-5">
-        <h2 className="text-sm font-bold text-slate-900 mb-4">Risk Assessment</h2>
+        <h2 className="text-sm font-bold text-slate-900 mb-4">{t('projectDetail.riskAssessment.title')}</h2>
         {hasTrajectory ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-2xl bg-red-50 border border-red-100 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase">Cost Risk</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase">{t('projectDetail.riskAssessment.costRisk')}</span>
                 <span className="text-xs font-mono font-bold text-red-600">+{summary?.latest_cost_overrun_pct?.toFixed(1) || '0'}%</span>
               </div>
-              <h3 className="font-bold text-sm text-slate-900">Budget Overrun</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">Revised cost exceeds original by {summary?.latest_cost_overrun_pct?.toFixed(1) || '0'}%. Peak observed at {summary?.peak_cost_overrun_pct?.toFixed(1) || '0'}% overrun.</p>
+              <h3 className="font-bold text-sm text-slate-900">{t('projectDetail.riskAssessment.budgetOverrun')}</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">{t('projectDetail.riskAssessment.budgetOverrunBody', { pct: summary?.latest_cost_overrun_pct?.toFixed(1) || '0', peak: summary?.peak_cost_overrun_pct?.toFixed(1) || '0' })}</p>
             </div>
             <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase">Risk Trend</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase">{t('projectDetail.riskAssessment.riskTrend')}</span>
                 <span className="text-xs font-mono font-bold text-amber-600">{riskTrend}</span>
               </div>
-              <h3 className="font-bold text-sm text-slate-900">Trajectory Analysis</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">Risk score changed from {riskScores[0] || 0} to {riskScores[riskScores.length - 1] || 0} over {trajectoryData.length} months of data.</p>
+              <h3 className="font-bold text-sm text-slate-900">{t('projectDetail.riskAssessment.trajectoryAnalysis')}</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">{t('projectDetail.riskAssessment.trajectoryAnalysisBody', { from: riskScores[0] || 0, to: riskScores[riskScores.length - 1] || 0, months: trajectoryData.length })}</p>
             </div>
             <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase">Expenditure</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase">{t('dashboard.legend.expenditure')}</span>
                 <span className="text-xs font-mono font-bold text-blue-600">₹{summary?.total_expenditure_cr?.toLocaleString() || '0'} Cr</span>
               </div>
-              <h3 className="font-bold text-sm text-slate-900">Utilisation Rate</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">Total expenditure tracked across {trajectoryData.length} monthly snapshots from Jul 2025 to Jul 2026.</p>
+              <h3 className="font-bold text-sm text-slate-900">{t('projectDetail.riskAssessment.utilisationRate')}</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">{t('projectDetail.riskAssessment.utilisationRateBody', { months: trajectoryData.length })}</p>
             </div>
           </div>
         ) : (
           <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 text-sm">
-            <p className="font-bold text-slate-700 mb-2">Project ID "{project.code}" not found in monthly datasets</p>
-            <p className="text-xs max-w-md mx-auto">This project may have been added via the API and does not have a matching MoSPI dataset entry. Showing database-level risk score only.</p>
+            <p className="font-bold text-slate-700 mb-2">{t('projectDetail.riskAssessment.notFound', { code: project.code })}</p>
+            <p className="text-xs max-w-md mx-auto">{t('projectDetail.riskAssessment.notFoundBody')}</p>
           </div>
         )}
       </div>

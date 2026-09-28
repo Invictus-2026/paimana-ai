@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
   AlertCircle,
@@ -83,6 +84,7 @@ const formatCurrencyCr = (val: number): string => {
 
 // Custom Tooltip Component for Recharts
 const CustomChartTooltip: React.FC<any> = ({ active, payload, label, unit = '' }) => {
+  const { t } = useTranslation();
   if (!active || !payload || !payload.length) return null;
   return (
     <div className="bg-slate-900/95 text-white backdrop-blur-md px-3.5 py-2.5 rounded-xl shadow-2xl border border-slate-700/60 text-xs min-w-[200px] z-50">
@@ -98,7 +100,7 @@ const CustomChartTooltip: React.FC<any> = ({ active, payload, label, unit = '' }
             } else if (entry.name?.toLowerCase().includes('%') || entry.name?.toLowerCase().includes('growth') || entry.name?.toLowerCase().includes('rate')) {
               formattedValue = `${entry.value.toFixed(1)}%`;
             } else if (entry.name?.toLowerCase().includes('month') || entry.name?.toLowerCase().includes('delay')) {
-              formattedValue = `${entry.value} Months`;
+              formattedValue = t('analytics.units.months', { count: entry.value });
             } else if (entry.name?.toLowerCase().includes('risk')) {
               formattedValue = `${Number(entry.value).toFixed(1)} / 100`;
             } else {
@@ -125,6 +127,7 @@ const CustomChartTooltip: React.FC<any> = ({ active, payload, label, unit = '' }
 export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Determine active sub-tab from path or prop
@@ -241,13 +244,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
   const renderRiskBadge = (level: string) => {
     switch (level?.toLowerCase()) {
       case 'critical':
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">Critical</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">{t('analytics.badges.critical')}</span>;
       case 'high':
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">High</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">{t('analytics.badges.high')}</span>;
       case 'moderate':
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">Moderate</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">{t('common.riskTier.moderate')}</span>;
       default:
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Low</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">{t('analytics.badges.low')}</span>;
     }
   };
 
@@ -255,13 +258,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
   const renderDelayBadge = (severity: string) => {
     switch (severity?.toLowerCase()) {
       case 'severe delay':
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">Severe Delay (&gt;1 yr)</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">{t('analytics.badges.severeDelay')}</span>;
       case 'significant delay':
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">Significant (6-12 mo)</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">{t('analytics.badges.significantDelay')}</span>;
       case 'minor delay':
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">Minor (2-6 mo)</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">{t('analytics.badges.minorDelay')}</span>;
       default:
-        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">On-Track</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">{t('analytics.badges.onTrack')}</span>;
     }
   };
 
@@ -282,13 +285,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
       else severe++;
     }
     return [
-      { name: 'On-Budget (0%)', value: noOverrun, color: PALETTE.emerald },
-      { name: 'Minor (<10%)', value: minor, color: PALETTE.teal },
-      { name: 'Moderate (10-25%)', value: moderate, color: PALETTE.amber },
-      { name: 'High (25-50%)', value: high, color: PALETTE.orange },
-      { name: 'Severe (>50%)', value: severe, color: PALETTE.rose },
+      { name: t('analytics.costDistribution.onBudget'), value: noOverrun, color: PALETTE.emerald },
+      { name: t('analytics.costDistribution.minor'), value: minor, color: PALETTE.teal },
+      { name: t('analytics.costDistribution.moderate'), value: moderate, color: PALETTE.amber },
+      { name: t('analytics.costDistribution.high'), value: high, color: PALETTE.orange },
+      { name: t('analytics.costDistribution.severe'), value: severe, color: PALETTE.rose },
     ];
-  }, [costData]);
+  }, [costData, t]);
 
   // Toggle browser fullscreen
   const toggleBrowserFullscreen = () => {
@@ -308,18 +311,18 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
     let chartContent = null;
 
     if (fullscreenChart === 'benchmarks') {
-      title = "Performance Benchmarks: Cost Growth vs Risk Score";
-      subtitle = `Descriptive comparative benchmarking by ${benchmarkDimension.replace('_', ' ')}`;
+      title = t('analytics.modal.benchmarksTitle');
+      subtitle = t('analytics.modal.benchmarksSubtitle', { dimension: benchmarkDimension.replace('_', ' ') });
       chartContent = (
         <div className="h-full w-full flex flex-col">
           <div className="flex items-center justify-end gap-6 text-xs font-bold mb-3">
             <div className="flex items-center gap-2">
               <span className="w-3.5 h-3.5 rounded-sm bg-[#3b82f6]" />
-              <span className="text-slate-800">Avg Cost Growth (%)</span>
+              <span className="text-slate-800">{t('analytics.legend.avgCostGrowth')}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3.5 h-3.5 rounded-sm bg-[#f43f5e]" />
-              <span className="text-slate-800">Avg Risk Score (0-100)</span>
+              <span className="text-slate-800">{t('analytics.legend.avgRiskScore')}</span>
             </div>
           </div>
           <div className="flex-1 w-full min-h-[420px]">
@@ -340,16 +343,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                 <YAxis yAxisId="left" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v}%`} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v}`} />
                 <RechartsTooltip content={<CustomChartTooltip />} />
-                <Bar yAxisId="left" dataKey="avg_cost_growth_pct" name="Avg Cost Growth (%)" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-                <Bar yAxisId="right" dataKey="avg_risk_score" name="Avg Risk Score" fill="#f43f5e" radius={[6, 6, 0, 0]} />
+                <Bar yAxisId="left" dataKey="avg_cost_growth_pct" name={t('analytics.legend.avgCostGrowth')} fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                <Bar yAxisId="right" dataKey="avg_risk_score" name={t('analytics.legend.avgRiskScoreShort')} fill="#f43f5e" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
       );
     } else if (fullscreenChart === 'regional') {
-      title = "Regional & State Infrastructure Concentration";
-      subtitle = "Comprehensive breakdown of monitored projects across Indian states and jurisdictions";
+      title = t('analytics.modal.regionalTitle');
+      subtitle = t('analytics.modal.regionalSubtitle');
       chartContent = (
         <div className="h-full w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           <div className="h-[420px] w-full relative flex items-center justify-center">
@@ -374,7 +377,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-3xl font-black text-slate-900">{overview?.total_projects || 0}</span>
-              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Total Projects</span>
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">{t('analytics.totalProjects')}</span>
             </div>
           </div>
           <div className="overflow-y-auto max-h-[440px] pr-2 space-y-2">
@@ -388,7 +391,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <span className="text-slate-800 font-bold">{geo.category_name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-slate-500 font-medium">Budget: {formatCurrencyCr(geo.total_budget_cr)}</span>
+                    <span className="text-slate-500 font-medium">{t('analytics.modal.budgetLabel', { amount: formatCurrencyCr(geo.total_budget_cr) })}</span>
                     <span className="font-extrabold text-slate-900 px-2 py-0.5 rounded-md bg-white border border-slate-200">
                       {geo.project_count} ({pct}%)
                     </span>
@@ -400,8 +403,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
         </div>
       );
     } else if (fullscreenChart === 'ministry') {
-      title = "Ministry Risk Profiles & Portfolio Health";
-      subtitle = "Multi-dimensional composite risk index across line ministries";
+      title = t('analytics.modal.ministryTitle');
+      subtitle = t('analytics.modal.ministrySubtitle');
       chartContent = (
         <div className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -420,14 +423,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v}`} />
               <YAxis dataKey="shortName" type="category" tick={{ fontSize: 12, fill: '#1e293b', fontWeight: 600 }} width={240} />
               <RechartsTooltip content={<CustomChartTooltip unit="/ 100" />} />
-              <Bar barSize={24} name="Avg Risk Score" dataKey="risk_score" fill="#f59e0b" radius={[0, 6, 6, 0]} />
+              <Bar barSize={24} name={t('analytics.legend.avgRiskScoreShort')} dataKey="risk_score" fill="#f59e0b" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       );
     } else if (fullscreenChart === 'capital') {
-      title = "Capital Outlay Allocation by Sector";
-      subtitle = "Total sanctioned expenditure allocation (₹ Cr) across infrastructure domains";
+      title = t('analytics.modal.capitalTitle');
+      subtitle = t('analytics.modal.capitalSubtitle');
       chartContent = (
         <div className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -445,14 +448,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => formatCurrencyCr(v)} />
               <YAxis dataKey="shortName" type="category" tick={{ fontSize: 12, fill: '#1e293b', fontWeight: 600 }} width={220} />
               <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
-              <Bar barSize={24} name="Total Budget" dataKey="total_budget_cr" fill="#10b981" radius={[0, 6, 6, 0]} />
+              <Bar barSize={24} name={t('analytics.legend.totalBudget')} dataKey="total_budget_cr" fill="#10b981" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       );
     } else if (fullscreenChart === 'cost_sector') {
-      title = "Sector-Wise Cost Escalation Exposure";
-      subtitle = `Aggregate rupee cost overrun exposure across sectors in ${selectedMonth}`;
+      title = t('analytics.modal.costSectorTitle');
+      subtitle = t('analytics.modal.costSectorSubtitle', { month: selectedMonth });
       chartContent = (
         <div className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -464,14 +467,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <XAxis dataKey="sector" tick={{ fontSize: 12, fill: '#334155', fontWeight: 600 }} interval={0} angle={-25} textAnchor="end" height={65} />
               <YAxis tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => formatCurrencyCr(v)} />
               <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
-              <Bar barSize={36} name="Cost Escalation Exposure" dataKey="total_exposure_cr" fill="#ef4444" radius={[6, 6, 0, 0]} />
+              <Bar barSize={36} name={t('analytics.legend.costEscalationExposure')} dataKey="total_exposure_cr" fill="#ef4444" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       );
     } else if (fullscreenChart === 'cost_projects') {
-      title = "Top Capital Escalation Mega Projects";
-      subtitle = "Individual projects with the highest absolute cost overrun exposure (₹ Cr)";
+      title = t('analytics.modal.costProjectsTitle');
+      subtitle = t('analytics.modal.costProjectsSubtitle');
       chartContent = (
         <div className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -491,14 +494,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `₹${Number(v).toLocaleString()} Cr`} />
               <YAxis dataKey="shortName" type="category" tick={{ fontSize: 11, fill: '#1e293b', fontWeight: 600 }} width={260} />
               <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
-              <Bar barSize={24} name="Cost Overrun Exposure" dataKey="exposure" fill="#3b82f6" radius={[0, 6, 6, 0]} />
+              <Bar barSize={24} name={t('analytics.legend.costOverrunExposure')} dataKey="exposure" fill="#3b82f6" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       );
     } else if (fullscreenChart === 'time_sector') {
-      title = "Sector-Wise Average Schedule Slippage";
-      subtitle = `Empirical commissioning delay across infrastructure domains in ${selectedMonth}`;
+      title = t('analytics.modal.timeSectorTitle');
+      subtitle = t('analytics.modal.timeSectorSubtitle', { month: selectedMonth });
       chartContent = (
         <div className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -510,14 +513,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <XAxis dataKey="sector" tick={{ fontSize: 12, fill: '#334155', fontWeight: 600 }} interval={0} angle={-25} textAnchor="end" height={65} />
               <YAxis tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v} Mo`} />
               <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
-              <Bar barSize={36} name="Average Delay" dataKey="avg_delay_months" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+              <Bar barSize={36} name={t('analytics.legend.averageDelay')} dataKey="avg_delay_months" fill="#f59e0b" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       );
     } else if (fullscreenChart === 'time_projects') {
-      title = "Top Schedule Delay Mega Projects";
-      subtitle = "Critical initiatives experiencing highest duration slippage past sanctioned commissioning";
+      title = t('analytics.modal.timeProjectsTitle');
+      subtitle = t('analytics.modal.timeProjectsSubtitle');
       chartContent = (
         <div className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -537,14 +540,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <XAxis type="number" tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(v) => `${v} Mo`} />
               <YAxis dataKey="shortName" type="category" tick={{ fontSize: 11, fill: '#1e293b', fontWeight: 600 }} width={260} />
               <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
-              <Bar barSize={24} name="Predicted Delay" dataKey="delay_months" fill="#f97316" radius={[0, 6, 6, 0]} />
+              <Bar barSize={24} name={t('analytics.legend.predictedDelay')} dataKey="delay_months" fill="#f97316" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       );
     } else if (fullscreenChart === 'cost_severity') {
-      title = "Cost Overrun Severity Distribution";
-      subtitle = `Portfolio distribution by cost escalation tier in ${selectedMonth}`;
+      title = t('analytics.modal.costSeverityTitle');
+      subtitle = t('analytics.modal.costSeveritySubtitle', { month: selectedMonth });
       const totalCount = costData?.projects?.length || 0;
       chartContent = (
         <div className="h-full w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -569,11 +572,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-3xl font-black text-slate-900">{totalCount}</span>
-              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Total Projects</span>
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">{t('analytics.totalProjects')}</span>
             </div>
           </div>
           <div className="space-y-3 pr-4">
-            <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2">Cost Escalation Breakdown</h4>
+            <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2">{t('analytics.modal.costEscalationBreakdown')}</h4>
             {costDistribution.map((item, idx) => {
               const pct = totalCount ? ((item.value / totalCount) * 100).toFixed(1) : '0';
               return (
@@ -583,7 +586,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <span className="text-sm font-semibold text-slate-800">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-black text-slate-900">{item.value.toLocaleString()} Projects</span>
+                    <span className="text-sm font-black text-slate-900">{t('analytics.modal.projectsCount', { count: item.value.toLocaleString() })}</span>
                     <span className="text-xs font-bold text-slate-400">({pct}%)</span>
                   </div>
                 </div>
@@ -593,13 +596,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
         </div>
       );
     } else if (fullscreenChart === 'time_severity') {
-      title = "Schedule Slippage & Delay Severity Distribution";
-      subtitle = `Projects categorized by delay severity in ${selectedMonth}`;
+      title = t('analytics.modal.timeSeverityTitle');
+      subtitle = t('analytics.modal.timeSeveritySubtitle', { month: selectedMonth });
       const slippageData = [
-        { name: 'Severe (>12 Mo)', value: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
-        { name: 'Significant (6-12 Mo)', value: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
-        { name: 'Minor (2-6 Mo)', value: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
-        { name: 'On-Track (<2 Mo)', value: timeData?.summary?.on_track_count || 0, color: '#10b981' }
+        { name: t('analytics.delaySeverity.severe'), value: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
+        { name: t('analytics.delaySeverity.significant'), value: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
+        { name: t('analytics.delaySeverity.minor'), value: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
+        { name: t('analytics.delaySeverity.onTrack'), value: timeData?.summary?.on_track_count || 0, color: '#10b981' }
       ];
       const totalCount = slippageData.reduce((acc, curr) => acc + curr.value, 0);
       chartContent = (
@@ -625,11 +628,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-3xl font-black text-slate-900">{totalCount}</span>
-              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Total Monitored</span>
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">{t('analytics.totalMonitored')}</span>
             </div>
           </div>
           <div className="space-y-3 pr-4">
-            <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2">Schedule Slippage Breakdown</h4>
+            <h4 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2">{t('analytics.modal.scheduleSlippageBreakdown')}</h4>
             {slippageData.map((item, idx) => {
               const pct = totalCount ? ((item.value / totalCount) * 100).toFixed(1) : '0';
               return (
@@ -639,7 +642,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <span className="text-sm font-semibold text-slate-800">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-black text-slate-900">{item.value.toLocaleString()} Projects</span>
+                    <span className="text-sm font-black text-slate-900">{t('analytics.modal.projectsCount', { count: item.value.toLocaleString() })}</span>
                     <span className="text-xs font-bold text-slate-400">({pct}%)</span>
                   </div>
                 </div>
@@ -666,14 +669,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <button
                 onClick={toggleBrowserFullscreen}
                 className="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
-                title="Toggle Screen Fullscreen"
+                title={t('analytics.titles.toggleScreenFullscreen')}
               >
                 <Maximize2 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setFullscreenChart(null)}
                 className="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 transition-colors"
-                title="Close Fullscreen View (Esc)"
+                title={t('analytics.titles.closeFullscreenView')}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -687,8 +690,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
 
           {/* Footer note */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 shrink-0">
-            <span>PAIMANA PredictIQ Enterprise Visualizer • High-Resolution View</span>
-            <span>Press Esc or click Close to return to dashboard</span>
+            <span>{t('analytics.modal.footerBrand')}</span>
+            <span>{t('analytics.modal.footerHint')}</span>
           </div>
         </div>
       </div>
@@ -705,14 +708,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight font-outfit">
-              Portfolio Analytics & Predictive Intelligence
+              {t('analytics.header.title')}
             </h1>
             <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-              v2.0 Model
+              {t('analytics.header.badge')}
             </span>
           </div>
           <p className="text-slate-500 text-sm mt-1 font-medium">
-            Multi-dimensional risk scoring, cost overrun predictions & schedule delay forecasting across all monitored MoSPI datasets
+            {t('analytics.header.subtitle')}
           </p>
         </div>
 
@@ -720,7 +723,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
         <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm shrink-0">
           <div className="flex items-center gap-2 text-slate-600 pl-2">
             <Calendar className="w-4 h-4 text-blue-600" />
-            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Dataset Month:</span>
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">{t('analytics.header.datasetMonth')}</span>
           </div>
           <select
             value={selectedMonth}
@@ -748,7 +751,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            <span>Macro Trends & Benchmarks</span>
+            <span>{t('analytics.tabs.benchmarks')}</span>
           </button>
 
           <button
@@ -760,9 +763,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
             }`}
           >
             <IndianRupee className="w-4 h-4" />
-            <span>Cost Overrun Prediction</span>
+            <span>{t('analytics.tabs.costOverrun')}</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold uppercase">
-              All Projects
+              {t('analytics.tabs.allProjects')}
             </span>
           </button>
 
@@ -775,16 +778,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
             }`}
           >
             <Clock className="w-4 h-4" />
-            <span>Time Overrun Prediction</span>
+            <span>{t('analytics.tabs.timeOverrun')}</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-extrabold uppercase">
-              Schedule Risk
+              {t('analytics.tabs.scheduleRisk')}
             </span>
           </button>
         </div>
 
         <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 pr-3 font-medium">
           <Layers className="w-3.5 h-3.5 text-blue-500" />
-          <span>Scored with Hybrid Multi-Dimensional Engine</span>
+          <span>{t('analytics.header.hybridEngine')}</span>
         </div>
       </div>
 
@@ -792,7 +795,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
         <div className="flex h-[55vh] items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
-            <p className="text-slate-500 font-semibold text-sm">Computing predictive risk vectors for {selectedMonth}...</p>
+            <p className="text-slate-500 font-semibold text-sm">{t('analytics.loading', { month: selectedMonth })}</p>
           </div>
         </div>
       ) : (
@@ -806,50 +809,50 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-blue-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Monitored Projects</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.cost.kpi.totalMonitored')}</p>
                     <Activity className="h-5 w-5 text-blue-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     {costData?.summary?.total_projects?.toLocaleString() || 0}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">Snapshot month: {selectedMonth}</p>
+                  <p className="text-xs text-slate-500 mt-1">{t('analytics.cost.kpi.snapshotMonth', { month: selectedMonth })}</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-rose-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Cost Overrun Exposure</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.cost.kpi.totalExposure')}</p>
                     <IndianRupee className="h-5 w-5 text-rose-500" />
                   </div>
                   <p className="text-2xl font-black text-rose-600 mt-2">
                     ₹{((costData?.summary?.total_cost_exposure_cr || 0) / 1000).toFixed(1)}k Cr
                   </p>
                   <p className="text-xs text-rose-600 font-semibold mt-1">
-                    Exchequer capital escalation
+                    {t('analytics.cost.kpi.exchequerEscalation')}
                   </p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-amber-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Projects With Overrun</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.cost.kpi.projectsWithOverrun')}</p>
                     <TrendingUp className="h-5 w-5 text-amber-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     {costData?.summary?.projects_with_overrun?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-amber-600 font-semibold mt-1">
-                    {costData?.summary?.overrun_percentage_of_portfolio || 0}% of portfolio experiencing cost growth
+                    {t('analytics.cost.kpi.overrunPortfolioPct', { pct: costData?.summary?.overrun_percentage_of_portfolio || 0 })}
                   </p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-red-600">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Critical Cost Risk Tier</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.cost.kpi.criticalTier')}</p>
                     <AlertCircle className="h-5 w-5 text-red-600" />
                   </div>
                   <p className="text-2xl font-black text-red-600 mt-2">
                     {costData?.summary?.critical_risk_count?.toLocaleString() || 0}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">Projects requiring proactive cabinet intervention</p>
+                  <p className="text-xs text-slate-500 mt-1">{t('analytics.cost.kpi.criticalTierBody')}</p>
                 </div>
               </div>
 
@@ -861,20 +864,20 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4">
                       <div>
                         <h3 className="text-sm font-bold text-slate-900 font-outfit">
-                          Sector-Wise Cost Escalation Exposure (₹ Cr)
+                          {t('analytics.cost.charts.sectorExposureTitle')}
                         </h3>
                         <p className="text-xs text-slate-500 font-medium">
-                          Aggregate rupee overrun exposure across top infrastructure sectors in {selectedMonth}
+                          {t('analytics.cost.charts.sectorExposureSubtitle', { month: selectedMonth })}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-100">
-                          Top Impact Sectors
+                          {t('analytics.cost.charts.topImpactSectors')}
                         </span>
                         <button
                           onClick={() => setFullscreenChart('cost_sector')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -904,7 +907,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                           <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
                           <Bar
                             barSize={32}
-                            name="Cost Escalation Exposure"
+                            name={t('analytics.legend.costEscalationExposure')}
                             dataKey="total_exposure_cr"
                             fill="#ef4444"
                             radius={[6, 6, 0, 0]}
@@ -914,8 +917,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     </div>
                   </div>
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span>X-Axis: Major Sectors</span>
-                    <span>Y-Axis: Total Capital Overrun Exposure (₹ Cr)</span>
+                    <span>{t('analytics.axis.xMajorSectors')}</span>
+                    <span>{t('analytics.axis.yCapitalOverrunExposure')}</span>
                   </div>
                 </div>
 
@@ -924,15 +927,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h3 className="text-sm font-bold text-slate-900 font-outfit">Overrun Severity Spread</h3>
-                        <p className="text-xs text-slate-500 font-medium">Portfolio distribution by cost escalation tier</p>
+                        <h3 className="text-sm font-bold text-slate-900 font-outfit">{t('analytics.cost.charts.severitySpreadTitle')}</h3>
+                        <p className="text-xs text-slate-500 font-medium">{t('analytics.cost.charts.severitySpreadSubtitle')}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <PieIcon className="w-4 h-4 text-slate-400" />
                         <button
                           onClick={() => setFullscreenChart('cost_severity')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -963,7 +966,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                           {costData?.summary?.total_projects || 0}
                         </span>
                         <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
-                          Total Projects
+                          {t('analytics.totalProjects')}
                         </span>
                       </div>
                     </div>
@@ -990,20 +993,20 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 font-outfit">
-                      Top Capital Escalation Mega Projects (₹ Cr)
+                      {t('analytics.cost.charts.topProjectsTitle')}
                     </h3>
                     <p className="text-xs text-slate-500 font-medium">
-                      Individual projects with the largest monetary increase between original budget and revised sanction
+                      {t('analytics.cost.charts.topProjectsSubtitle')}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-semibold text-slate-500">
-                      Sorted by Absolute Overrun Exposure
+                      {t('analytics.cost.charts.sortedByExposure')}
                     </span>
                     <button
                       onClick={() => setFullscreenChart('cost_projects')}
                       className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                      title="View Chart in Full Screen"
+                      title={t('analytics.titles.viewFullScreen')}
                     >
                       <Maximize2 className="w-3.5 h-3.5" />
                     </button>
@@ -1039,7 +1042,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
                       <Bar
                         barSize={20}
-                        name="Cost Overrun Exposure"
+                        name={t('analytics.legend.costOverrunExposure')}
                         dataKey="exposure"
                         fill="#3b82f6"
                         radius={[0, 6, 6, 0]}
@@ -1056,7 +1059,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                     <input
                       type="text"
-                      placeholder="Search project name, ID, or sector..."
+                      placeholder={t('analytics.searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 text-xs font-medium rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
@@ -1069,11 +1072,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       onChange={(e) => setSelectedRiskTier(e.target.value)}
                       className="text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     >
-                      <option value="ALL">All Risk Tiers</option>
-                      <option value="Critical">Critical Risk (&ge;75)</option>
-                      <option value="High">High Risk (50-74)</option>
-                      <option value="Moderate">Moderate Risk (25-49)</option>
-                      <option value="Low">Low Risk (&lt;25)</option>
+                      <option value="ALL">{t('analytics.filters.allRiskTiers')}</option>
+                      <option value="Critical">{t('analytics.filters.criticalRisk')}</option>
+                      <option value="High">{t('analytics.filters.highRisk')}</option>
+                      <option value="Moderate">{t('analytics.filters.moderateRisk')}</option>
+                      <option value="Low">{t('analytics.filters.lowRisk')}</option>
                     </select>
 
                     <select
@@ -1081,16 +1084,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       onChange={(e) => setCostSortBy(e.target.value)}
                       className="text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     >
-                      <option value="cost_overrun_pct">Sort by: Cost Overrun %</option>
-                      <option value="cost_overrun_exposure_cr">Sort by: Exposure (₹ Cr)</option>
-                      <option value="budget_cr">Sort by: Original Budget</option>
-                      <option value="overall_risk_score">Sort by: Risk Score</option>
+                      <option value="cost_overrun_pct">{t('analytics.filters.sortCostOverrunPct')}</option>
+                      <option value="cost_overrun_exposure_cr">{t('analytics.filters.sortExposure')}</option>
+                      <option value="budget_cr">{t('analytics.filters.sortOriginalBudget')}</option>
+                      <option value="overall_risk_score">{t('analytics.filters.sortRiskScore')}</option>
                     </select>
 
                     <button
                       onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
                       className="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors shrink-0"
-                      title="Toggle Sort Order"
+                      title={t('analytics.titles.toggleSortOrder')}
                     >
                       <ArrowUpDown className="w-4 h-4" />
                     </button>
@@ -1102,10 +1105,10 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <h3 className="font-bold text-sm text-slate-900">
-                    Project-by-Project Cost Overrun Predictions ({costData?.projects?.length || 0} Monitored Projects)
+                    {t('analytics.cost.table.title', { count: costData?.projects?.length || 0 })}
                   </h3>
                   <span className="text-xs text-slate-500 font-medium">
-                    Showing {Math.min((currentPage - 1) * pageSize + 1, costData?.projects?.length || 0)} - {Math.min(currentPage * pageSize, costData?.projects?.length || 0)} of {costData?.projects?.length || 0}
+                    {t('analytics.table.showingRange', { from: Math.min((currentPage - 1) * pageSize + 1, costData?.projects?.length || 0), to: Math.min(currentPage * pageSize, costData?.projects?.length || 0), total: costData?.projects?.length || 0 })}
                   </span>
                 </div>
 
@@ -1113,16 +1116,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold uppercase tracking-wider">
-                        <th className="py-3 px-4">Project Details</th>
-                        <th className="py-3 px-3">Sector & Ministry</th>
-                        <th className="py-3 px-3 text-right">Original (₹ Cr)</th>
-                        <th className="py-3 px-3 text-right">Revised (₹ Cr)</th>
-                        <th className="py-3 px-3 text-right">Expenditure (₹ Cr)</th>
-                        <th className="py-3 px-3 text-right">Predicted Overrun</th>
-                        <th className="py-3 px-3 text-right">Exposure (₹ Cr)</th>
-                        <th className="py-3 px-3 text-center">Risk Tier</th>
-                        <th className="py-3 px-3 text-center">Risk Score</th>
-                        <th className="py-3 px-4 text-center">Action</th>
+                        <th className="py-3 px-4">{t('analytics.table.projectDetails')}</th>
+                        <th className="py-3 px-3">{t('analytics.table.sectorMinistry')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.original')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.revised')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.expenditureCr')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.predictedOverrun')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.exposureCr')}</th>
+                        <th className="py-3 px-3 text-center">{t('analytics.table.riskTier')}</th>
+                        <th className="py-3 px-3 text-center">{t('analytics.table.riskScore')}</th>
+                        <th className="py-3 px-4 text-center">{t('projects.table.action')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1157,7 +1160,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                               <td className="py-3.5 px-3 text-right font-medium text-slate-600">
                                 <div>₹{proj.cumulative_expenditure_cr?.toLocaleString()}</div>
                                 <div className="text-[10px] text-slate-400">
-                                  {proj.expenditure_ratio_pct}% spent
+                                  {t('analytics.table.pctSpent', { pct: proj.expenditure_ratio_pct })}
                                 </div>
                               </td>
                               <td className="py-3.5 px-3 text-right">
@@ -1201,7 +1204,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                                   to={`/projects/${proj.id}`}
                                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-[#0d52ce] hover:text-white transition-colors"
                                 >
-                                  <span>View</span>
+                                  <span>{t('analytics.table.view')}</span>
                                   <ChevronRight className="w-3 h-3" />
                                 </Link>
                               </td>
@@ -1215,7 +1218,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                 {/* Pagination footer */}
                 <div className="p-4 border-t border-slate-100 flex items-center justify-between">
                   <p className="text-xs text-slate-500">
-                    Page {currentPage} of {Math.ceil((costData?.projects?.length || 1) / pageSize)}
+                    {t('analytics.table.pageOf', { page: currentPage, total: Math.ceil((costData?.projects?.length || 1) / pageSize) })}
                   </p>
                   <div className="flex items-center gap-2">
                     <button
@@ -1223,14 +1226,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       disabled={currentPage === 1}
                       className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Previous
+                      {t('analytics.table.previous')}
                     </button>
                     <button
                       onClick={() => setCurrentPage(p => Math.min(Math.ceil((costData?.projects?.length || 1) / pageSize), p + 1))}
                       disabled={currentPage >= Math.ceil((costData?.projects?.length || 1) / pageSize)}
                       className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Next
+                      {t('analytics.table.next')}
                     </button>
                   </div>
                 </div>
@@ -1247,53 +1250,53 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-blue-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Schedule Delay</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.time.kpi.avgDelay')}</p>
                     <Clock className="h-5 w-5 text-blue-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     {timeData?.summary?.average_delay_months || 0} Mo
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
-                    ~{timeData?.summary?.average_delay_days || 0} days estimated slippage
+                    {t('analytics.time.kpi.avgDelayDays', { days: timeData?.summary?.average_delay_days || 0 })}
                   </p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-rose-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Severe Delay (&gt;1 Year)</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.time.kpi.severeDelay')}</p>
                     <AlertTriangle className="h-5 w-5 text-rose-500" />
                   </div>
                   <p className="text-2xl font-black text-rose-600 mt-2">
                     {timeData?.summary?.severe_delay_count?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-rose-600 font-semibold mt-1">
-                    Projects slipping beyond 12 calendar months
+                    {t('analytics.time.kpi.severeDelayBody')}
                   </p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-amber-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Significant Delay (6-12 Mo)</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.time.kpi.significantDelay')}</p>
                     <ShieldAlert className="h-5 w-5 text-amber-500" />
                   </div>
                   <p className="text-2xl font-black text-amber-600 mt-2">
                     {timeData?.summary?.significant_delay_count?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-amber-600 font-semibold mt-1">
-                    Moderate slippage requiring milestone recovery
+                    {t('analytics.time.kpi.significantDelayBody')}
                   </p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-emerald-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">On-Track Adherence</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.time.kpi.onTrackAdherence')}</p>
                     <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                   </div>
                   <p className="text-2xl font-black text-emerald-600 mt-2">
                     {timeData?.summary?.on_track_count?.toLocaleString() || 0}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
-                    {timeData?.summary?.total_projects ? ((timeData.summary.on_track_count / timeData.summary.total_projects) * 100).toFixed(1) : 0}% adhering to target commissioning
+                    {t('analytics.time.kpi.onTrackBody', { pct: timeData?.summary?.total_projects ? ((timeData.summary.on_track_count / timeData.summary.total_projects) * 100).toFixed(1) : 0 })}
                   </p>
                 </div>
               </div>
@@ -1306,20 +1309,20 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4">
                       <div>
                         <h3 className="text-sm font-bold text-slate-900 font-outfit">
-                          Sector-Wise Average Schedule Slippage (Months)
+                          {t('analytics.time.charts.sectorSlippageTitle')}
                         </h3>
                         <p className="text-xs text-slate-500 font-medium">
-                          Empirical commissioning delay across infrastructure domains for {selectedMonth}
+                          {t('analytics.time.charts.sectorSlippageSubtitle', { month: selectedMonth })}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-100">
-                          Schedule Variance
+                          {t('analytics.time.charts.scheduleVariance')}
                         </span>
                         <button
                           onClick={() => setFullscreenChart('time_sector')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -1349,7 +1352,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                           <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
                           <Bar
                             barSize={32}
-                            name="Average Delay"
+                            name={t('analytics.legend.averageDelay')}
                             dataKey="avg_delay_months"
                             fill="#f59e0b"
                             radius={[6, 6, 0, 0]}
@@ -1359,8 +1362,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     </div>
                   </div>
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span>X-Axis: Infrastructure Sectors</span>
-                    <span>Y-Axis: Average Delay (Months)</span>
+                    <span>{t('analytics.axis.xInfraSectors')}</span>
+                    <span>{t('analytics.axis.yAvgDelayMonths')}</span>
                   </div>
                 </div>
 
@@ -1369,15 +1372,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h3 className="text-sm font-bold text-slate-900 font-outfit">Slippage Distribution</h3>
-                        <p className="text-xs text-slate-500 font-medium">Projects categorized by delay severity</p>
+                        <h3 className="text-sm font-bold text-slate-900 font-outfit">{t('analytics.time.charts.slippageDistTitle')}</h3>
+                        <p className="text-xs text-slate-500 font-medium">{t('analytics.time.charts.slippageDistSubtitle')}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-slate-400" />
                         <button
                           onClick={() => setFullscreenChart('time_severity')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -1389,10 +1392,10 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                         <PieChart>
                           <Pie
                             data={[
-                              { name: 'Severe (>12 Mo)', value: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
-                              { name: 'Significant (6-12 Mo)', value: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
-                              { name: 'Minor (2-6 Mo)', value: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
-                              { name: 'On-Track (<2 Mo)', value: timeData?.summary?.on_track_count || 0, color: '#10b981' }
+                              { name: t('analytics.delaySeverity.severe'), value: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
+                              { name: t('analytics.delaySeverity.significant'), value: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
+                              { name: t('analytics.delaySeverity.minor'), value: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
+                              { name: t('analytics.delaySeverity.onTrack'), value: timeData?.summary?.on_track_count || 0, color: '#10b981' }
                             ]}
                             cx="50%"
                             cy="50%"
@@ -1418,17 +1421,17 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                           {timeData?.summary?.total_projects || 0}
                         </span>
                         <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
-                          Monitored
+                          {t('analytics.time.charts.monitored')}
                         </span>
                       </div>
                     </div>
 
                     <div className="mt-2 space-y-1.5">
                       {[
-                        { label: 'Severe (>12 Mo)', count: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
-                        { label: 'Significant (6-12 Mo)', count: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
-                        { label: 'Minor (2-6 Mo)', count: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
-                        { label: 'On-Track (<2 Mo)', count: timeData?.summary?.on_track_count || 0, color: '#10b981' },
+                        { label: t('analytics.delaySeverity.severe'), count: timeData?.summary?.severe_delay_count || 0, color: '#ef4444' },
+                        { label: t('analytics.delaySeverity.significant'), count: timeData?.summary?.significant_delay_count || 0, color: '#f97316' },
+                        { label: t('analytics.delaySeverity.minor'), count: timeData?.summary?.minor_delay_count || 0, color: '#3b82f6' },
+                        { label: t('analytics.delaySeverity.onTrack'), count: timeData?.summary?.on_track_count || 0, color: '#10b981' },
                       ].map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2">
@@ -1450,20 +1453,20 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 font-outfit">
-                      Top Schedule Delay Mega Projects (Months)
+                      {t('analytics.time.charts.topProjectsTitle')}
                     </h3>
                     <p className="text-xs text-slate-500 font-medium">
-                      Critical infrastructure initiatives experiencing the highest duration slippage past sanctioned commissioning
+                      {t('analytics.time.charts.topProjectsSubtitle')}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-semibold text-slate-500">
-                      Ranked by Calendar Months Delayed
+                      {t('analytics.time.charts.rankedByMonths')}
                     </span>
                     <button
                       onClick={() => setFullscreenChart('time_projects')}
                       className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                      title="View Chart in Full Screen"
+                      title={t('analytics.titles.viewFullScreen')}
                     >
                       <Maximize2 className="w-3.5 h-3.5" />
                     </button>
@@ -1499,7 +1502,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       <RechartsTooltip content={<CustomChartTooltip unit="Months" />} />
                       <Bar
                         barSize={20}
-                        name="Predicted Delay"
+                        name={t('analytics.legend.predictedDelay')}
                         dataKey="delay_months"
                         fill="#f97316"
                         radius={[0, 6, 6, 0]}
@@ -1516,7 +1519,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                     <input
                       type="text"
-                      placeholder="Search project name, ID, or sector..."
+                      placeholder={t('analytics.searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 text-xs font-medium rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
@@ -1529,11 +1532,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       onChange={(e) => setSelectedDelaySeverity(e.target.value)}
                       className="text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     >
-                      <option value="ALL">All Delay Severities</option>
-                      <option value="Severe Delay">Severe Delay (&gt;1 yr)</option>
-                      <option value="Significant Delay">Significant Delay (6-12 mo)</option>
-                      <option value="Minor Delay">Minor Delay (2-6 mo)</option>
-                      <option value="On-Track">On-Track (&lt;2 mo)</option>
+                      <option value="ALL">{t('analytics.filters.allDelaySeverities')}</option>
+                      <option value="Severe Delay">{t('analytics.badges.severeDelay')}</option>
+                      <option value="Significant Delay">{t('analytics.badges.significantDelay')}</option>
+                      <option value="Minor Delay">{t('analytics.badges.minorDelay')}</option>
+                      <option value="On-Track">{t('analytics.filters.onTrackShort')}</option>
                     </select>
 
                     <select
@@ -1541,16 +1544,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       onChange={(e) => setTimeSortBy(e.target.value)}
                       className="text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     >
-                      <option value="predicted_delay_days">Sort by: Delay Duration</option>
-                      <option value="delay_risk_score">Sort by: Delay Risk Score</option>
-                      <option value="overall_risk_score">Sort by: Overall Risk Score</option>
-                      <option value="budget_cr">Sort by: Original Budget</option>
+                      <option value="predicted_delay_days">{t('analytics.filters.sortDelayDuration')}</option>
+                      <option value="delay_risk_score">{t('analytics.filters.sortDelayRiskScore')}</option>
+                      <option value="overall_risk_score">{t('analytics.filters.sortOverallRiskScore')}</option>
+                      <option value="budget_cr">{t('analytics.filters.sortOriginalBudget')}</option>
                     </select>
 
                     <button
                       onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
                       className="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors shrink-0"
-                      title="Toggle Sort Order"
+                      title={t('analytics.titles.toggleSortOrder')}
                     >
                       <ArrowUpDown className="w-4 h-4" />
                     </button>
@@ -1562,10 +1565,10 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <h3 className="font-bold text-sm text-slate-900">
-                    Project-by-Project Schedule & Delay Predictions ({timeData?.projects?.length || 0} Monitored Projects)
+                    {t('analytics.time.table.title', { count: timeData?.projects?.length || 0 })}
                   </h3>
                   <span className="text-xs text-slate-500 font-medium">
-                    Showing {Math.min((currentPage - 1) * pageSize + 1, timeData?.projects?.length || 0)} - {Math.min(currentPage * pageSize, timeData?.projects?.length || 0)} of {timeData?.projects?.length || 0}
+                    {t('analytics.table.showingRange', { from: Math.min((currentPage - 1) * pageSize + 1, timeData?.projects?.length || 0), to: Math.min(currentPage * pageSize, timeData?.projects?.length || 0), total: timeData?.projects?.length || 0 })}
                   </span>
                 </div>
 
@@ -1573,15 +1576,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold uppercase tracking-wider">
-                        <th className="py-3 px-4">Project Details</th>
-                        <th className="py-3 px-3">Sector & Ministry</th>
-                        <th className="py-3 px-3 text-right">Sanctioned Budget</th>
-                        <th className="py-3 px-3 text-right">Predicted Delay (Days)</th>
-                        <th className="py-3 px-3 text-right">Delay (Months)</th>
-                        <th className="py-3 px-3 text-center">Delay Classification</th>
-                        <th className="py-3 px-3 text-center">Delay Risk</th>
-                        <th className="py-3 px-3 text-center">Overall Risk</th>
-                        <th className="py-3 px-4 text-center">Action</th>
+                        <th className="py-3 px-4">{t('analytics.table.projectDetails')}</th>
+                        <th className="py-3 px-3">{t('analytics.table.sectorMinistry')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.sanctionedBudget')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.predictedDelayDays')}</th>
+                        <th className="py-3 px-3 text-right">{t('analytics.table.delayMonths')}</th>
+                        <th className="py-3 px-3 text-center">{t('analytics.table.delayClassification')}</th>
+                        <th className="py-3 px-3 text-center">{t('analytics.table.delayRisk')}</th>
+                        <th className="py-3 px-3 text-center">{t('analytics.table.overallRisk')}</th>
+                        <th className="py-3 px-4 text-center">{t('projects.table.action')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1611,13 +1614,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                               </td>
                               <td className="py-3.5 px-3 text-right font-black text-slate-900">
                                 {proj.predicted_delay_days > 0 ? (
-                                  <span>{proj.predicted_delay_days} days</span>
+                                  <span>{t('analytics.table.daysSuffix', { count: proj.predicted_delay_days })}</span>
                                 ) : (
-                                  <span className="text-emerald-600 font-medium">On-Track</span>
+                                  <span className="text-emerald-600 font-medium">{t('analytics.filters.onTrackShort')}</span>
                                 )}
                               </td>
                               <td className="py-3.5 px-3 text-right font-bold text-amber-600">
-                                {proj.predicted_delay_months > 0 ? `${proj.predicted_delay_months} mo` : '0 mo'}
+                                {proj.predicted_delay_months > 0 ? t('analytics.table.moSuffix', { count: proj.predicted_delay_months }) : t('analytics.table.moSuffix', { count: 0 })}
                               </td>
                               <td className="py-3.5 px-3 text-center">
                                 {renderDelayBadge(proj.delay_severity)}
@@ -1643,7 +1646,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                                   to={`/projects/${proj.id}`}
                                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-[#0d52ce] hover:text-white transition-colors"
                                 >
-                                  <span>View</span>
+                                  <span>{t('analytics.table.view')}</span>
                                   <ChevronRight className="w-3 h-3" />
                                 </Link>
                               </td>
@@ -1657,7 +1660,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                 {/* Pagination footer */}
                 <div className="p-4 border-t border-slate-100 flex items-center justify-between">
                   <p className="text-xs text-slate-500">
-                    Page {currentPage} of {Math.ceil((timeData?.projects?.length || 1) / pageSize)}
+                    {t('analytics.table.pageOf', { page: currentPage, total: Math.ceil((timeData?.projects?.length || 1) / pageSize) })}
                   </p>
                   <div className="flex items-center gap-2">
                     <button
@@ -1665,14 +1668,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       disabled={currentPage === 1}
                       className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Previous
+                      {t('analytics.table.previous')}
                     </button>
                     <button
                       onClick={() => setCurrentPage(p => Math.min(Math.ceil((timeData?.projects?.length || 1) / pageSize), p + 1))}
                       disabled={currentPage >= Math.ceil((timeData?.projects?.length || 1) / pageSize)}
                       className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Next
+                      {t('analytics.table.next')}
                     </button>
                   </div>
                 </div>
@@ -1689,44 +1692,44 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-blue-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Projects</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.totalProjects')}</p>
                     <Activity className="h-5 w-5 text-blue-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">{overview?.total_projects || 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">Monitored infrastructure portfolio</p>
+                  <p className="text-xs text-slate-500 mt-1">{t('analytics.benchmarks.kpi.monitoredPortfolio')}</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-indigo-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Capital Outlay</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.benchmarks.kpi.totalCapitalOutlay')}</p>
                     <IndianRupee className="h-5 w-5 text-indigo-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     ₹{((overview?.total_budget_cr || 0) / 1000).toFixed(1)}k Cr
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">Sanctioned public expenditure</p>
+                  <p className="text-xs text-slate-500 mt-1">{t('analytics.benchmarks.kpi.sanctionedExpenditure')}</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-amber-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Risk Score</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.benchmarks.kpi.avgRiskScore')}</p>
                     <AlertCircle className="h-5 w-5 text-amber-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     {((overview?.average_risk_score || 0) * 100).toFixed(1)}
                   </p>
-                  <p className="text-xs text-amber-600 font-semibold mt-1">Multi-dimensional composite benchmark</p>
+                  <p className="text-xs text-amber-600 font-semibold mt-1">{t('analytics.benchmarks.kpi.compositeBenchmark')}</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-rose-500">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Cost Overrun Exposure</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('analytics.benchmarks.kpi.costOverrunExposure')}</p>
                     <TrendingUp className="h-5 w-5 text-rose-500" />
                   </div>
                   <p className="text-2xl font-black text-slate-900 mt-2">
                     ₹{((overview?.total_cost_overrun_exposure_cr || 0) / 1000).toFixed(1)}k Cr
                   </p>
-                  <p className="text-xs text-rose-600 font-semibold mt-1">Total portfolio cost escalation</p>
+                  <p className="text-xs text-rose-600 font-semibold mt-1">{t('analytics.benchmarks.kpi.totalEscalation')}</p>
                 </div>
               </div>
 
@@ -1736,9 +1739,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                       <div>
-                        <h2 className="text-base font-bold text-slate-900 font-outfit">Performance Benchmarks</h2>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">{t('analytics.benchmarks.performanceBenchmarks')}</h2>
                         <p className="text-xs text-slate-500">
-                          Cross-category comparison of Cost Growth (%) vs. Risk Score
+                          {t('analytics.benchmarks.crossCategoryComparison')}
                         </p>
                       </div>
 
@@ -1750,19 +1753,19 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                               key={tab}
                               onClick={() => setBenchmarkDimension(tab)}
                               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
-                                benchmarkDimension === tab 
-                                  ? 'bg-white text-slate-900 shadow-sm' 
+                                benchmarkDimension === tab
+                                  ? 'bg-white text-slate-900 shadow-sm'
                                   : 'text-slate-500 hover:text-slate-700'
                               }`}
                             >
-                              By {tab === 'geographic_region' ? 'Region' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                              {t('analytics.benchmarks.byDimension', { dimension: tab === 'geographic_region' ? t('analytics.benchmarks.dimension.region') : tab === 'sector' ? t('analytics.benchmarks.dimension.sector') : t('analytics.benchmarks.dimension.ministry') })}
                             </button>
                           ))}
                         </div>
                         <button
                           onClick={() => setFullscreenChart('benchmarks')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -1773,7 +1776,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                       <div className="mb-4 text-xs p-3 rounded-xl bg-blue-50/70 border border-blue-100 text-blue-800 flex items-start gap-2">
                         <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                         <div>
-                          <span className="font-bold">Statistical Context: </span>
+                          <span className="font-bold">{t('analytics.benchmarks.statisticalContext')} </span>
                           {benchmarks.explanatory_annotations.what_should_not_be_concluded}
                         </div>
                       </div>
@@ -1783,11 +1786,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     <div className="flex items-center justify-end gap-5 text-xs font-semibold mb-2">
                       <div className="flex items-center gap-2">
                         <span className="w-3 h-3 rounded-sm bg-[#3b82f6]" />
-                        <span className="text-slate-700">Avg Cost Growth (%)</span>
+                        <span className="text-slate-700">{t('analytics.legend.avgCostGrowth')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-3 h-3 rounded-sm bg-[#f43f5e]" />
-                        <span className="text-slate-700">Avg Risk Score (0-100)</span>
+                        <span className="text-slate-700">{t('analytics.legend.avgRiskScore')}</span>
                       </div>
                     </div>
 
@@ -1823,7 +1826,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                             barSize={16}
                             yAxisId="left"
                             dataKey="avg_cost_growth_pct"
-                            name="Avg Cost Growth (%)"
+                            name={t('analytics.legend.avgCostGrowth')}
                             fill="#3b82f6"
                             radius={[6, 6, 0, 0]}
                           />
@@ -1831,7 +1834,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                             barSize={16}
                             yAxisId="right"
                             dataKey="avg_risk_score"
-                            name="Avg Risk Score"
+                            name={t('analytics.legend.avgRiskScoreShort')}
                             fill="#f43f5e"
                             radius={[6, 6, 0, 0]}
                           />
@@ -1841,8 +1844,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   </div>
 
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span>Left Axis: Cost Growth (%)</span>
-                    <span>Right Axis: Risk Score (0-100)</span>
+                    <span>{t('analytics.axis.leftCostGrowth')}</span>
+                    <span>{t('analytics.axis.rightRiskScore')}</span>
                   </div>
                 </div>
 
@@ -1851,15 +1854,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h2 className="text-base font-bold text-slate-900 font-outfit">Regional Distribution</h2>
-                        <p className="text-xs text-slate-500">Project concentration by state & jurisdiction</p>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">{t('analytics.benchmarks.regionalDistribution')}</h2>
+                        <p className="text-xs text-slate-500">{t('analytics.benchmarks.regionalDistributionSubtitle')}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-blue-600" />
                         <button
                           onClick={() => setFullscreenChart('regional')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -1891,7 +1894,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                           {overview?.total_projects || 0}
                         </span>
                         <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
-                          Total Projects
+                          {t('analytics.totalProjects')}
                         </span>
                       </div>
                     </div>
@@ -1931,15 +1934,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h2 className="text-base font-bold text-slate-900 font-outfit">Ministry Risk Profiles</h2>
-                        <p className="text-xs text-slate-500">Average risk score across key line ministries</p>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">{t('analytics.benchmarks.ministryRiskProfiles')}</h2>
+                        <p className="text-xs text-slate-500">{t('analytics.benchmarks.ministryRiskProfilesSubtitle')}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-slate-400" />
                         <button
                           onClick={() => setFullscreenChart('ministry')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -1974,7 +1977,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                           <RechartsTooltip content={<CustomChartTooltip unit="/ 100" />} />
                           <Bar
                             barSize={20}
-                            name="Avg Risk Score"
+                            name={t('analytics.legend.avgRiskScoreShort')}
                             dataKey="risk_score"
                             fill="#f59e0b"
                             radius={[0, 6, 6, 0]}
@@ -1984,8 +1987,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     </div>
                   </div>
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span>Y-Axis: Line Ministries</span>
-                    <span>X-Axis: Composite Risk Index (0-100 Scale)</span>
+                    <span>{t('analytics.axis.yLineMinistries')}</span>
+                    <span>{t('analytics.axis.xCompositeRiskIndex')}</span>
                   </div>
                 </div>
 
@@ -1994,15 +1997,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h2 className="text-base font-bold text-slate-900 font-outfit">Capital Outlay by Sector</h2>
-                        <p className="text-xs text-slate-500">Total sanctioned expenditure allocation (₹ Cr)</p>
+                        <h2 className="text-base font-bold text-slate-900 font-outfit">{t('analytics.benchmarks.capitalOutlayBySector')}</h2>
+                        <p className="text-xs text-slate-500">{t('analytics.benchmarks.capitalOutlayBySectorSubtitle')}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <IndianRupee className="w-4 h-4 text-emerald-600" />
                         <button
                           onClick={() => setFullscreenChart('capital')}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
-                          title="View Chart in Full Screen"
+                          title={t('analytics.titles.viewFullScreen')}
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -2036,7 +2039,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                           <RechartsTooltip content={<CustomChartTooltip unit="Cr" />} />
                           <Bar
                             barSize={20}
-                            name="Total Budget"
+                            name={t('analytics.legend.totalBudget')}
                             dataKey="total_budget_cr"
                             fill="#10b981"
                             radius={[0, 6, 6, 0]}
@@ -2046,8 +2049,8 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ defaultSubTab }) =
                     </div>
                   </div>
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span>Y-Axis: Major Sectors</span>
-                    <span>X-Axis: Capital Outlay (₹ Cr)</span>
+                    <span>{t('analytics.axis.yMajorSectors')}</span>
+                    <span>{t('analytics.axis.xCapitalOutlay')}</span>
                   </div>
                 </div>
               </div>

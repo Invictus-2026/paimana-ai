@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
 import { SECTOR_DISTRIBUTION } from '../data/mockData';
@@ -27,6 +28,7 @@ const MONTH_LABELS: Record<string, string> = {
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [selectedMonth, setSelectedMonth] = useState("2026-07");
 
   const { data: overviewResponse } = useQuery({
@@ -109,10 +111,10 @@ export const DashboardPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 font-sans tracking-tight">
-            National Infrastructure Monitor
+            {t('dashboard.title')}
           </h1>
           <p className="text-slate-500 text-xs mt-0.5 font-medium">
-            Real-time MoSPI data · Jul 2025 – Jul 2026 · {monthlyData.length} monthly snapshots loaded
+            {t('dashboard.subtitle', { count: monthlyData.length })}
           </p>
         </div>
         <div className="flex items-center space-x-3 shrink-0">
@@ -129,7 +131,7 @@ export const DashboardPage: React.FC = () => {
             <ChevronDown className="w-4 h-4 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
           <button className="flex items-center space-x-2 bg-[#0d52ce] hover:bg-[#0b45ad] text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition">
-            <span>Export</span><Download className="w-3.5 h-3.5" />
+            <span>{t('dashboard.export')}</span><Download className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -138,10 +140,10 @@ export const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="light-card p-4 flex items-start justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500">Total Projects</span>
+            <span className="text-xs font-semibold text-slate-500">{t('dashboard.kpi.totalProjects')}</span>
             <h2 className="text-2xl font-black text-slate-900 mt-1">{(currentMonthData?.total_projects || overview?.total_projects || 0).toLocaleString()}</h2>
             <p className={`text-[11px] font-bold mt-1 flex items-center gap-1 ${Number(projectGrowth) < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
-              <span>{Number(projectGrowth) >= 0 ? '↑' : '↓'} {Math.abs(Number(projectGrowth))}%</span><span className="text-slate-400 font-normal">from prev month</span>
+              <span>{Number(projectGrowth) >= 0 ? '↑' : '↓'} {Math.abs(Number(projectGrowth))}%</span><span className="text-slate-400 font-normal">{t('dashboard.kpi.fromPrevMonth')}</span>
             </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#0d52ce] text-white flex items-center justify-center shadow-md shadow-[#0d52ce]/20 shrink-0"><LayoutGrid className="w-5 h-5" /></div>
@@ -149,19 +151,19 @@ export const DashboardPage: React.FC = () => {
 
         <div className="light-card p-4 flex items-start justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500">Original Budget</span>
+            <span className="text-xs font-semibold text-slate-500">{t('dashboard.kpi.originalBudget')}</span>
             <h2 className="text-xl font-black text-slate-900 mt-1">₹{currentMonthData ? (currentMonthData.total_original_cost_cr / 100000).toFixed(1) + ' L Cr' : '—'}</h2>
-            <p className="text-[11px] font-normal text-slate-400 mt-1">For {MONTH_LABELS[selectedMonth]}</p>
+            <p className="text-[11px] font-normal text-slate-400 mt-1">{t('dashboard.kpi.forMonth', { month: MONTH_LABELS[selectedMonth] })}</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-md shadow-orange-500/20 shrink-0"><IndianRupee className="w-5 h-5" /></div>
         </div>
 
         <div className="light-card p-4 flex items-start justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500">Revised Cost</span>
+            <span className="text-xs font-semibold text-slate-500">{t('dashboard.kpi.revisedCost')}</span>
             <h2 className="text-xl font-black text-slate-900 mt-1">₹{currentMonthData && currentMonthData.total_revised_cost_cr > 0 ? (currentMonthData.total_revised_cost_cr / 100000).toFixed(1) + ' L Cr' : '—'}</h2>
             <p className="text-[11px] font-bold text-rose-500 mt-1 flex items-center gap-1">
-              <span>+{currentMonthData?.cost_overrun_pct?.toFixed(1) || '0'}%</span><span className="text-slate-400 font-normal">overrun</span>
+              <span>+{currentMonthData?.cost_overrun_pct?.toFixed(1) || '0'}%</span><span className="text-slate-400 font-normal">{t('dashboard.kpi.overrun')}</span>
             </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#0d52ce] text-white flex items-center justify-center shadow-md shadow-[#0d52ce]/20 shrink-0"><TrendingUp className="w-5 h-5" /></div>
@@ -169,18 +171,18 @@ export const DashboardPage: React.FC = () => {
 
         <div className="light-card p-4 flex items-start justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500">Cumulative Expenditure</span>
+            <span className="text-xs font-semibold text-slate-500">{t('dashboard.kpi.cumulativeExpenditure')}</span>
             <h2 className="text-xl font-black text-slate-900 mt-1">₹{currentMonthData ? (currentMonthData.total_expenditure_cr / 100000).toFixed(1) + ' L Cr' : '—'}</h2>
-            <p className="text-[11px] font-normal text-slate-400 mt-1">Utilisation: {currentMonthData?.expenditure_rate_pct?.toFixed(1) || '—'}%</p>
+            <p className="text-[11px] font-normal text-slate-400 mt-1">{t('dashboard.kpi.utilisation', { pct: currentMonthData?.expenditure_rate_pct?.toFixed(1) || '—' })}</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-md shadow-orange-500/20 shrink-0"><Clock className="w-5 h-5" /></div>
         </div>
 
         <div className="light-card p-4 flex items-start justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500">High Risk Projects</span>
+            <span className="text-xs font-semibold text-slate-500">{t('dashboard.kpi.highRiskProjects')}</span>
             <h2 className="text-2xl font-black text-slate-900 mt-1">{overview?.at_risk_projects_count?.toLocaleString() || '—'}</h2>
-            <p className="text-[11px] font-normal text-slate-400 mt-1">Risk score ≥ 50/100</p>
+            <p className="text-[11px] font-normal text-slate-400 mt-1">{t('dashboard.kpi.riskScoreThreshold')}</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-md shadow-red-500/20 shrink-0"><Shield className="w-5 h-5" /></div>
         </div>
@@ -191,8 +193,8 @@ export const DashboardPage: React.FC = () => {
         {/* Project count growth trend */}
         <ExpandableChartCard
           className="light-card p-5 lg:col-span-8"
-          title="Month-wise Project & Expenditure Trend"
-          subtitle="Jul 2025 → Jul 2026 · Real MoSPI data"
+          title={t('dashboard.charts.projectTrendTitle')}
+          subtitle={t('dashboard.charts.projectTrendSubtitle')}
           headerRight={<Activity className="w-4 h-4 text-[#0d52ce]" />}
           chartHeight="h-56"
         >
@@ -214,10 +216,10 @@ export const DashboardPage: React.FC = () => {
                 <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${v}k Cr`} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
-                  formatter={(v: any, n: any) => n === 'expenditure' ? [`₹${v}k Cr`, 'Expenditure'] : [v, 'Projects']} />
+                  formatter={(v: any, n: any) => n === 'expenditure' ? [`₹${v}k Cr`, t('dashboard.legend.expenditure')] : [v, t('dashboard.legend.projects')]} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Area yAxisId="left" type="monotone" dataKey="projects" name="Projects" stroke="#0d52ce" strokeWidth={2.5} fill="url(#gradProjects)" dot={{ r: 3, fill: '#0d52ce' }} />
-                <Area yAxisId="right" type="monotone" dataKey="expenditure" name="Expenditure" stroke="#f97316" strokeWidth={2.5} fill="url(#gradExp)" dot={{ r: 3, fill: '#f97316' }} />
+                <Area yAxisId="left" type="monotone" dataKey="projects" name={t('dashboard.legend.projects')} stroke="#0d52ce" strokeWidth={2.5} fill="url(#gradProjects)" dot={{ r: 3, fill: '#0d52ce' }} />
+                <Area yAxisId="right" type="monotone" dataKey="expenditure" name={t('dashboard.legend.expenditure')} stroke="#f97316" strokeWidth={2.5} fill="url(#gradExp)" dot={{ r: 3, fill: '#f97316' }} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -226,11 +228,11 @@ export const DashboardPage: React.FC = () => {
         {/* Sector donut for selected month */}
         <ExpandableChartCard
           className="light-card p-5 lg:col-span-4"
-          title={`Sectors – ${MONTH_LABELS[selectedMonth]}`}
-          subtitle="Portfolio distribution"
+          title={t('dashboard.charts.sectorsTitle', { month: MONTH_LABELS[selectedMonth] })}
+          subtitle={t('dashboard.charts.sectorsSubtitle')}
           headerRight={
             <button onClick={() => navigate('/projects')} className="text-xs font-bold text-[#0d52ce] hover:underline flex items-center gap-1">
-              All <ArrowUpRight className="w-3.5 h-3.5" />
+              {t('dashboard.viewAll')} <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           }
           chartHeight="h-56"
@@ -247,7 +249,7 @@ export const DashboardPage: React.FC = () => {
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <span className={`${isFull ? 'text-2xl' : 'text-sm'} font-black text-slate-900`}>{currentMonthData?.total_projects || '—'}</span>
-                  <span className={`${isFull ? 'text-xs' : 'text-[9px]'} text-slate-400 font-semibold`}>Total</span>
+                  <span className={`${isFull ? 'text-xs' : 'text-[9px]'} text-slate-400 font-semibold`}>{t('dashboard.total')}</span>
                 </div>
               </div>
               <div className={`space-y-1.5 flex-1 ${isFull ? 'text-sm max-w-md' : 'text-[11px]'}`}>
@@ -271,8 +273,8 @@ export const DashboardPage: React.FC = () => {
         {/* Cost overrun & expenditure rate trend */}
         <ExpandableChartCard
           className="light-card p-5 lg:col-span-7"
-          title="Cost Overrun & Expenditure Rate Trend"
-          subtitle="Month-wise overrun % vs budget utilisation % · Real data"
+          title={t('dashboard.charts.overrunTrendTitle')}
+          subtitle={t('dashboard.charts.overrunTrendSubtitle')}
           chartHeight="h-52"
         >
           {(isFull) => (
@@ -283,8 +285,8 @@ export const DashboardPage: React.FC = () => {
                 <YAxis tickFormatter={v => `${v}%`} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(v: any) => `${v}%`} contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="costOverrun" name="Cost Overrun %" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="expRate" name="Expenditure Rate %" stroke="#0d52ce" strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="costOverrun" name={t('dashboard.legend.costOverrunPct')} stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="expRate" name={t('dashboard.legend.expenditureRatePct')} stroke="#0d52ce" strokeWidth={2.5} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -293,8 +295,8 @@ export const DashboardPage: React.FC = () => {
         {/* Top sectors bar for selected month */}
         <ExpandableChartCard
           className="light-card p-5 lg:col-span-5"
-          title={`Top Sectors – ${MONTH_LABELS[selectedMonth]}`}
-          subtitle="Projects by sector volume"
+          title={t('dashboard.charts.topSectorsTitle', { month: MONTH_LABELS[selectedMonth] })}
+          subtitle={t('dashboard.charts.topSectorsSubtitle')}
           chartHeight="h-52"
         >
           {(isFull) => (
@@ -303,8 +305,8 @@ export const DashboardPage: React.FC = () => {
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#475569', fontWeight: 500 }} tickLine={false} axisLine={false} width={130} />
                 <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', borderRadius: '8px', fontSize: '12px' }}
-                  formatter={(v: any, n: any) => [n === 'exp' ? `₹${v}k Cr` : v, n === 'exp' ? 'Expenditure' : 'Projects']} />
-                <Bar dataKey="count" name="Projects" fill="#0d52ce" radius={[0, 4, 4, 0]} barSize={isFull ? 24 : 16} />
+                  formatter={(v: any, n: any) => [n === 'exp' ? `₹${v}k Cr` : v, n === 'exp' ? t('dashboard.legend.expenditure') : t('dashboard.legend.projects')]} />
+                <Bar dataKey="count" name={t('dashboard.legend.projects')} fill="#0d52ce" radius={[0, 4, 4, 0]} barSize={isFull ? 24 : 16} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -316,41 +318,41 @@ export const DashboardPage: React.FC = () => {
         <div className="light-card p-5 lg:col-span-8">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-4 h-4 text-[#0d52ce]" />
-            <h3 className="font-bold text-sm text-slate-900">AI-Driven Insights from MoSPI Data</h3>
+            <h3 className="font-bold text-sm text-slate-900">{t('dashboard.insights.title')}</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="p-3.5 rounded-xl bg-rose-50 border-l-4 border-l-rose-500 text-xs text-slate-800">
               <AlertTriangle className="w-4 h-4 text-rose-500 mb-1.5" />
-              <p className="font-bold">Cost Overrun Alert</p>
+              <p className="font-bold">{t('dashboard.insights.costOverrunAlert.title')}</p>
               <p className="mt-1 text-slate-600 leading-relaxed">
-                {overview?.at_risk_projects_count || '—'} projects have ≥50% risk score. Avg overrun: {currentMonthData?.cost_overrun_pct?.toFixed(1) || '—'}%
+                {t('dashboard.insights.costOverrunAlert.body', { count: overview?.at_risk_projects_count || '—', pct: currentMonthData?.cost_overrun_pct?.toFixed(1) || '—' })}
               </p>
             </div>
             <div className="p-3.5 rounded-xl bg-blue-50 border-l-4 border-l-blue-500 text-xs text-slate-800">
               <TrendingUp className="w-4 h-4 text-blue-500 mb-1.5" />
-              <p className="font-bold">Expenditure Rate</p>
+              <p className="font-bold">{t('dashboard.insights.expenditureRate.title')}</p>
               <p className="mt-1 text-slate-600 leading-relaxed">
-                Budget utilisation at {currentMonthData?.expenditure_rate_pct?.toFixed(1) || '—'}% in {MONTH_LABELS[selectedMonth]}. Rail & Highways lead disbursement.
+                {t('dashboard.insights.expenditureRate.body', { pct: currentMonthData?.expenditure_rate_pct?.toFixed(1) || '—', month: MONTH_LABELS[selectedMonth] })}
               </p>
             </div>
             <div className="p-3.5 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500 text-xs text-slate-800">
               <CheckCircle2 className="w-4 h-4 text-emerald-500 mb-1.5" />
-              <p className="font-bold">Portfolio Growth</p>
+              <p className="font-bold">{t('dashboard.insights.portfolioGrowth.title')}</p>
               <p className="mt-1 text-slate-600 leading-relaxed">
-                {currentMonthData?.total_projects || '—'} projects tracked in {MONTH_LABELS[selectedMonth]}, up {projectGrowth}% month-on-month across all sectors.
+                {t('dashboard.insights.portfolioGrowth.body', { count: currentMonthData?.total_projects || '—', month: MONTH_LABELS[selectedMonth], growth: projectGrowth })}
               </p>
             </div>
           </div>
         </div>
 
         <div className="light-card p-5 lg:col-span-4">
-          <h3 className="font-bold text-sm text-slate-900 mb-4">Quick Actions</h3>
+          <h3 className="font-bold text-sm text-slate-900 mb-4">{t('dashboard.quickActions.title')}</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: 'Project Explorer', path: '/projects', color: 'bg-[#0d52ce]', Icon: LayoutGrid },
-              { label: 'Risk Alerts', path: '/interventions', color: 'bg-orange-500', Icon: Zap },
-              { label: 'Analytics', path: '/analytics', color: 'bg-purple-600', Icon: Activity },
-              { label: 'AI Copilot', path: '/copilot', color: 'bg-emerald-600', Icon: Sparkles },
+              { label: t('dashboard.quickActions.projectExplorer'), path: '/projects', color: 'bg-[#0d52ce]', Icon: LayoutGrid },
+              { label: t('dashboard.quickActions.riskAlerts'), path: '/interventions', color: 'bg-orange-500', Icon: Zap },
+              { label: t('dashboard.quickActions.analytics'), path: '/analytics', color: 'bg-purple-600', Icon: Activity },
+              { label: t('dashboard.quickActions.aiCopilot'), path: '/copilot', color: 'bg-emerald-600', Icon: Sparkles },
             ].map(({ label, path, color, Icon }) => (
               <button key={label} onClick={() => navigate(path)}
                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition gap-2">

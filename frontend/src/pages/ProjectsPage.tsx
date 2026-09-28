@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ProjectData } from '../data/mockData';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
@@ -19,6 +20,7 @@ import {
 export const ProjectsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Load active filters from URL query parameters or localStorage fallback
   const initialSearch = searchParams.get('search') || '';
@@ -134,10 +136,10 @@ export const ProjectsPage: React.FC = () => {
   };
 
   const getRiskBadge = (score: number) => {
-    if (score >= 85 || score > 0.8) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold whitespace-nowrap">High Risk ({score})</span>;
-    if (score >= 50) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 text-[11px] font-bold whitespace-nowrap">At Risk ({score})</span>;
-    if (score >= 35) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold whitespace-nowrap">Moderate ({score})</span>;
-    return <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[11px] font-bold whitespace-nowrap">Active ({score})</span>;
+    if (score >= 85 || score > 0.8) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold whitespace-nowrap">{t('common.riskTier.highRisk')} ({score})</span>;
+    if (score >= 50) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 text-[11px] font-bold whitespace-nowrap">{t('common.riskTier.atRisk')} ({score})</span>;
+    if (score >= 35) return <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold whitespace-nowrap">{t('common.riskTier.moderate')} ({score})</span>;
+    return <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[11px] font-bold whitespace-nowrap">{t('common.riskTier.active')} ({score})</span>;
   };
 
   return (
@@ -147,23 +149,23 @@ export const ProjectsPage: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2">
             <Layers className="w-5 h-5 text-[#0d52ce]" />
-            <h1 className="text-xl font-bold text-slate-900">Project Explorer & Search Matrix</h1>
+            <h1 className="text-xl font-bold text-slate-900">{t('projects.title')}</h1>
           </div>
           <p className="text-slate-500 text-xs mt-1 font-medium">
-            Searchable, multi-column filtered directory of national infrastructure projects. Click any row for Deep Intelligence.
+            {t('projects.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center space-x-3 shrink-0">
           <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3.5 py-2 rounded-xl border border-slate-200">
-            Showing <strong>{filteredProjects.length}</strong> of {projects.length} Projects
+            {t('projects.showingCount', { shown: filteredProjects.length, total: projects.length })}
           </span>
           <button
             onClick={resetFilters}
             className="flex items-center space-x-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition"
           >
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-            <span>Reset Filters</span>
+            <span>{t('projects.resetFilters')}</span>
           </button>
         </div>
       </div>
@@ -173,7 +175,7 @@ export const ProjectsPage: React.FC = () => {
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
             <Filter className="w-3.5 h-3.5" />
-            <span>Snapshot Month:</span>
+            <span>{t('projects.snapshotMonth')}</span>
           </div>
           <div className="flex items-center gap-1 flex-wrap">
             <button
@@ -181,7 +183,7 @@ export const ProjectsPage: React.FC = () => {
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
                 selectedMonth === 'ALL' ? 'bg-[#0d52ce] text-white border-[#0d52ce]' : 'text-slate-500 border-slate-200 hover:border-slate-300'
               }`}
-            >All</button>
+            >{t('common.all')}</button>
             {availableMonths.map(m => (
               <button
                 key={m.month}
@@ -203,7 +205,7 @@ export const ProjectsPage: React.FC = () => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by project name or code..."
+              placeholder={t('projects.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 pl-10 pr-3 py-2.5 rounded-xl focus:outline-none focus:border-[#0d52ce] focus:bg-white transition"
@@ -217,7 +219,7 @@ export const ProjectsPage: React.FC = () => {
               onChange={(e) => setSelectedMinistry(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 py-2.5 px-3.5 rounded-xl focus:outline-none focus:border-[#0d52ce] focus:bg-white transition font-medium"
             >
-              <option value="ALL">All Ministries</option>
+              <option value="ALL">{t('projects.filters.allMinistries')}</option>
               {ministries.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
@@ -229,7 +231,7 @@ export const ProjectsPage: React.FC = () => {
               onChange={(e) => setSelectedSector(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 py-2.5 px-3.5 rounded-xl focus:outline-none focus:border-[#0d52ce] focus:bg-white transition font-medium"
             >
-              <option value="ALL">All Sectors</option>
+              <option value="ALL">{t('projects.filters.allSectors')}</option>
               {sectors.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
@@ -241,7 +243,7 @@ export const ProjectsPage: React.FC = () => {
               onChange={(e) => setSelectedState(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 py-2.5 px-3.5 rounded-xl focus:outline-none focus:border-[#0d52ce] focus:bg-white transition font-medium"
             >
-              <option value="ALL">All States</option>
+              <option value="ALL">{t('projects.filters.allStates')}</option>
               {states.map(st => <option key={st} value={st}>{st}</option>)}
             </select>
           </div>
@@ -255,11 +257,11 @@ export const ProjectsPage: React.FC = () => {
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 py-2.5 px-3.5 rounded-xl focus:outline-none focus:border-[#0d52ce] focus:bg-white transition font-medium"
             >
-              <option value="ALL">All Risk Tiers</option>
-              <option value="High Risk">High Risk</option>
-              <option value="At Risk">At Risk</option>
-              <option value="Moderate">Moderate</option>
-              <option value="Active">Active</option>
+              <option value="ALL">{t('projects.filters.allRiskTiers')}</option>
+              <option value="High Risk">{t('common.riskTier.highRisk')}</option>
+              <option value="At Risk">{t('common.riskTier.atRisk')}</option>
+              <option value="Moderate">{t('common.riskTier.moderate')}</option>
+              <option value="Active">{t('common.riskTier.active')}</option>
             </select>
           </div>
 
@@ -269,8 +271,8 @@ export const ProjectsPage: React.FC = () => {
               onChange={(e) => setCostImpactFilter(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 py-2.5 px-3.5 rounded-xl focus:outline-none focus:border-[#0d52ce] focus:bg-white transition font-medium"
             >
-              <option value="ALL">All Cost Variances</option>
-              <option value="high">Cost Overrun &gt; 10%</option>
+              <option value="ALL">{t('projects.filters.allCostVariances')}</option>
+              <option value="high">{t('projects.filters.costOverrunOver10')}</option>
             </select>
           </div>
 
@@ -280,8 +282,8 @@ export const ProjectsPage: React.FC = () => {
               onChange={(e) => setDelayImpactFilter(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 py-2.5 px-3.5 rounded-xl focus:outline-none focus:border-[#0d52ce] focus:bg-white transition font-medium"
             >
-              <option value="ALL">All Schedule Variances</option>
-              <option value="90">Schedule Delay &gt; 90 Days</option>
+              <option value="ALL">{t('projects.filters.allScheduleVariances')}</option>
+              <option value="90">{t('projects.filters.scheduleDelayOver90')}</option>
             </select>
           </div>
         </div>
@@ -295,38 +297,38 @@ export const ProjectsPage: React.FC = () => {
               <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold uppercase text-[11px] tracking-wider">
                 <th onClick={() => handleSort('name')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[320px]">
                   <div className="flex items-center space-x-1">
-                    <span>Project Name & Code</span>
+                    <span>{t('projects.table.nameCode')}</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
                 <th onClick={() => handleSort('overallRiskScore')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[120px]">
                   <div className="flex items-center space-x-1">
-                    <span>Risk Score</span>
+                    <span>{t('projects.table.riskScore')}</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-4 min-w-[220px]">Ministry & Sector</th>
-                <th className="p-4 min-w-[120px]">State</th>
+                <th className="p-4 min-w-[220px]">{t('projects.table.ministrySector')}</th>
+                <th className="p-4 min-w-[120px]">{t('projects.table.state')}</th>
                 <th onClick={() => handleSort('budgetCr')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[120px]">
                   <div className="flex items-center space-x-1">
-                    <span>Budget (Cr)</span>
+                    <span>{t('projects.table.budget')}</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-4 min-w-[200px]">Next Milestone</th>
+                <th className="p-4 min-w-[200px]">{t('projects.table.nextMilestone')}</th>
                 <th onClick={() => handleSort('costOverrunPct')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[140px]">
                   <div className="flex items-center space-x-1">
-                    <span>Cost Overrun</span>
+                    <span>{t('projects.table.costOverrun')}</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
                 <th onClick={() => handleSort('scheduleDelayDays')} className="p-4 cursor-pointer hover:text-slate-900 transition min-w-[140px]">
                   <div className="flex items-center space-x-1">
-                    <span>Schedule Delay</span>
+                    <span>{t('projects.table.scheduleDelay')}</span>
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-4 text-right min-w-[120px]">Action</th>
+                <th className="p-4 text-right min-w-[120px]">{t('projects.table.action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
@@ -357,14 +359,14 @@ export const ProjectsPage: React.FC = () => {
 
                     <td className="p-4">
                       <p className="font-bold text-slate-800 text-xs">₹{p.budgetCr.toLocaleString()}</p>
-                      <p className="text-[10px] text-slate-500 font-medium mt-0.5">Exp: ₹{p.cumulativeExpenditureCr.toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-500 font-medium mt-0.5">{t('projects.table.exp', { amount: p.cumulativeExpenditureCr.toLocaleString() })}</p>
                     </td>
 
                     <td className="p-4 pr-4">
                       <p className="text-slate-800 font-medium line-clamp-2">{p.nextMilestone}</p>
                       <p className="text-[10px] text-slate-400 font-medium mt-0.5 flex items-center gap-1">
                         <Calendar className="w-3 h-3 text-slate-400" />
-                        <span>Due: {p.nextMilestoneDate}</span>
+                        <span>{t('projects.table.due', { date: p.nextMilestoneDate })}</span>
                       </p>
                     </td>
 
@@ -376,13 +378,13 @@ export const ProjectsPage: React.FC = () => {
 
                     <td className="p-4 font-bold">
                       <span className={p.scheduleDelayDays >= 180 ? 'text-red-600' : p.scheduleDelayDays >= 90 ? 'text-orange-600' : 'text-emerald-600'}>
-                        +{p.scheduleDelayDays} Days
+                        {t('projects.table.daysSuffix', { count: p.scheduleDelayDays })}
                       </span>
                     </td>
 
                     <td className="p-4 text-right">
                       <button className="px-3 py-1.5 rounded-xl bg-[#0d52ce] hover:bg-[#0b45ad] text-white text-xs font-bold shadow-sm transition">
-                        Intelligence →
+                        {t('projects.table.intelligence')}
                       </button>
                     </td>
                   </tr>
@@ -390,7 +392,7 @@ export const ProjectsPage: React.FC = () => {
               ) : (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-slate-500 italic">
-                    No projects match the active filter criteria. Click "Reset Filters" to clear.
+                    {t('projects.table.noResults')}
                   </td>
                 </tr>
               )}
@@ -402,7 +404,7 @@ export const ProjectsPage: React.FC = () => {
         {totalPages > 1 && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white border-t border-slate-100 gap-4">
             <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProjects.length)} of {filteredProjects.length} entries
+              {t('projects.pagination.showingRange', { from: (currentPage - 1) * itemsPerPage + 1, to: Math.min(currentPage * itemsPerPage, filteredProjects.length), total: filteredProjects.length })}
             </div>
             <div className="flex items-center justify-center space-x-1">
               <button
