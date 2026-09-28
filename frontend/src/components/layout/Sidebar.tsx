@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutGrid,
   FolderKanban,
@@ -15,29 +16,31 @@ import {
 } from 'lucide-react';
 
 interface NavItem {
-  name: string;
+  key: string;
+  labelKey: string;
   path: string;
   icon: React.ElementType;
-  badge?: string;
+  badge?: boolean;
   hasDropdown?: boolean;
 }
 
 const mainNavItems: NavItem[] = [
-  { name: 'Intelligence', path: '/intelligence', icon: Bot },
-  { name: 'Dashboard', path: '/dashboard', icon: LayoutGrid },
-  { name: 'Projects', path: '/projects', icon: FolderKanban },
-  { name: 'State & Progress', path: '/progress', icon: LayoutGrid, badge: 'New' },
-  { name: 'Analytics', path: '/analytics', icon: TrendingUp, hasDropdown: true },
-  { name: 'Risk & Alerts', path: '/interventions', icon: AlertTriangle },
-  { name: 'Forecasting', path: '/scenarios', icon: LineChart },
-  { name: 'Benchmarks', path: '/benchmarks', icon: Award },
-  { name: 'Reports', path: '/reports', icon: FileText },
-  { name: 'AI Assistant', path: '/copilot', icon: Bot, badge: 'New' },
-  { name: 'Settings', path: '/settings', icon: Settings },
+  { key: 'intelligence', labelKey: 'sidebar.nav.intelligence', path: '/intelligence', icon: Bot },
+  { key: 'dashboard', labelKey: 'sidebar.nav.dashboard', path: '/dashboard', icon: LayoutGrid },
+  { key: 'projects', labelKey: 'sidebar.nav.projects', path: '/projects', icon: FolderKanban },
+  { key: 'progress', labelKey: 'sidebar.nav.stateProgress', path: '/progress', icon: LayoutGrid, badge: true },
+  { key: 'analytics', labelKey: 'sidebar.nav.analytics', path: '/analytics', icon: TrendingUp, hasDropdown: true },
+  { key: 'interventions', labelKey: 'sidebar.nav.riskAlerts', path: '/interventions', icon: AlertTriangle },
+  { key: 'scenarios', labelKey: 'sidebar.nav.forecasting', path: '/scenarios', icon: LineChart },
+  { key: 'benchmarks', labelKey: 'sidebar.nav.benchmarks', path: '/benchmarks', icon: Award },
+  { key: 'reports', labelKey: 'sidebar.nav.reports', path: '/reports', icon: FileText },
+  { key: 'copilot', labelKey: 'sidebar.nav.aiAssistant', path: '/copilot', icon: Bot, badge: true },
+  { key: 'settings', labelKey: 'sidebar.nav.settings', path: '/settings', icon: Settings },
 ];
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   // Removed analyticsOpen state
 
   return (
@@ -52,7 +55,7 @@ export const Sidebar: React.FC = () => {
             <h1 className="font-extrabold text-base text-slate-900 tracking-tight leading-tight">
               PAIMANA <span className="text-[#0d52ce]">PredictIQ</span>
             </h1>
-            <p className="text-[11px] font-medium text-slate-500">AI for Infrastructure Monitoring</p>
+            <p className="text-[11px] font-medium text-slate-500">{t('sidebar.brand.tagline')}</p>
           </div>
         </div>
 
@@ -64,10 +67,10 @@ export const Sidebar: React.FC = () => {
             const isAnalytics = item.path === '/analytics';
 
             return (
-              <div key={item.name} className="space-y-1">
+              <div key={item.key} className="space-y-1">
                 <NavLink
                   to={item.path}
-                  title={item.name}
+                  title={t(item.labelKey)}
                   className={({ isActive }) =>
                     `flex items-center justify-between px-4 max-sm:px-2 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 ${
                       isActive
@@ -80,13 +83,13 @@ export const Sidebar: React.FC = () => {
                 >
                   <div className="flex items-center space-x-3">
                     <Icon className={`w-4 h-4 ${isItemActive && !isAnalytics ? 'text-white' : isItemActive && isAnalytics ? 'text-[#0d52ce]' : 'text-slate-500'}`} />
-                    <span className="max-sm:hidden">{item.name}</span>
+                    <span className="max-sm:hidden">{t(item.labelKey)}</span>
                   </div>
 
                   <div className="flex items-center space-x-1 max-sm:hidden">
                     {item.badge && (
                       <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-100 text-orange-600 border border-orange-200 uppercase tracking-wide">
-                        {item.badge}
+                        {t('sidebar.badge.new')}
                       </span>
                     )}
                     {item.hasDropdown && (
@@ -109,7 +112,7 @@ export const Sidebar: React.FC = () => {
                         }`
                       }
                     >
-                      Benchmarks & Trends
+                      {t('sidebar.sub.benchmarksTrends')}
                     </NavLink>
                     <NavLink
                       to="/analytics/cost-overrun"
@@ -121,8 +124,8 @@ export const Sidebar: React.FC = () => {
                         }`
                       }
                     >
-                      <span>Cost Overrun</span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold">AI</span>
+                      <span>{t('sidebar.sub.costOverrun')}</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold">{t('sidebar.sub.aiBadge')}</span>
                     </NavLink>
                     <NavLink
                       to="/analytics/time-overrun"
@@ -134,8 +137,8 @@ export const Sidebar: React.FC = () => {
                         }`
                       }
                     >
-                      <span>Time Overrun</span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">AI</span>
+                      <span>{t('sidebar.sub.timeOverrun')}</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-700 font-bold">{t('sidebar.sub.aiBadge')}</span>
                     </NavLink>
                   </div>
                 )}
@@ -149,7 +152,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 max-sm:hidden border-t border-slate-100 space-y-2.5">
         <div className="flex items-center space-x-2 text-xs font-semibold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
           <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
-          <span>Data as of <strong>April 2026</strong></span>
+          <span>{t('sidebar.footer.dataAsOf')} <strong>{t('sidebar.footer.dataDate')}</strong></span>
         </div>
 
         <div className="flex items-center space-x-2.5 text-xs font-semibold text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
@@ -157,8 +160,8 @@ export const Sidebar: React.FC = () => {
             🇮🇳
           </div>
           <div>
-            <p className="font-bold text-slate-800 text-[11px] leading-tight">PAIMANA Portal</p>
-            <p className="text-[10px] text-slate-500">MoSPI, GoI</p>
+            <p className="font-bold text-slate-800 text-[11px] leading-tight">{t('sidebar.footer.portal')}</p>
+            <p className="text-[10px] text-slate-500">{t('sidebar.footer.ministryShort')}</p>
           </div>
         </div>
       </div>

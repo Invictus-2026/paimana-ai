@@ -1,21 +1,24 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Search, Bell, HelpCircle, Menu } from 'lucide-react';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const getTitle = () => {
     const path = location.pathname;
-    if (path.startsWith('/intelligence')) return 'Intelligence';
-    if (path.startsWith('/projects/')) return 'Project Intelligence';
-    if (path.startsWith('/projects')) return 'Projects';
-    if (path.startsWith('/map')) return 'Benchmarks & Risk Map';
-    if (path.startsWith('/scenarios')) return 'Forecasting & Simulation';
-    if (path.startsWith('/interventions')) return 'Risk & Alerts';
-    if (path.startsWith('/copilot')) return 'AI Assistant';
-    return 'Dashboard';
+    if (path.startsWith('/intelligence')) return t('header.title.intelligence');
+    if (path.startsWith('/projects/')) return t('header.title.projectIntelligence');
+    if (path.startsWith('/projects')) return t('header.title.projects');
+    if (path.startsWith('/map')) return t('header.title.benchmarksRiskMap');
+    if (path.startsWith('/scenarios')) return t('header.title.forecasting');
+    if (path.startsWith('/interventions')) return t('header.title.riskAlerts');
+    if (path.startsWith('/copilot')) return t('header.title.aiAssistant');
+    return t('header.title.dashboard');
   };
 
   return (
@@ -33,7 +36,7 @@ export const Header: React.FC = () => {
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
-          placeholder="Search projects, ministries, sectors..."
+          placeholder={t('header.searchPlaceholder')}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.currentTarget.value) {
               navigate(`/projects?search=${encodeURIComponent(e.currentTarget.value)}`);
@@ -48,6 +51,7 @@ export const Header: React.FC = () => {
 
       {/* Right: Notifications, Help, Admin User Profile */}
       <div className="flex items-center space-x-3">
+        <LanguageSwitcher />
         {/* Notification Bell */}
         <button
           onClick={() => navigate('/interventions')}
@@ -70,8 +74,8 @@ export const Header: React.FC = () => {
             AD
           </div>
           <div className="hidden lg:block text-left text-xs">
-            <p className="font-bold text-slate-900 leading-tight">Admin User</p>
-            <p className="text-[10px] text-slate-500">MoSPI</p>
+            <p className="font-bold text-slate-900 leading-tight">{t('header.adminUser')}</p>
+            <p className="text-[10px] text-slate-500">{t('header.ministry')}</p>
           </div>
         </div>
       </div>
