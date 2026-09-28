@@ -1,4 +1,4 @@
-# PAIMANA PredictIQ 🚀
+# PAIMANA PredictIQ 
 > **Production-Oriented AI-Powered Infrastructure Project Monitoring and Early-Warning Platform**
 
 PAIMANA PredictIQ is a greenfield monorepo designed to support cost/schedule predictions, explainable risk scoring (SHAP values), automated early-warning alerts, scenario simulation, and LLM copilot capabilities for large-scale infrastructure projects.
