@@ -1,9 +1,12 @@
 <div align="center">
 
-<img src="docs/assets/banner.svg" alt="PAIMANA PredictIQ — AI early-warning platform for India's infrastructure megaprojects" width="100%">
+# PARAM
+
+### Predictive Analytics for Risk Attribution and Monitoring
 
 Predicts cost overruns and schedule delays before they happen — explainably, at national scale.
 
+[![Smart India Hackathon 2026](https://img.shields.io/badge/Smart%20India%20Hackathon-2026-1a1a1a?style=flat-square)](https://sih.gov.in)
 [![Status](https://img.shields.io/badge/status-production--grade%20prototype-2e7d32?style=flat-square)]()
 [![Dataset](https://img.shields.io/badge/dataset-13%20months%20real%20MoSPI%20data-1565c0?style=flat-square)]()
 
@@ -11,7 +14,7 @@ Predicts cost overruns and schedule delays before they happen — explainably, a
 
 <br>
 
-Infrastructure projects worth lakhs of crores run over budget and behind schedule, and by the time anyone notices on a spreadsheet, it's too late to course-correct. PAIMANA flags risk months in advance, explains why, and recommends what to do about it — across roughly 2,000 mega projects tracked nationwide, on 13 consecutive months of real MoSPI Flash Report data.
+Infrastructure projects worth lakhs of crores run over budget and behind schedule, and by the time anyone notices on a spreadsheet, it's too late to course-correct. PARAM flags risk months in advance, explains why, and recommends what to do about it — across roughly 2,000 mega projects tracked nationwide, on 13 consecutive months of real MoSPI Flash Report data.
 
 <br>
 
@@ -90,7 +93,7 @@ The frontend never imports ML code directly — every prediction is served throu
 ## Repository layout
 
 ```text
-PAIMANA/
+PARAM/
 ├── frontend/             React + TypeScript + Vite + Tailwind CSS dashboard shell
 ├── backend/              FastAPI + SQLAlchemy 2.0 + Alembic REST API backend
 ├── ml/                   Decoupled machine learning pipeline (SHAP, XGBoost, CatBoost)
